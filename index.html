@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V6 ULTIMATE</title>
+    <title>SUBBY MARKET | V7 TOTAL PERSISTENCE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -30,16 +30,17 @@
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; font-weight: bold; }
 
         .categories-nav { padding: 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
-        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; font-size: 13px; font-weight: 600; }
+        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; font-size: 13px; font-weight: 600; cursor: pointer; }
         .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
         .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
         .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
-        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
         
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
         .order-item { background: #111; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #0070f3; font-size: 12px; word-break: break-all; }
+        .logout-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; border-radius: 8px; font-size: 11px; margin-top: 10px; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -50,7 +51,7 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span>Create Account</span></div>
+            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span>Create Account</span></div><br>
             <div class="gate-link" onclick="showGate('forgot-gate')">Forgot Password?</div>
         </div>
     </div>
@@ -87,26 +88,20 @@
             <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE CONTROL</h3>
             <div style="display:flex; gap:10px; justify-content:center;">
                 <button class="tab-btn active" id="tab-edit" onclick="setAdminTab('edit')">Manage Stock</button>
-                <button class="tab-btn" id="tab-add" onclick="setAdminTab('add')">+ New Card Type</button>
+                <button class="tab-btn" id="tab-add" onclick="setAdminTab('add')">+ New Type</button>
             </div>
-
             <div id="admin-edit-sec">
-                <label style="font-size:11px; color:#888;">Select Product:</label>
                 <select id="restock-item" class="auth-input" onchange="loadCurrentData()"></select>
-                <label style="font-size:11px; color:#888;">Edit Price (₦):</label>
-                <input type="number" id="edit-price" class="auth-input">
-                <label style="font-size:11px; color:#888;">Paste New Logs:</label>
-                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="user:pass"></textarea>
+                <input type="number" id="edit-price" class="auth-input" placeholder="Price">
+                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Logs (user:pass)"></textarea>
                 <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
             </div>
-
             <div id="admin-add-sec" style="display:none;">
-                <input type="text" id="new-name" class="auth-input" placeholder="Card Name (e.g. Netflix 1 Month)">
-                <input type="number" id="new-price" class="auth-input" placeholder="Price (₦)">
-                <input type="text" id="new-cat" class="auth-input" placeholder="Category (e.g. Netflix)">
-                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create Card Type</button>
+                <input type="text" id="new-name" class="auth-input" placeholder="Card Name">
+                <input type="number" id="new-price" class="auth-input" placeholder="Price">
+                <input type="text" id="new-cat" class="auth-input" placeholder="Category">
+                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create Type</button>
             </div>
-
             <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
         </div>
     </div>
@@ -121,21 +116,29 @@
         <div class="orders-section">
             <h4 style="color:#0070f3;">My Purchased Logs</h4>
             <div id="orders-list" style="color:#888; font-size:13px; margin-top:5px;">No purchases yet.</div>
+            <button class="logout-btn" onclick="handleLogout()">Logout Account</button>
         </div>
     </div>
 
 <script>
+    let currentUser = null;
     let balance = 0, adminTimer, adminPIN = "1234", myOrders = [];
     let tempUserData = {}, generatedCode = "";
 
     const defaultItems = [
         { id: 1, n: "Random Country FB (0-30 friend) 2023", p: 5240, c: "Facebook", s: 0, logs: [] },
-        { id: 10, n: "Instagram (19-25 posts) 2FA", p: 2380, c: "Instagram", s: 0, logs: [] }
+        { id: 2, n: "Random Country FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: [] }
     ];
 
     let items = JSON.parse(localStorage.getItem('subby_inventory')) || defaultItems;
 
-    function saveToStorage() { localStorage.setItem('subby_inventory', JSON.stringify(items)); }
+    // --- SAVE CORE DATA ---
+    function saveAll() {
+        localStorage.setItem('subby_inventory', JSON.stringify(items));
+        if (currentUser) {
+            localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
+        }
+    }
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -154,8 +157,8 @@
 
     function confirmVerify() {
         if(document.getElementById('verify-code').value === generatedCode) {
-            localStorage.setItem('subby_user', JSON.stringify(tempUserData));
-            alert("Registered! Login now.");
+            localStorage.setItem(`user_${tempUserData.email}`, tempUserData.pass);
+            alert("Registered! Please login.");
             showGate('login-gate');
         } else { alert("Wrong Code!"); }
     }
@@ -163,101 +166,75 @@
     function handleLogin() {
         const email = document.getElementById('log-email').value;
         const pass = document.getElementById('log-pass').value;
-        const stored = JSON.parse(localStorage.getItem('subby_user'));
-        if(stored && stored.email === email && stored.pass === pass) {
+        const storedPass = localStorage.getItem(`user_${email}`);
+
+        if(storedPass === pass) {
+            currentUser = email;
+            // Load specific user data (Balance & Orders)
+            const userData = JSON.parse(localStorage.getItem(`data_${email}`)) || { balance: 0, myOrders: [] };
+            balance = userData.balance;
+            myOrders = userData.myOrders;
+            
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            setupCategories(); renderItems(items);
-        } else { alert("Invalid login!"); }
+            updateOrdersUI(); setupCategories(); renderItems(items);
+        } else { alert("Invalid Credentials!"); }
+    }
+
+    function handleLogout() {
+        saveAll();
+        location.reload();
     }
 
     function handleForgot() {
         const email = document.getElementById('forgot-email').value;
-        const stored = JSON.parse(localStorage.getItem('subby_user'));
-        if(stored && stored.email === email) {
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            alert(`Reset Code: ${code}`);
-            const newP = prompt("Enter New Password:");
-            if(newP) {
-                stored.pass = newP;
-                localStorage.setItem('subby_user', JSON.stringify(stored));
-                alert("Password Reset Successful!");
-                showGate('login-gate');
-            }
-        } else { alert("Email not found!"); }
+        const exists = localStorage.getItem(`user_${email}`);
+        if(exists) {
+            alert("Code: " + Math.floor(1000 + Math.random()*9000));
+            const newP = prompt("New Password:");
+            if(newP) { localStorage.setItem(`user_${email}`, newP); alert("Success!"); showGate('login-gate'); }
+        } else { alert("Not found!"); }
     }
 
-    // ADMIN LOGIC
+    // --- ADMIN ---
     function startAdminTimer() { 
-        adminTimer = setTimeout(() => { 
-            if(prompt("Admin PIN:") === adminPIN) { 
-                document.getElementById('admin-panel').style.display = 'block';
-                updateAdminSelect();
-            }
-        }, 3000); 
+        adminTimer = setTimeout(() => { if(prompt("PIN:") === adminPIN) document.getElementById('admin-panel').style.display='block'; updateAdminSelect(); }, 3000); 
     }
     function updateAdminSelect() {
-        const select = document.getElementById('restock-item');
-        select.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
+        document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
         loadCurrentData();
     }
     function setAdminTab(tab) {
         document.getElementById('admin-edit-sec').style.display = tab === 'edit' ? 'block' : 'none';
         document.getElementById('admin-add-sec').style.display = tab === 'add' ? 'block' : 'none';
-        document.getElementById('tab-edit').classList.toggle('active', tab === 'edit');
-        document.getElementById('tab-add').classList.toggle('active', tab === 'add');
     }
-
     function addNewCardType() {
-        const n = document.getElementById('new-name').value;
-        const p = parseInt(document.getElementById('new-price').value);
-        const c = document.getElementById('new-cat').value;
-        if(n && p && c) {
-            const newItem = { id: Date.now(), n, p, c, s: 0, logs: [] };
-            items.push(newItem);
-            saveToStorage();
-            updateAdminSelect();
-            renderItems(items);
-            setupCategories();
-            alert("New Card Type Added!");
-            setAdminTab('edit');
-        }
+        const n=document.getElementById('new-name').value, p=parseInt(document.getElementById('new-price').value), c=document.getElementById('new-cat').value;
+        if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); updateAdminSelect(); renderItems(items); setupCategories(); alert("Added!"); setAdminTab('edit'); }
     }
-
     function loadCurrentData() {
-        const id = document.getElementById('restock-item').value;
-        const item = items.find(i => i.id == id);
+        const item = items.find(i => i.id == document.getElementById('restock-item').value);
         if(item) document.getElementById('edit-price').value = item.p;
     }
-
     function saveAdminChanges() {
-        const id = document.getElementById('restock-item').value;
+        const item = items.find(i => i.id == document.getElementById('restock-item').value);
         const newP = document.getElementById('edit-price').value;
         const logT = document.getElementById('log-input').value.trim();
-        const item = items.find(i => i.id == id);
         if(newP) item.p = parseInt(newP);
-        if(logT) {
-            const newL = logT.split('\n').filter(l => l.trim().length > 3);
-            item.logs = [...item.logs, ...newL];
-            item.s = item.logs.length;
-            document.getElementById('log-input').value = "";
-        }
-        saveToStorage(); renderItems(items); alert("Updated!");
+        if(logT) { const newL = logT.split('\n').filter(l => l.trim().length > 3); item.logs = [...item.logs, ...newL]; item.s = item.logs.length; document.getElementById('log-input').value = ""; }
+        saveAll(); renderItems(items); alert("Updated!");
     }
-
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
+    // --- MARKET ---
     function renderItems(data) {
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
-                <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px; font-weight:800;">
-                    ${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}
-                </span>
-                <h3 style="margin:5px 0; font-size:16px;">${i.n}</h3>
+                <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px; font-weight:800;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span>
+                <h3 style="margin:5px 0;">${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>
-                    ${i.s > 0 ? 'Buy Now' : 'Out of Stock'}
-                </button>
+                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button>
             </div>`).join('');
     }
 
@@ -269,19 +246,16 @@
         balance -= item.p;
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         myOrders.unshift({ name: item.n, log: log });
-        saveToStorage(); updateOrdersUI(); renderItems(items);
+        saveAll(); updateOrdersUI(); renderItems(items);
     }
 
     function updateOrdersUI() {
-        document.getElementById('orders-list').innerHTML = myOrders.map(o => `
-            <div class="order-item"><strong>${o.name}</strong><br>${o.log}</div>`).join('');
+        document.getElementById('orders-list').innerHTML = myOrders.length ? myOrders.map(o => `<div class="order-item"><strong>${o.name}</strong><br>${o.log}</div>`).join('') : "No purchases yet.";
     }
 
     function setupCategories() {
         const cats = ['All', ...new Set(items.map(i => i.c))];
-        document.getElementById('cat-bar').innerHTML = cats.map(c => 
-            `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`
-        ).join('');
+        document.getElementById('cat-bar').innerHTML = cats.map(c => `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`).join('');
     }
 
     function filterShop(c, btn) {
@@ -295,11 +269,12 @@
         if(amt) {
             PaystackPop.setup({
                 key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-                email: 'customer@subby.com',
+                email: currentUser,
                 amount: amt * 100,
                 callback: () => {
                     balance += parseInt(amt);
                     document.getElementById('bal-val').innerText = balance.toLocaleString();
+                    saveAll();
                 }
             }).openIframe();
         }
