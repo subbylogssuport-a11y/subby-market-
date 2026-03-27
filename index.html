@@ -20,9 +20,9 @@
         /* SIDEBAR */
         .content-wrapper { display: flex; flex-direction: column; }
         @media (min-width: 768px) { .content-wrapper { flex-direction: row; } .sidebar { width: 260px; min-height: 100vh; border-right: 1px solid #222; } }
-        .sidebar { background: #16161a; padding: 20px; }
-        .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 5px; font-size: 13px; border-left: 3px solid transparent; cursor: pointer; }
-        .cat-item:hover { background: #1a1a20; border-left: 3px solid #0070f3; color: #fff; }
+        .sidebar { background: #16161a; padding: 20px; user-select: none; }
+        .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 5px; font-size: 13px; border-left: 3px solid transparent; cursor: pointer; transition: 0.3s; }
+        .cat-item:hover, .cat-active { background: #1a1a20; border-left: 3px solid #0070f3; color: #fff; }
 
         /* SUPPORT */
         .support-box { margin-top: 30px; padding: 15px; background: rgba(0, 112, 243, 0.05); border-radius: 12px; border: 1px solid #222; }
@@ -31,7 +31,7 @@
         /* PRODUCTS */
         .main-content { flex: 1; padding: 20px; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; }
+        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; transition: 0.3s; }
         .stock-tag { font-size: 10px; color: #d32f2f; font-weight: bold; margin-bottom: 8px; display: block; }
         
         /* BUTTONS */
@@ -40,7 +40,6 @@
         .auth-nav-btn { background: #222; border: 1px solid #333; color: #0070f3; font-size: 12px; cursor: pointer; padding: 10px; border-radius: 8px; width: 48%; }
         
         input { width: 100%; padding: 15px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 16px; outline: none; }
-        .otp-box { background: #000; color: #ffcc00; font-size: 24px; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 5px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -56,24 +55,7 @@
             <button class="auth-nav-btn" onclick="openReset()">Forgot Access?</button>
         </div>
     </div>
-
-    <div class="auth-card" id="signup-box" style="display:none;">
-        <h2 style="color:#0070f3; margin-bottom:15px;">Registration</h2>
-        <input type="text" id="reg-u" placeholder="New Username">
-        <input type="password" id="reg-p" placeholder="New Password">
-        <button class="btn-blue" onclick="processSignup()">CONFIRM REGISTRATION</button>
-        <button class="auth-nav-btn" style="width:100%; margin-top:10px;" onclick="toggleAuth('login')">Go Back</button>
     </div>
-
-    <div class="auth-card" id="forgot-box" style="display:none;">
-        <h2 style="color:#ffcc00; margin-bottom:10px;">Security Check</h2>
-        <div class="otp-box" id="otp-val">000000</div>
-        <input type="text" id="for-u" placeholder="Username">
-        <input type="text" id="for-otp" placeholder="Enter Code Above">
-        <input type="password" id="for-new-p" placeholder="New Password">
-        <button class="btn-blue" style="background:#ffcc00; color:#000;" onclick="processReset()">VERIFY & RESET</button>
-    </div>
-</div>
 
 <div id="main-site" style="display:none;">
     <div class="navbar">
@@ -84,14 +66,13 @@
     <div class="content-wrapper">
         <div class="sidebar">
             <div class="cat-item" style="color:#555; font-weight:bold; cursor:default;">CATEGORIES</div>
-            <div class="cat-item">Aged Twitter</div>
-            <div class="cat-item">Aged Instagram</div>
-            <div class="cat-item">Random Facebook</div>
-            <div class="cat-item">USA Facebook</div>
-            <div class="cat-item">TikTok / Snapchat</div>
-            <div class="cat-item">TextNow / TextFree</div>
-            <div class="cat-item">Telegram / WhatsApp</div>
-            <div class="cat-item">VPN / Tools</div>
+            <div class="cat-item cat-active" onclick="filterShop('all')">Show All</div>
+            <div class="cat-item" onclick="filterShop('twitter')">Aged Twitter</div>
+            <div class="cat-item" onclick="filterShop('instagram')">Aged Instagram</div>
+            <div class="cat-item" onclick="filterShop('facebook')">Facebook Logs</div>
+            <div class="cat-item" onclick="filterShop('tiktok')">TikTok / Snapchat</div>
+            <div class="cat-item" onclick="filterShop('textnow')">TextNow / TextFree</div>
+            <div class="cat-item" onclick="filterShop('telegram')">Telegram / WhatsApp</div>
             
             <div class="support-box">
                 <a href="mailto:subbylogssuport@gmail.com" class="support-link">📧 subbylogssuport@gmail.com</a>
@@ -100,69 +81,47 @@
         </div>
 
         <div class="main-content">
-            <div class="product-grid">
-                <div class="product-card">
-                    <span class="stock-tag">IN STOCK: 0</span>
-                    <h3>Facebook Log (Aged)</h3>
-                    <p style="color:#666; font-size:11px; margin-top:4px;">High quality accounts with friends.</p>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦5,000</div>
-                    <button class="btn-disabled">NOT AVAILABLE</button>
+            <h2 id="cat-display-name" style="margin-bottom:15px; font-size:18px; color:#0070f3;">All Products</h2>
+            <div class="product-grid" id="shop-grid">
                 </div>
-                <div class="product-card">
-                    <span class="stock-tag">IN STOCK: 0</span>
-                    <h3>Aged Twitter (X)</h3>
-                    <p style="color:#666; font-size:11px; margin-top:4px;">2012-2015 registration date.</p>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦4,000</div>
-                    <button class="btn-disabled">NOT AVAILABLE</button>
-                </div>
-                <div class="product-card">
-                    <span class="stock-tag">IN STOCK: 0</span>
-                    <h3>TextNow Account</h3>
-                    <p style="color:#666; font-size:11px; margin-top:4px;">Verified USA number included.</p>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦2,500</div>
-                    <button class="btn-disabled">NOT AVAILABLE</button>
-                </div>
-                <div class="product-card">
-                    <span class="stock-tag">IN STOCK: 0</span>
-                    <h3>Telegram Session</h3>
-                    <p style="color:#666; font-size:11px; margin-top:4px;">Fresh Tdata and session files.</p>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦3,000</div>
-                    <button class="btn-disabled">NOT AVAILABLE</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let activeUser = null; 
-    let currentOTP = null;
-    // IMPORTANT: Make sure this Public Key is from your LIVE Paystack Dashboard
     const P_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
+    let activeUser = null;
 
-    function toggleAuth(box) {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('signup-box').style.display = 'none';
-        document.getElementById('forgot-box').style.display = 'none';
-        document.getElementById(box + '-box').style.display = 'block';
+    const products = [
+        { name: "Aged Twitter (2012)", price: "4,000", cat: "twitter" },
+        { name: "Twitter High Follower", price: "15,000", cat: "twitter" },
+        { name: "Instagram Aged Log", price: "3,500", cat: "instagram" },
+        { name: "Facebook Aged (2015)", price: "5,000", cat: "facebook" },
+        { name: "TextNow USA Account", price: "2,500", cat: "textnow" },
+        { name: "TikTok High Activity", price: "4,500", cat: "tiktok" },
+        { name: "Telegram Session", price: "3,000", cat: "telegram" }
+    ];
+
+    function filterShop(category) {
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
+        document.getElementById('cat-display-name').innerText = category.toUpperCase();
+
+        products.forEach(p => {
+            if (category === 'all' || p.cat === category) {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <span class="stock-tag">IN STOCK: 0</span>
+                        <h3>${p.name}</h3>
+                        <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦${p.price}</div>
+                        <button class="btn-disabled">NOT AVAILABLE</button>
+                    </div>`;
+            }
+        });
     }
 
-    function openReset() {
-        currentOTP = Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('otp-val').innerText = currentOTP;
-        toggleAuth('forgot');
-    }
-
-    function processSignup() {
-        const u = document.getElementById('reg-u').value.trim();
-        const p = document.getElementById('reg-p').value.trim();
-        if(!u || !p) return alert("Fill all fields!");
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
-        if(users[u]) return alert("Username taken!");
-        users[u] = { p: p, b: 0 };
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Account Created! You can now Login."); toggleAuth('login');
-    }
+    // Initial load
+    filterShop('all');
 
     function processLogin() {
         const u = document.getElementById('login-u').value.trim();
@@ -173,41 +132,33 @@
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-site').style.display = 'block';
             document.getElementById('bal').innerText = users[u].b.toLocaleString();
-        } else { alert("Login failed! Check details or Create Account."); }
-    }
-
-    function processReset() {
-        const u = document.getElementById('for-u').value.trim();
-        const enteredOtp = document.getElementById('for-otp').value.trim();
-        const newP = document.getElementById('for-new-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
-        if(users[u] && enteredOtp == currentOTP) {
-            users[u].p = newP; localStorage.setItem('sys_users', JSON.stringify(users));
-            alert("Success! Password reset."); toggleAuth('login');
-        } else { alert("Invalid security code!"); }
+        } else { alert("Login failed!"); }
     }
 
     function deposit() {
         const amount = prompt("Enter Amount to Deposit (₦):");
-        if (!amount || isNaN(amount) || amount <= 0) return alert("Please enter a valid amount.");
+        if (!amount || isNaN(amount) || amount <= 0) return;
 
         const handler = PaystackPop.setup({
             key: P_KEY,
             email: activeUser + "@subbymarket.com",
-            amount: amount * 100, // Paystack uses kobo
+            amount: amount * 100,
             currency: "NGN",
-            callback: function(response) {
+            callback: function(res) {
                 let users = JSON.parse(localStorage.getItem('sys_users'));
                 users[activeUser].b += parseInt(amount);
                 localStorage.setItem('sys_users', JSON.stringify(users));
                 document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
-                alert("Deposit Successful! Reference: " + response.reference);
-            },
-            onClose: function() {
-                alert("Payment cancelled.");
+                alert("Deposit Success!");
             }
         });
         handler.openIframe();
+    }
+
+    function toggleAuth(box) {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('signup-box').style.display = 'none';
+        document.getElementById(box + '-box').style.display = 'block';
     }
 </script>
 </body>
