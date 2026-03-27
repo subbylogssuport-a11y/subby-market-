@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBBY LOGS | ELITE TERMINAL</title>
+    <title>SUBBY LOGS | OFFICIAL MARKET</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -28,17 +28,18 @@
         /* SUPPORT SECTION */
         .support-box { margin-top: 30px; padding: 15px; background: rgba(0, 112, 243, 0.1); border-radius: 12px; border: 1px solid #0070f3; }
         .support-box h4 { font-size: 14px; color: #0070f3; margin-bottom: 10px; text-transform: uppercase; }
-        .support-link { display: block; color: #eee; font-size: 13px; text-decoration: none; margin-bottom: 8px; }
+        .support-link { display: block; color: #eee; font-size: 13px; text-decoration: none; margin-bottom: 8px; font-weight: bold; }
 
         .main-content { flex: 1; padding: 25px; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; opacity: 0.9; }
+        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; opacity: 0.8; }
         
         /* BUTTONS */
         .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 700; margin-top: 10px; }
-        .btn-view { background: #555; color: #fff; border: none; padding: 12px; border-radius: 6px; width: 100%; cursor: not-allowed; font-weight: bold; text-transform: uppercase; margin-top: 15px; }
+        .btn-disabled { background: #333; color: #777; border: none; padding: 12px; border-radius: 6px; width: 100%; cursor: not-allowed; font-weight: bold; text-transform: uppercase; margin-top: 15px; }
         
-        .auth-link-btn { background: none; border: none; color: #0070f3; font-size: 13px; cursor: pointer; padding: 5px; text-decoration: none; user-select: none; }
+        /* AUTH BUTTON LINKS - FIXED */
+        .auth-nav-btn { background: #222; border: 1px solid #444; color: #0070f3; font-size: 12px; cursor: pointer; padding: 8px 12px; border-radius: 6px; font-weight: bold; width: 48%; }
         .logout-btn { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 10px; }
 
         input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; outline: none; }
@@ -49,7 +50,154 @@
 <div id="auth-screen">
     <div class="auth-card" id="login-box">
         <h1 style="color:#0070f3; margin-bottom:10px;">SUBBY LOGS</h1>
-        <p style="color:#888; margin-bottom:20px;">Identity Verification Required</p>
+        <p style="color:#888; margin-bottom:20px;">System Authentication</p>
         <input type="text" id="login-u" placeholder="Username">
         <input type="password" id="login-p" placeholder="Password">
-        <button class
+        <button class="btn-blue" onclick="processLogin()">LOGIN</button>
+        <div style="margin-top:20px; display:flex; justify-content: space-between;">
+            <button class="auth-nav-btn" onclick="toggleAuth('signup')">Create Account</button>
+            <button class="auth-nav-btn" onclick="toggleAuth('forgot')">Forgot Access?</button>
+        </div>
+    </div>
+
+    <div class="auth-card" id="signup-box" style="display:none;">
+        <h2 style="color:#0070f3;">Registration</h2>
+        <p style="color:#888; margin-bottom:15px; font-size:12px;">Set your Secret Word to reset password later.</p>
+        <input type="text" id="reg-u" placeholder="Username">
+        <input type="password" id="reg-p" placeholder="Password">
+        <input type="text" id="reg-s" placeholder="Secret Recovery Word">
+        <button class="btn-blue" onclick="processSignup()">CONFIRM SIGNUP</button>
+        <button class="auth-nav-btn" style="width:100%; margin-top:10px; color:#888;" onclick="toggleAuth('login')">Back to Login</button>
+    </div>
+
+    <div class="auth-card" id="forgot-box" style="display:none;">
+        <h2 style="color:#ffcc00;">Access Recovery</h2>
+        <input type="text" id="for-u" placeholder="Your Username">
+        <input type="text" id="for-s" placeholder="Your Secret Word">
+        <input type="password" id="for-new-p" placeholder="New Password">
+        <button class="btn-blue" style="background:#ffcc00; color:#000;" onclick="processReset()">RESET & CONFIRM</button>
+        <button class="auth-nav-btn" style="width:100%; margin-top:10px; color:#888;" onclick="toggleAuth('login')">Back to Login</button>
+    </div>
+</div>
+
+<div id="main-site" style="display:none;">
+    <div class="navbar">
+        <div style="font-weight:900; color:#0070f3; font-size:18px;">SUBBY MARKET</div>
+        <div class="search-bar"><input type="text" placeholder="Search logs..."></div>
+        <div style="font-weight:bold; font-size: 14px;">
+            ₦<span id="bal">0</span>
+            <button onclick="deposit()" style="padding:2px 6px; cursor:pointer;">+</button>
+            <button class="logout-btn" onclick="location.reload()">Exit</button>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="sidebar">
+            <h3 style="font-size:11px; color:#555; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">Inventory Groups</h3>
+            <div class="cat-item">Aged Twitter</div>
+            <div class="cat-item">Aged Instagram</div>
+            <div class="cat-item">Random Facebook</div>
+            <div class="cat-item">USA / UK Facebook</div>
+            <div class="cat-item">Snapchat / TikTok</div>
+            <div class="cat-item">VPN / Tools</div>
+            
+            <div class="support-box">
+                <h4>Support Hub</h4>
+                <a href="mailto:SUBBYLOGSSUPPORT@GMAIL.COM" class="support-link">📧 SUBBYLOGSSUPPORT@GMAIL.COM</a>
+                <a href="https://wa.me/234XXXXXXXXXX" class="support-link">💬 WhatsApp Admin</a>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="product-grid" id="grid">
+                <div class="product-card">
+                    <span style="color:#d32f2f; font-size:12px; font-weight:bold;">● In Stock: 0</span>
+                    <h3 style="margin:10px 0 5px;">Aged Facebook Accounts</h3>
+                    <p style="color:#666; font-size:12px;">2012-2018 Clean History</p>
+                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦5,000.00</div>
+                    <button class="btn-disabled">View Accounts</button>
+                </div>
+                <div class="product-card">
+                    <span style="color:#d32f2f; font-size:12px; font-weight:bold;">● In Stock: 0</span>
+                    <h3 style="margin:10px 0 5px;">Random Facebook Logs</h3>
+                    <p style="color:#666; font-size:12px;">Active sessions, various locations</p>
+                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦2,500.00</div>
+                    <button class="btn-disabled">View Accounts</button>
+                </div>
+                <div class="product-card">
+                    <span style="color:#d32f2f; font-size:12px; font-weight:bold;">● In Stock: 0</span>
+                    <h3 style="margin:10px 0 5px;">Instagram Aged (1k+ Fol)</h3>
+                    <p style="color:#666; font-size:12px;">Original Mail, high trust</p>
+                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦3,500.00</div>
+                    <button class="btn-disabled">View Accounts</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeUser = null;
+    const P_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
+
+    function toggleAuth(box) {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('signup-box').style.display = 'none';
+        document.getElementById('forgot-box').style.display = 'none';
+        document.getElementById(box + '-box').style.display = 'block';
+    }
+
+    function processSignup() {
+        const u = document.getElementById('reg-u').value.trim();
+        const p = document.getElementById('reg-p').value.trim();
+        const s = document.getElementById('reg-s').value.trim();
+        if(!u || !p || !s) return alert("All fields are mandatory for security.");
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        if(users[u]) return alert("Username already registered!");
+        users[u] = { p: p, s: s, b: 0 };
+        localStorage.setItem('sys_users', JSON.stringify(users));
+        alert("Registration Confirmed! Proceed to Login.");
+        toggleAuth('login');
+    }
+
+    function processLogin() {
+        const u = document.getElementById('login-u').value.trim();
+        const p = document.getElementById('login-p').value.trim();
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        if(users[u] && users[u].p === p) {
+            activeUser = u;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-site').style.display = 'block';
+            document.getElementById('bal').innerText = users[u].b.toLocaleString();
+        } else { alert("Access Denied: Invalid Username or Password."); }
+    }
+
+    function processReset() {
+        const u = document.getElementById('for-u').value.trim();
+        const s = document.getElementById('for-s').value.trim();
+        const newP = document.getElementById('for-new-p').value.trim();
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        if(users[u] && users[u].s === s) {
+            users[u].p = newP;
+            localStorage.setItem('sys_users', JSON.stringify(users));
+            alert("Security Reset Successful! Use your new credentials to login.");
+            toggleAuth('login');
+        } else { alert("Verification Failed: Secret Word is incorrect."); }
+    }
+
+    function deposit() {
+        const amt = prompt("Enter Deposit Amount (₦):");
+        if(!amt || isNaN(amt)) return;
+        new PaystackPop().setup({
+            key: P_KEY, email: activeUser + "@subby.com", amount: amt * 100,
+            callback: (r) => {
+                let users = JSON.parse(localStorage.getItem('sys_users'));
+                users[activeUser].b += parseInt(amt);
+                localStorage.setItem('sys_users', JSON.stringify(users));
+                document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
+            }
+        }).openIframe();
+    }
+</script>
+</body>
+</html>
