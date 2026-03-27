@@ -7,25 +7,28 @@
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        body { background: #000; color: #eee; min-height: 100vh; }
         
-        /* Auth Styles */
-        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
+        /* Auth Screen */
+        #auth-container { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; z-index: 1000; padding: 20px; }
+        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
         h1, h2 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
         input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
+        
         .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; }
         .btn-dark { background: #222; margin-top: 10px; }
         .btn-link { background: none; border: none; color: #0070f3; margin-top: 15px; cursor: pointer; font-size: 13px; }
 
-        /* Market Styles */
-        #main-site { display: none; width: 100%; position: fixed; inset: 0; background: #000; overflow-y: auto; }
+        /* Market Section */
+        #main-site { display: none; }
         .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
         .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 6px 12px; border-radius: 20px; border: 1px solid #0070f3; }
-        .logout-btn { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        .plus-btn { background: #0070f3; color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
         
-        .product-list { padding: 15px; }
-        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 10px 0; }
+        .category-header { padding: 20px 15px 10px; color: #0070f3; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .product-list { padding: 0 15px 15px; display: flex; flex-direction: column; gap: 12px; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; }
+        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -43,40 +46,36 @@
     <div class="auth-card" id="signup-box" style="display:none;">
         <h2>REGISTER</h2>
         <input type="text" id="s-u" placeholder="Username">
-        <input type="email" id="s-e" placeholder="Email Address">
+        <input type="email" id="s-e" placeholder="Real Email (Required)">
         <input type="password" id="s-p" placeholder="Password">
-        <button class="btn-blue" onclick="doSignup()">CREATE ACCOUNT</button>
-        <button class="btn-link" onclick="showBox('login')">Back to Login</button>
+        <button class="btn-blue" onclick="doSignup()">REGISTER</button>
+        <button class="btn-link" onclick="showBox('login')">Back</button>
     </div>
 
     <div class="auth-card" id="forgot-box" style="display:none;">
         <h2>RECOVERY</h2>
-        <p style="font-size: 12px; color: #888;">Enter this temporary code:</p>
-        <h1 id="otp-display" style="color:#ffcc00; letter-spacing: 5px;"></h1>
+        <p style="font-size:12px; color:#888;">Use this code to reset:</p>
+        <h1 id="otp-display" style="color:#ffcc00; margin:10px 0;"></h1>
         <input type="text" id="f-u" placeholder="Username">
-        <input type="text" id="f-otp" placeholder="Enter Code">
+        <input type="text" id="f-otp" placeholder="Enter Code Above">
         <input type="password" id="f-new-p" placeholder="New Password">
-        <button class="btn-blue" onclick="doReset()">UPDATE PASSWORD</button>
+        <button class="btn-blue" onclick="doReset()">RESET PASSWORD</button>
         <button class="btn-link" onclick="showBox('login')">Back</button>
     </div>
 </div>
 
 <div id="main-site">
     <div class="navbar">
-        <div>
-            <b style="color:#0070f3;">SUBBY MARKET</b><br>
-            <button class="logout-btn" onclick="location.reload()">Logout</button>
-        </div>
+        <b style="color:#0070f3;">SUBBY MARKET</b>
         <div class="bal-box">
             <span>₦<span id="bal-val">0</span></span>
-            <button style="background:#0070f3; border:none; color:#fff; width:28px; height:28px; border-radius:50%; font-weight:bold; cursor:pointer;" onclick="payWithPaystack()">+</button>
+            <button class="plus-btn" onclick="payWithPaystack()">+</button>
         </div>
     </div>
-    <div class="product-list" id="shop-grid"></div>
+    <div id="shop-content"></div>
 </div>
 
 <script>
-    // System Data
     let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0,"e":"admin@mail.com"}}');
     let activeUser = null;
     let currentOTP = "";
@@ -86,7 +85,7 @@
         document.getElementById('signup-box').style.display = id === 'signup' ? 'block' : 'none';
         document.getElementById('forgot-box').style.display = id === 'forgot' ? 'block' : 'none';
         if(id === 'forgot') {
-            currentOTP = Math.floor(1000 + Math.random() * 9000); // Random Figure
+            currentOTP = Math.floor(1000 + Math.random() * 9000);
             document.getElementById('otp-display').innerText = currentOTP;
         }
     }
@@ -95,10 +94,10 @@
         const u = document.getElementById('s-u').value.trim();
         const e = document.getElementById('s-e').value.trim();
         const p = document.getElementById('s-p').value.trim();
-        if(!u || !e || !p) return alert("All fields are required!");
+        if(!u || !e.includes('@') || !p) return alert("Enter a valid email and details!");
         users[u] = {p: p, b: 0, e: e};
         localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Account Created Successfully!");
+        alert("Account Created!");
         showBox('login');
     }
 
@@ -111,7 +110,7 @@
             document.getElementById('main-site').style.display = 'block';
             updateUI();
             renderShop();
-        } else { alert("Invalid Credentials!"); }
+        } else { alert("Wrong details!"); }
     }
 
     function doReset() {
@@ -120,9 +119,9 @@
         if(otp == currentOTP && users[u]) {
             users[u].p = document.getElementById('f-new-p').value;
             localStorage.setItem('sys_users', JSON.stringify(users));
-            alert("Password Changed!");
+            alert("Success!");
             showBox('login');
-        } else { alert("Invalid Code or User!"); }
+        } else { alert("Invalid Code!"); }
     }
 
     function updateUI() {
@@ -130,41 +129,57 @@
     }
 
     function payWithPaystack() {
-        const amt = prompt("Enter deposit amount (₦):");
+        const amt = prompt("Amount (₦):");
         if(!amt || isNaN(amt)) return;
+        
+        // Final fix for the email error:
+        let userEmail = users[activeUser].e;
+        if(!userEmail || userEmail === "admin@mail.com") {
+            userEmail = prompt("Confirm your Email for the receipt:");
+        }
 
         let handler = PaystackPop.setup({
-            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', // Your Live Key
-            email: users[activeUser].e,
-            amount: amt * 100, // Kobo conversion
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+            email: userEmail,
+            amount: amt * 100,
             currency: "NGN",
-            callback: function(response) {
+            callback: function(res) {
                 users[activeUser].b += parseInt(amt);
                 localStorage.setItem('sys_users', JSON.stringify(users));
                 updateUI();
-                alert("Deposit of ₦" + amt + " confirmed!");
-            },
-            onClose: function() { alert("Deposit Cancelled"); }
+                alert("Deposit Success!");
+            }
         });
         handler.openIframe();
     }
 
     function renderShop() {
-        const items = [
-            {n:"Facebook (Create Profile)", p:8000},
-            {n:"Facebook (Existing Profile)", p:5500},
-            {n:"Aged Facebook", p:10000},
-            {n:"Instagram (Aged)", p:8500},
-            {n:"Twitter (50-100 followers)", p:12000},
-            {n:"USA TextPlus", p:5000}
-        ];
-        const grid = document.getElementById('shop-grid');
-        grid.innerHTML = items.map(i => `
-            <div class="card">
-                <h3>${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="btn-blue" style="padding:10px; font-size:12px;">Buy Now</button>
-            </div>`).join('');
+        const categories = {
+            "Social Media Logs": [
+                {n:"Facebook (Create Profile)", p:8000},
+                {n:"Facebook (Existing Profile)", p:5500},
+                {n:"Aged Facebook", p:10000}
+            ],
+            "Audio Social Media": [
+                {n:"Clubhouse Account", p:12000},
+                {n:"Twitter Spaces Profile", p:15000},
+                {n:"Greenroom Verified", p:7000}
+            ]
+        };
+        
+        let html = '';
+        for(let cat in categories) {
+            html += `<div class="category-header">${cat}</div><div class="product-list">`;
+            categories[cat].forEach(i => {
+                html += `<div class="card">
+                    <h3>${i.n}</h3>
+                    <div class="price">₦${i.p.toLocaleString()}</div>
+                    <button class="btn-blue" style="padding:10px; font-size:12px;">Buy Now</button>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        document.getElementById('shop-content').innerHTML = html;
     }
 </script>
 </body>
