@@ -6,34 +6,39 @@
     <title>SUBBY LOGS | ELITE TERMINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #0b0b0e; color: #eee; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #0b0b0e; color: #eee; overflow-x: hidden; }
 
         /* AUTH SCREEN */
         #auth-screen { position: fixed; inset: 0; z-index: 1000; background: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); border: 1px solid #333; padding: 30px; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; }
         
-        /* SEARCH & NAV */
+        /* NAVBAR */
         .navbar { background: #16161a; padding: 15px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; gap: 10px; }
-        .search-bar { flex: 1; min-width: 200px; position: relative; }
-        .search-bar input { width: 100%; padding: 10px 40px 10px 15px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; }
+        .search-bar { flex: 1; min-width: 200px; }
+        .search-bar input { width: 100%; padding: 10px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; }
 
         /* SIDEBAR & CONTENT */
         .content-wrapper { display: flex; flex-direction: column; }
         @media (min-width: 768px) { .content-wrapper { flex-direction: row; } .sidebar { width: 260px; min-height: 100vh; border-right: 1px solid #222; } }
         .sidebar { background: #16161a; padding: 20px; }
-        .cat-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #ccc; margin-bottom: 5px; font-size: 14px; border-left: 3px solid transparent; }
-        .cat-item:hover { background: #1a1a20; border-left: 3px solid #0070f3; }
+        .cat-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #ccc; margin-bottom: 5px; font-size: 14px; }
+        .cat-item:hover { background: #1a1a20; color: #0070f3; }
 
         .main-content { flex: 1; padding: 25px; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; }
         
+        /* BUTTONS */
         .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 700; margin-top: 10px; }
         .btn-view { background: #d32f2f; color: #fff; border: none; padding: 12px; border-radius: 6px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 15px; }
         
-        input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; }
-        .forgot-link { color: #888; font-size: 13px; cursor: pointer; text-decoration: underline; }
+        /* THE FIX FOR YOUR LINKS */
+        .auth-link-btn { background: none; border: none; color: #0070f3; font-size: 13px; cursor: pointer; padding: 5px; text-decoration: none; user-select: none; }
+        .auth-link-btn:active { opacity: 0.6; }
+
+        input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; outline: none; }
+        input:focus { border-color: #0070f3; }
     </style>
 </head>
 <body>
@@ -46,32 +51,91 @@
         <input type="password" id="login-p" placeholder="Password">
         <button class="btn-blue" onclick="processLogin()">LOGIN</button>
         <div style="margin-top:15px; display:flex; justify-content: space-between;">
-            <span class="forgot-link" onclick="toggleAuth('signup')">Create Account</span>
-            <span class="forgot-link" onclick="toggleAuth('forgot')">Forgot Password?</span>
+            <button class="auth-link-btn" onclick="toggleAuth('signup')">Create Account</button>
+            <button class="auth-link-btn" onclick="toggleAuth('forgot')">Forgot Password?</button>
         </div>
     </div>
 
     <div class="auth-card" id="signup-box" style="display:none;">
         <h2 style="color:#0070f3;">Join Terminal</h2>
-        <p style="color:#888; margin-bottom:15px; font-size:12px;">Set a Secret Word to recover account later!</p>
+        <p style="color:#888; margin-bottom:15px; font-size:12px;">Set a Secret Word to recover account!</p>
         <input type="text" id="reg-u" placeholder="Choose Username">
         <input type="password" id="reg-p" placeholder="Choose Password">
-        <input type="text" id="reg-s" placeholder="Secret Recovery Word (e.g. MyDogName)">
+        <input type="text" id="reg-s" placeholder="Secret Recovery Word">
         <button class="btn-blue" onclick="processSignup()">CREATE ACCOUNT</button>
-        <p class="forgot-link" onclick="toggleAuth('login')" style="margin-top:10px;">Back to Login</p>
+        <button class="auth-link-btn" style="margin-top:10px;" onclick="toggleAuth('login')">Back to Login</button>
     </div>
 
     <div class="auth-card" id="forgot-box" style="display:none;">
         <h2 style="color:#ffcc00;">Account Recovery</h2>
-        <p style="color:#888; margin-bottom:15px; font-size:12px;">Enter username and your secret word.</p>
         <input type="text" id="for-u" placeholder="Your Username">
         <input type="text" id="for-s" placeholder="Your Secret Word">
         <input type="password" id="for-new-p" placeholder="New Password">
         <button class="btn-blue" style="background:#ffcc00; color:#000;" onclick="processReset()">RESET PASSWORD</button>
-        <p class="forgot-link" onclick="toggleAuth('login')" style="margin-top:10px;">Back to Login</p>
+        <button class="auth-link-btn" style="margin-top:10px;" onclick="toggleAuth('login')">Back to Login</button>
     </div>
 </div>
 
 <div id="main-site" style="display:none;">
     <div class="navbar">
-        <div style
+        <div style="font-weight:900; color:#0070f3; font-size:20px;">SUBBY MARKET</div>
+        <div class="search-bar"><input type="text" placeholder="Search for logs..."></div>
+        <div style="font-weight:bold;">Bal: <span style="color:#238636;">₦<span id="bal">0</span></span> <button onclick="deposit()" style="padding:2px 8px; cursor:pointer;">+</button></div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="sidebar">
+            <div class="cat-item">Aged Twitter</div>
+            <div class="cat-item">Aged Instagram</div>
+            <div class="cat-item">USA Facebook</div>
+        </div>
+        <div class="main-content">
+            <div class="product-grid" id="grid">
+                <div class="product-card">
+                    <span style="color:#238636; font-size:12px;">● 42 In Stock</span>
+                    <h3 style="margin:10px 0 5px;">FB Personal (2012-2015)</h3>
+                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦5,000.00</div>
+                    <button class="btn-view" onclick="buy('FB-ELITE', 5000)">View Accounts</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSessionUser = null;
+    const P_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
+
+    function toggleAuth(box) {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('signup-box').style.display = 'none';
+        document.getElementById('forgot-box').style.display = 'none';
+        document.getElementById(box + '-box').style.display = 'block';
+    }
+
+    function processSignup() {
+        const u = document.getElementById('reg-u').value.trim();
+        const p = document.getElementById('reg-p').value.trim();
+        const s = document.getElementById('reg-s').value.trim();
+        if(!u || !p || !s) return alert("Fill all fields!");
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        if(users[u]) return alert("Username taken!");
+        users[u] = { p: p, s: s, b: 0 };
+        localStorage.setItem('sys_users', JSON.stringify(users));
+        alert("Account Registered! Now Login.");
+        toggleAuth('login');
+    }
+
+    function processLogin() {
+        const u = document.getElementById('login-u').value.trim();
+        const p = document.getElementById('login-p').value.trim();
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        if(users[u] && users[u].p === p) {
+            currentSessionUser = u;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-site').style.display = 'block';
+            document.getElementById('bal').innerText = users[u].b.toLocaleString();
+        } else { alert("Invalid Credentials!"); }
+    }
+
+    function processReset
