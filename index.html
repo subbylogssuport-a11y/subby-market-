@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0b0b0e; color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* AUTH SCREEN FIX */
+        /* AUTH SCREEN */
         #auth-screen { position: fixed; inset: 0; z-index: 1000; background: #050505; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #333; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
@@ -28,7 +28,7 @@
         
         .sidebar { background: #16161a; padding: 15px; border-right: 1px solid #222; }
         .cat-title { font-size: 11px; color: #555; font-weight: bold; margin: 15px 0 5px 10px; text-transform: uppercase; }
-        .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 4px; cursor: pointer; font-size: 14px; border-left: 3px solid transparent; }
+        .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 4px; cursor: pointer; font-size: 13px; border-left: 3px solid transparent; }
         .active-cat { background: #1a1a20; border-left-color: #0070f3; color: #fff; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 20px; }
@@ -45,7 +45,7 @@
         <input type="text" id="login-u" placeholder="Username">
         <input type="password" id="login-p" placeholder="Password">
         <button class="btn-blue" onclick="processLogin()">Login to Market</button>
-        <button class="btn-blue btn-outline" onclick="toggleAuth('signup')">Create New Account</button>
+        <button class="btn-blue btn-outline" onclick="toggleAuth('signup')">Create Account</button>
         <button class="btn-recovery" onclick="openReset()">Forgot Password?</button>
     </div>
 
@@ -70,124 +70,4 @@
 
 <div id="main-site" style="display:none;">
     <div class="navbar">
-        <div class="logo" onclick="adminClick()">SUBBY MARKET</div>
-        <div style="font-weight:bold;">₦<span id="bal">0</span> <button onclick="deposit()" style="padding:5px 12px; background:#0070f3; color:#fff; border:none; border-radius:6px; margin-left:10px;">Deposit</button></div>
-    </div>
-
-    <div class="sidebar">
-        <div class="cat-item active-cat" onclick="filterShop('all')">Show All</div>
-        <div class="cat-title">Facebook</div>
-        <div class="cat-item" onclick="filterShop('fb_usa')">FB USA</div>
-        <div class="cat-item" onclick="filterShop('fb_naija')">FB Naija</div>
-        <div class="cat-item" onclick="filterShop('fb_great_profile')">Great Profile</div>
-        <div class="cat-item" onclick="filterShop('fb_created_profile')">Created Profile</div>
-        <div class="cat-title">Messaging</div>
-        <div class="cat-item" onclick="filterShop('telegram')">Telegram</div>
-    </div>
-
-    <div class="product-grid" id="shop-grid"></div>
-</div>
-
-<div id="admin-panel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; padding:20px; overflow-y:auto;">
-    <div class="auth-card" style="max-width:500px; margin:auto; border-color:#0070f3;">
-        <h2 style="color:#0070f3;">Warehouse</h2>
-        <select id="admin-cat">
-            <option value="fb_usa">Facebook USA</option>
-            <option value="fb_naija">Facebook Naija</option>
-            <option value="fb_great_profile">Great Profile FB</option>
-            <option value="fb_created_profile">Created Profile FB</option>
-            <option value="telegram">Telegram</option>
-        </select>
-        <textarea id="admin-logs" rows="8" placeholder="user:pass (one per line)"></textarea>
-        <button class="btn-blue" onclick="saveLogs()">Upload Stock</button>
-        <button class="btn-recovery" onclick="hideAdmin()">Exit Admin</button>
-    </div>
-</div>
-
-<script>
-    const MASTER_PW = "SubbyAdmin2026";
-    let activeUser = null;
-    let inventory = JSON.parse(localStorage.getItem('subby_stock') || '{}');
-
-    const products = [
-        {id:'fb_usa', name:'Facebook USA', price:6000},
-        {id:'fb_naija', name:'Facebook Naija', price:4500},
-        {id:'fb_great_profile', name:'Great Profile FB', price:8000},
-        {id:'fb_created_profile', name:'Created Profile FB', price:5500},
-        {id:'telegram', name:'Telegram Session', price:3500}
-    ];
-
-    function filterShop(cat) {
-        const grid = document.getElementById('shop-grid');
-        grid.innerHTML = '';
-        products.forEach(p => {
-            if(cat === 'all' || p.id === cat) {
-                const count = inventory[p.id] ? inventory[p.id].length : 0;
-                grid.innerHTML += `
-                <div class="product-card">
-                    <span style="color:${count > 0 ? '#0070f3' : '#d32f2f'}; font-size:11px; font-weight:bold;">Stock: ${count}</span>
-                    <h3 style="margin:5px 0;">${p.name}</h3>
-                    <div style="color:#0070f3; font-size:24px; font-weight:900; margin-bottom:15px;">₦${p.price.toLocaleString()}</div>
-                    <button class="btn-blue" onclick="buyLogs('${p.id}', ${p.price})">${count > 0 ? 'Buy Now' : 'Out of Stock'}</button>
-                </div>`;
-            }
-        });
-    }
-
-    function processLogin() {
-        const u = document.getElementById('login-u').value.trim();
-        const p = document.getElementById('login-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
-        if(users[u] && users[u].p === p) {
-            activeUser = u;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-site').style.display = 'block';
-            document.getElementById('bal').innerText = users[u].b.toLocaleString();
-            filterShop('all');
-        } else { alert("Wrong details!"); }
-    }
-
-    function toggleAuth(box) {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('signup-box').style.display = 'none';
-        document.getElementById('forgot-box').style.display = 'none';
-        document.getElementById(box + '-box').style.display = 'block';
-    }
-
-    // (Admin & Buy functions from before integrated here)
-    function buyLogs(id, price) {
-        let users = JSON.parse(localStorage.getItem('sys_users'));
-        if (!inventory[id] || inventory[id].length === 0) return alert("Sold out!");
-        if (users[activeUser].b < price) return alert("Fund your wallet!");
-        
-        users[activeUser].b -= price;
-        const log = inventory[id].shift();
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        localStorage.setItem('subby_stock', JSON.stringify(inventory));
-        document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
-        alert("✅ LOG BOUGHT:\n" + log);
-        filterShop('all');
-    }
-
-    let clicks = 0;
-    function adminClick() {
-        clicks++;
-        if(clicks >= 5) {
-            if(prompt("Admin Key:") === MASTER_PW) document.getElementById('admin-panel').style.display='block';
-            clicks = 0;
-        }
-        setTimeout(() => clicks = 0, 3000);
-    }
-
-    function saveLogs() {
-        const cat = document.getElementById('admin-cat').value;
-        const logs = document.getElementById('admin-logs').value.trim().split('\n').filter(l => l !== '');
-        inventory[cat] = [...(inventory[cat] || []), ...logs];
-        localStorage.setItem('subby_stock', JSON.stringify(inventory));
-        alert("Stocked!"); document.getElementById('admin-logs').value = ''; filterShop('all');
-    }
-
-    function hideAdmin() { document.getElementById('admin-panel').style.display='none'; }
-</script>
-</body>
-</html>
+        <div class="logo" onclick="adminClick()">SUBBY MARKET
