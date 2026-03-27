@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBBY LOGS | OFFICIAL MARKET</title>
+    <title>SUBBY LOGS | PRO MARKET</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -24,22 +24,20 @@
         .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 5px; font-size: 13px; border-left: 3px solid transparent; cursor: pointer; transition: 0.3s; }
         .cat-item:hover, .cat-active { background: #1a1a20; border-left: 3px solid #0070f3; color: #fff; }
 
-        /* SUPPORT */
-        .support-box { margin-top: 30px; padding: 15px; background: rgba(0, 112, 243, 0.05); border-radius: 12px; border: 1px solid #222; }
-        .support-link { display: block; color: #0070f3; font-size: 12px; text-decoration: none; margin-bottom: 12px; font-weight: bold; }
-
         /* PRODUCTS */
         .main-content { flex: 1; padding: 20px; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; transition: 0.3s; }
-        .stock-tag { font-size: 10px; color: #d32f2f; font-weight: bold; margin-bottom: 8px; display: block; }
+        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; text-align: left; position: relative; }
         
-        /* BUTTONS */
-        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 16px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 700; font-size: 15px; margin-top: 10px; }
-        .btn-disabled { background: #222; color: #444; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: not-allowed; font-weight: bold; margin-top: 15px; width: 100%; }
-        .auth-nav-btn { background: #222; border: 1px solid #333; color: #0070f3; font-size: 12px; cursor: pointer; padding: 10px; border-radius: 8px; width: 48%; }
+        /* QUANTITY SELECTOR */
+        .qty-box { display: flex; align-items: center; gap: 15px; margin-top: 15px; background: #000; width: fit-content; padding: 5px 15px; border-radius: 8px; border: 1px solid #333; }
+        .qty-btn { color: #0070f3; font-size: 20px; font-weight: bold; cursor: pointer; user-select: none; }
+        .qty-val { font-weight: bold; min-width: 20px; text-align: center; }
+
+        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 700; margin-top: 15px; }
+        .stock-tag { font-size: 10px; color: #d32f2f; font-weight: bold; }
         
-        input { width: 100%; padding: 15px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 16px; outline: none; }
+        input { width: 100%; padding: 15px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; outline: none; }
     </style>
 </head>
 <body>
@@ -49,39 +47,26 @@
         <h1 style="color:#0070f3; margin-bottom: 20px;">SUBBY LOGS</h1>
         <input type="text" id="login-u" placeholder="Username">
         <input type="password" id="login-p" placeholder="Password">
-        <button class="btn-blue" onclick="processLogin()">LOGIN TO TERMINAL</button>
-        <div style="margin-top:20px; display:flex; justify-content: space-between;">
-            <button class="auth-nav-btn" onclick="toggleAuth('signup')">Create Account</button>
-            <button class="auth-nav-btn" onclick="openReset()">Forgot Access?</button>
-        </div>
+        <button class="btn-blue" style="padding:16px;" onclick="processLogin()">LOGIN</button>
+        <button class="btn-blue" style="background:#222; margin-top:10px;" onclick="toggleAuth('signup')">Create Account</button>
     </div>
     </div>
 
 <div id="main-site" style="display:none;">
     <div class="navbar">
         <div class="logo">SUBBY MARKET</div>
-        <div style="font-weight:bold;">₦<span id="bal">0</span> <button onclick="deposit()" style="padding:4px 12px; background:#0070f3; color:#fff; border:none; border-radius:4px; margin-left:10px; cursor:pointer; font-weight:bold;">+</button></div>
+        <div style="font-weight:bold;">₦<span id="bal">0</span> <button onclick="deposit()" style="padding:4px 12px; background:#0070f3; color:#fff; border:none; border-radius:4px; margin-left:10px; cursor:pointer;">+</button></div>
     </div>
 
     <div class="content-wrapper">
         <div class="sidebar">
-            <div class="cat-item" style="color:#555; font-weight:bold; cursor:default;">CATEGORIES</div>
             <div class="cat-item cat-active" onclick="filterShop('all')">Show All</div>
+            <div class="cat-item" onclick="filterShop('facebook')">Facebook Logs</div>
             <div class="cat-item" onclick="filterShop('twitter')">Aged Twitter</div>
             <div class="cat-item" onclick="filterShop('instagram')">Aged Instagram</div>
-            <div class="cat-item" onclick="filterShop('facebook')">Facebook Logs</div>
-            <div class="cat-item" onclick="filterShop('tiktok')">TikTok / Snapchat</div>
-            <div class="cat-item" onclick="filterShop('textnow')">TextNow / TextFree</div>
-            <div class="cat-item" onclick="filterShop('telegram')">Telegram / WhatsApp</div>
-            
-            <div class="support-box">
-                <a href="mailto:subbylogssuport@gmail.com" class="support-link">📧 subbylogssuport@gmail.com</a>
-                <a href="https://wa.me/2347048141378" class="support-link" target="_blank">💬 WhatsApp Support</a>
             </div>
-        </div>
 
         <div class="main-content">
-            <h2 id="cat-display-name" style="margin-bottom:15px; font-size:18px; color:#0070f3;">All Products</h2>
             <div class="product-grid" id="shop-grid">
                 </div>
         </div>
@@ -93,72 +78,68 @@
     let activeUser = null;
 
     const products = [
-        { name: "Aged Twitter (2012)", price: "4,000", cat: "twitter" },
-        { name: "Twitter High Follower", price: "15,000", cat: "twitter" },
-        { name: "Instagram Aged Log", price: "3,500", cat: "instagram" },
-        { name: "Facebook Aged (2015)", price: "5,000", cat: "facebook" },
-        { name: "TextNow USA Account", price: "2,500", cat: "textnow" },
-        { name: "TikTok High Activity", price: "4,500", cat: "tiktok" },
-        { name: "Telegram Session", price: "3,000", cat: "telegram" }
+        { id: 1, name: "Facebook Aged Log", price: 5000, cat: "facebook", stock: 0 },
+        { id: 2, name: "Aged Twitter (X)", price: 4000, cat: "twitter", stock: 0 },
+        { id: 3, name: "Instagram Aged Log", price: 3500, cat: "instagram", stock: 0 }
     ];
 
     function filterShop(category) {
         const grid = document.getElementById('shop-grid');
         grid.innerHTML = '';
-        document.getElementById('cat-display-name').innerText = category.toUpperCase();
-
         products.forEach(p => {
             if (category === 'all' || p.cat === category) {
                 grid.innerHTML += `
                     <div class="product-card">
-                        <span class="stock-tag">IN STOCK: 0</span>
+                        <span class="stock-tag">STOCK: ${p.stock}</span>
                         <h3>${p.name}</h3>
-                        <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦${p.price}</div>
-                        <button class="btn-disabled">NOT AVAILABLE</button>
+                        <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦${p.price.toLocaleString()}</div>
+                        
+                        <div class="qty-box">
+                            <span class="qty-btn" onclick="changeQty(${p.id}, -1)">-</span>
+                            <span class="qty-val" id="qty-${p.id}">1</span>
+                            <span class="qty-btn" onclick="changeQty(${p.id}, 1)">+</span>
+                        </div>
+
+                        <button class="btn-blue" onclick="attemptBuy(${p.id})">BUY NOW</button>
                     </div>`;
             }
         });
     }
 
-    // Initial load
-    filterShop('all');
+    function changeQty(id, delta) {
+        const el = document.getElementById(`qty-${id}`);
+        let current = parseInt(el.innerText);
+        if (current + delta >= 1) {
+            el.innerText = current + delta;
+        }
+    }
 
+    function attemptBuy(id) {
+        const product = products.find(p => p.id === id);
+        const qty = parseInt(document.getElementById(`qty-${id}`).innerText);
+        const total = product.price * qty;
+
+        if (product.stock < qty) {
+            alert(`Error: Only ${product.stock} items left in stock!`);
+            return;
+        }
+
+        // Check user balance logic here...
+        alert(`Requesting to buy ${qty} accounts. Total: ₦${total.toLocaleString()}`);
+    }
+
+    // Initial Login & Load
     function processLogin() {
         const u = document.getElementById('login-u').value.trim();
         const p = document.getElementById('login-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
         if(users[u] && users[u].p === p) {
             activeUser = u;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-site').style.display = 'block';
             document.getElementById('bal').innerText = users[u].b.toLocaleString();
+            filterShop('all');
         } else { alert("Login failed!"); }
-    }
-
-    function deposit() {
-        const amount = prompt("Enter Amount to Deposit (₦):");
-        if (!amount || isNaN(amount) || amount <= 0) return;
-
-        const handler = PaystackPop.setup({
-            key: P_KEY,
-            email: activeUser + "@subbymarket.com",
-            amount: amount * 100,
-            currency: "NGN",
-            callback: function(res) {
-                let users = JSON.parse(localStorage.getItem('sys_users'));
-                users[activeUser].b += parseInt(amount);
-                localStorage.setItem('sys_users', JSON.stringify(users));
-                document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
-                alert("Deposit Success!");
-            }
-        });
-        handler.openIframe();
-    }
-
-    function toggleAuth(box) {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('signup-box').style.display = 'none';
-        document.getElementById(box + '-box').style.display = 'block';
     }
 </script>
 </body>
