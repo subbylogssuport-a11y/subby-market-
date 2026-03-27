@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V5 PERSISTENT</title>
+    <title>SUBBY MARKET | V6 ULTIMATE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -12,14 +12,16 @@
         /* --- AUTH GATES --- */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 14px; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 14px; }
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .gate-link { color: #888; font-size: 13px; margin-top: 15px; display: inline-block; cursor: pointer; }
+        .gate-link { color: #888; font-size: 12px; margin-top: 12px; display: inline-block; cursor: pointer; }
         .gate-link span { color: #0070f3; font-weight: bold; }
 
         /* --- ADMIN PANEL --- */
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; }
-        .admin-box { background:#16161a; padding:25px; border-radius:20px; max-width:400px; margin:40px auto; border:1px solid #0070f3; }
+        .admin-box { background:#16161a; padding:25px; border-radius:20px; max-width:400px; margin:20px auto; border:1px solid #0070f3; }
+        .tab-btn { background: #222; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; font-size: 12px; }
+        .tab-btn.active { background: #0070f3; }
 
         /* --- MAIN UI --- */
         #main-app { display: none; }
@@ -27,7 +29,7 @@
         .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; font-weight: bold; }
 
-        .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+        .categories-nav { padding: 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; font-size: 13px; font-weight: 600; }
         .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
@@ -35,7 +37,6 @@
         .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
         .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; }
-        .buy-btn:disabled { background: #222; color: #555; }
         
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
         .order-item { background: #111; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #0070f3; font-size: 12px; word-break: break-all; }
@@ -50,6 +51,7 @@
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
             <div class="gate-link" onclick="showGate('reg-gate')">No account? <span>Create Account</span></div>
+            <div class="gate-link" onclick="showGate('forgot-gate')">Forgot Password?</div>
         </div>
     </div>
 
@@ -71,19 +73,40 @@
         </div>
     </div>
 
+    <div id="forgot-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:10px;">RESET PASS</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Registered Email">
+            <button class="auth-btn" onclick="handleForgot()">Get Reset Code</button>
+            <div class="gate-link" onclick="showGate('login-gate')">Back</div>
+        </div>
+    </div>
+
     <div id="admin-panel">
         <div class="admin-box">
-            <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE</h3>
-            <label style="font-size:12px; color:#888;">Select Product:</label>
-            <select id="restock-item" class="auth-input" onchange="loadCurrentPrice()"></select>
-            
-            <label style="font-size:12px; color:#888;">Edit Price (₦):</label>
-            <input type="number" id="edit-price" class="auth-input" placeholder="New Price">
+            <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE CONTROL</h3>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="tab-btn active" id="tab-edit" onclick="setAdminTab('edit')">Manage Stock</button>
+                <button class="tab-btn" id="tab-add" onclick="setAdminTab('add')">+ New Card Type</button>
+            </div>
 
-            <label style="font-size:12px; color:#888;">Add Logs (one per line):</label>
-            <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="user:pass:cookie"></textarea>
-            
-            <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
+            <div id="admin-edit-sec">
+                <label style="font-size:11px; color:#888;">Select Product:</label>
+                <select id="restock-item" class="auth-input" onchange="loadCurrentData()"></select>
+                <label style="font-size:11px; color:#888;">Edit Price (₦):</label>
+                <input type="number" id="edit-price" class="auth-input">
+                <label style="font-size:11px; color:#888;">Paste New Logs:</label>
+                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="user:pass"></textarea>
+                <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
+            </div>
+
+            <div id="admin-add-sec" style="display:none;">
+                <input type="text" id="new-name" class="auth-input" placeholder="Card Name (e.g. Netflix 1 Month)">
+                <input type="number" id="new-price" class="auth-input" placeholder="Price (₦)">
+                <input type="text" id="new-cat" class="auth-input" placeholder="Category (e.g. Netflix)">
+                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create Card Type</button>
+            </div>
+
             <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
         </div>
     </div>
@@ -105,26 +128,14 @@
     let balance = 0, adminTimer, adminPIN = "1234", myOrders = [];
     let tempUserData = {}, generatedCode = "";
 
-    // Default Items (only used if localStorage is empty)
     const defaultItems = [
         { id: 1, n: "Random Country FB (0-30 friend) 2023", p: 5240, c: "Facebook", s: 0, logs: [] },
-        { id: 2, n: "Random Country FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: [] },
-        { id: 3, n: "Random Country FB (30+ friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: [] },
-        { id: 4, n: "Random Country FB (Created Pages) USA", p: 3680, c: "Facebook", s: 0, logs: [] },
-        { id: 5, n: "Pure Random Country FB (0-30 friend) 2FA", p: 3940, c: "Facebook", s: 0, logs: [] },
-        { id: 6, n: "Germany FB (0-50 friend) 2009-2022", p: 5760, c: "Facebook", s: 0, logs: [] },
-        { id: 7, n: "Poland FB (0-50 friend) 2009-2021", p: 5760, c: "Facebook", s: 0, logs: [] },
-        { id: 10, n: "Instagram (19-25 posts) 2FA", p: 2380, c: "Instagram", s: 0, logs: [] },
-        { id: 11, n: "Instagram (0-5000 followers) 2013-2019", p: 2900, c: "Instagram", s: 0, logs: [] },
-        { id: 12, n: "Twitter Aged 2009-2019", p: 3300, c: "Twitter", s: 0, logs: [] }
+        { id: 10, n: "Instagram (19-25 posts) 2FA", p: 2380, c: "Instagram", s: 0, logs: [] }
     ];
 
-    // LOAD PERSISTENT DATA
     let items = JSON.parse(localStorage.getItem('subby_inventory')) || defaultItems;
 
-    function saveToStorage() {
-        localStorage.setItem('subby_inventory', JSON.stringify(items));
-    }
+    function saveToStorage() { localStorage.setItem('subby_inventory', JSON.stringify(items)); }
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -144,7 +155,7 @@
     function confirmVerify() {
         if(document.getElementById('verify-code').value === generatedCode) {
             localStorage.setItem('subby_user', JSON.stringify(tempUserData));
-            alert("Registered! Please login.");
+            alert("Registered! Login now.");
             showGate('login-gate');
         } else { alert("Wrong Code!"); }
     }
@@ -157,47 +168,84 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             setupCategories(); renderItems(items);
-        } else { alert("Check Credentials!"); }
+        } else { alert("Invalid login!"); }
     }
 
+    function handleForgot() {
+        const email = document.getElementById('forgot-email').value;
+        const stored = JSON.parse(localStorage.getItem('subby_user'));
+        if(stored && stored.email === email) {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            alert(`Reset Code: ${code}`);
+            const newP = prompt("Enter New Password:");
+            if(newP) {
+                stored.pass = newP;
+                localStorage.setItem('subby_user', JSON.stringify(stored));
+                alert("Password Reset Successful!");
+                showGate('login-gate');
+            }
+        } else { alert("Email not found!"); }
+    }
+
+    // ADMIN LOGIC
     function startAdminTimer() { 
         adminTimer = setTimeout(() => { 
             if(prompt("Admin PIN:") === adminPIN) { 
                 document.getElementById('admin-panel').style.display = 'block';
-                const select = document.getElementById('restock-item');
-                select.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
-                loadCurrentPrice();
+                updateAdminSelect();
             }
         }, 3000); 
     }
-
-    function loadCurrentPrice() {
-        const id = document.getElementById('restock-item').value;
-        const item = items.find(i => i.id == id);
-        document.getElementById('edit-price').value = item.p;
+    function updateAdminSelect() {
+        const select = document.getElementById('restock-item');
+        select.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
+        loadCurrentData();
+    }
+    function setAdminTab(tab) {
+        document.getElementById('admin-edit-sec').style.display = tab === 'edit' ? 'block' : 'none';
+        document.getElementById('admin-add-sec').style.display = tab === 'add' ? 'block' : 'none';
+        document.getElementById('tab-edit').classList.toggle('active', tab === 'edit');
+        document.getElementById('tab-add').classList.toggle('active', tab === 'add');
     }
 
-    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+    function addNewCardType() {
+        const n = document.getElementById('new-name').value;
+        const p = parseInt(document.getElementById('new-price').value);
+        const c = document.getElementById('new-cat').value;
+        if(n && p && c) {
+            const newItem = { id: Date.now(), n, p, c, s: 0, logs: [] };
+            items.push(newItem);
+            saveToStorage();
+            updateAdminSelect();
+            renderItems(items);
+            setupCategories();
+            alert("New Card Type Added!");
+            setAdminTab('edit');
+        }
+    }
+
+    function loadCurrentData() {
+        const id = document.getElementById('restock-item').value;
+        const item = items.find(i => i.id == id);
+        if(item) document.getElementById('edit-price').value = item.p;
+    }
 
     function saveAdminChanges() {
         const id = document.getElementById('restock-item').value;
-        const newPrice = document.getElementById('edit-price').value;
-        const logText = document.getElementById('log-input').value.trim();
+        const newP = document.getElementById('edit-price').value;
+        const logT = document.getElementById('log-input').value.trim();
         const item = items.find(i => i.id == id);
-
-        if(newPrice) item.p = parseInt(newPrice);
-        
-        if(logText) {
-            const newLogs = logText.split('\n').filter(l => l.trim().length > 3);
-            item.logs = [...item.logs, ...newLogs];
+        if(newP) item.p = parseInt(newP);
+        if(logT) {
+            const newL = logT.split('\n').filter(l => l.trim().length > 3);
+            item.logs = [...item.logs, ...newL];
             item.s = item.logs.length;
             document.getElementById('log-input').value = "";
         }
-
-        saveToStorage(); // CRITICAL: Save to localStorage
-        renderItems(items);
-        alert("Inventory Updated!");
+        saveToStorage(); renderItems(items); alert("Updated!");
     }
+
+    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
     function renderItems(data) {
         document.getElementById('market-grid').innerHTML = data.map(i => `
@@ -221,8 +269,7 @@
         balance -= item.p;
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         myOrders.unshift({ name: item.n, log: log });
-        saveToStorage(); // Update stock count in storage
-        updateOrdersUI(); renderItems(items);
+        saveToStorage(); updateOrdersUI(); renderItems(items);
     }
 
     function updateOrdersUI() {
