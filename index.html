@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBBY LOGS | SECURE MARKET</title>
+    <title>SUBBY LOGS | MASTER MARKET</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -18,31 +18,30 @@
         .logo { font-weight: 900; color: #0070f3; font-size: 20px; cursor: pointer; user-select: none; }
 
         .content-wrapper { display: flex; flex-direction: column; }
-        @media (min-width: 768px) { .content-wrapper { flex-direction: row; } .sidebar { width: 260px; min-height: 100vh; border-right: 1px solid #222; } }
-        .sidebar { background: #16161a; padding: 20px; }
-        .cat-item { padding: 12px; border-radius: 8px; color: #ccc; margin-bottom: 5px; cursor: pointer; border-left: 3px solid transparent; font-size: 14px; }
+        @media (min-width: 768px) { .content-wrapper { flex-direction: row; } .sidebar { width: 280px; min-height: 100vh; border-right: 1px solid #222; overflow-y: auto; } }
+        .sidebar { background: #16161a; padding: 15px; height: 100%; }
+        .cat-title { font-size: 11px; color: #555; font-weight: bold; margin: 15px 0 5px 10px; text-transform: uppercase; }
+        .cat-item { padding: 10px 12px; border-radius: 8px; color: #ccc; margin-bottom: 3px; cursor: pointer; border-left: 3px solid transparent; font-size: 13px; transition: 0.2s; }
         .cat-item:hover, .active-cat { background: #1a1a20; border-left: 3px solid #0070f3; color: #fff; }
 
         .main-content { flex: 1; padding: 20px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
         .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; }
         
-        .qty-box { display: flex; align-items: center; gap: 15px; margin: 15px 0; background: #000; width: fit-content; padding: 5px 15px; border-radius: 8px; border: 1px solid #333; }
-        .qty-btn { color: #0070f3; font-size: 22px; font-weight: bold; cursor: pointer; }
-
-        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        input, textarea { width: 100%; padding: 15px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; outline: none; }
+        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 14px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; outline: none; }
     </style>
 </head>
 <body>
 
 <div id="auth-screen">
     <div class="auth-card" id="login-box">
-        <h1 style="color:#0070f3; margin-bottom: 25px;">SUBBY LOGS</h1>
+        <h1 style="color:#0070f3; margin-bottom: 20px;">SUBBY LOGS</h1>
         <input type="text" id="login-u" placeholder="Username">
         <input type="password" id="login-p" placeholder="Password">
         <button class="btn-blue" onclick="processLogin()">LOGIN</button>
-        <button class="btn-blue" style="background:#222; margin-top:10px;" onclick="toggleAuth('signup')">Create Account</button>
+        <button class="btn-blue" style="background:#222;" onclick="toggleAuth('signup')">Create Account</button>
+        <p style="margin-top:15px; font-size:12px; color:#0070f3; cursor:pointer;" onclick="openReset()">Forgot Password?</p>
     </div>
     </div>
 
@@ -54,12 +53,29 @@
 
     <div class="content-wrapper">
         <div class="sidebar">
-            <div class="cat-item active-cat" onclick="filterShop('all')">Show All</div>
-            <div class="cat-item" onclick="filterShop('facebook')">Facebook Accounts</div>
-            <div class="cat-item" onclick="filterShop('twitter')">Twitter (Aged)</div>
-            <div class="cat-item" onclick="filterShop('telegram')">Telegram / WhatsApp</div>
+            <div class="cat-item active-cat" onclick="filterShop('all')">🏠 Show All Products</div>
+            
+            <div class="cat-title">Facebook Section</div>
+            <div class="cat-item" onclick="filterShop('fb_usa')">Facebook USA</div>
+            <div class="cat-item" onclick="filterShop('fb_naija')">Facebook Naija</div>
+            <div class="cat-item" onclick="filterShop('fb_aged_profile')">Aged Profiled FB</div>
+            <div class="cat-item" onclick="filterShop('fb_random')">Random Facebook</div>
+
+            <div class="cat-title">Instagram Section</div>
+            <div class="cat-item" onclick="filterShop('ig_aged')">Aged Instagram</div>
+            <div class="cat-item" onclick="filterShop('ig_usa')">Instagram USA</div>
+
+            <div class="cat-title">Virtual Numbers</div>
+            <div class="cat-item" onclick="filterShop('tp_usa')">TextPlus USA</div>
+            <div class="cat-item" onclick="filterShop('tp_canada')">TextPlus Canada</div>
+            <div class="cat-item" onclick="filterShop('textfree')">TextFree Accounts</div>
+
+            <div class="cat-title">Messaging</div>
+            <div class="cat-item" onclick="filterShop('telegram')">Telegram Sessions</div>
         </div>
+
         <div class="main-content">
+            <h2 id="view-title" style="margin-bottom:15px; font-size:18px; color:#0070f3;">All Items</h2>
             <div class="product-grid" id="shop-grid"></div>
         </div>
     </div>
@@ -67,77 +83,89 @@
 
 <div id="admin-panel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; padding:20px; overflow-y:auto;">
     <div style="max-width:500px; margin:auto; background:#16161a; padding:25px; border-radius:15px; border:1px solid #0070f3;">
-        <h2 style="color:#0070f3;">Admin Control</h2>
-        <select id="admin-cat" style="width:100%; padding:12px; margin:15px 0; background:#000; color:#fff; border:1px solid #333;">
-            <option value="facebook">Facebook</option>
-            <option value="twitter">Twitter</option>
+        <h2 style="color:#0070f3;">Restock Warehouse</h2>
+        <label style="font-size:12px; color:#666;">Select Category to Restock:</label>
+        <select id="admin-cat">
+            <option value="fb_usa">Facebook USA</option>
+            <option value="fb_naija">Facebook Naija</option>
+            <option value="fb_aged_profile">Aged Profiled FB</option>
+            <option value="fb_random">Random Facebook</option>
+            <option value="ig_aged">Aged Instagram</option>
+            <option value="ig_usa">Instagram USA</option>
+            <option value="tp_usa">TextPlus USA</option>
+            <option value="tp_canada">TextPlus Canada</option>
+            <option value="textfree">TextFree</option>
             <option value="telegram">Telegram</option>
         </select>
-        <textarea id="admin-logs" rows="8" placeholder="Paste logs here (one per line)"></textarea>
-        <button class="btn-blue" onclick="saveLogs()">UPLOAD STOCK</button>
-        <button class="btn-blue" style="background:#d32f2f; margin-top:10px;" onclick="hideAdmin()">EXIT ADMIN</button>
+        <textarea id="admin-logs" rows="8" placeholder="user:pass (one per line)"></textarea>
+        <button class="btn-blue" onclick="saveLogs()">ADD TO STOCK</button>
+        <button class="btn-blue" style="background:#444;" onclick="hideAdmin()">CANCEL</button>
     </div>
 </div>
 
 <script>
-    const MASTER_PW = "SubbyAdmin2026"; // CHANGE THIS TO YOUR PRIVATE PASSWORD
+    const MASTER_PW = "SubbyAdmin2026";
     let clickCount = 0;
-    let inventory = JSON.parse(localStorage.getItem('subby_stock') || '{"facebook":[], "twitter":[], "telegram":[]}');
     let activeUser = null;
+    let inventory = JSON.parse(localStorage.getItem('subby_stock') || '{}');
+
+    const products = [
+        {id:'fb_usa', name:'Facebook USA', price:6000},
+        {id:'fb_naija', name:'Facebook Naija', price:4500},
+        {id:'fb_aged_profile', name:'Aged Profiled FB', price:7500},
+        {id:'fb_random', name:'Random Facebook', price:3000},
+        {id:'ig_aged', name:'Aged Instagram', price:5000},
+        {id:'ig_usa', name:'Instagram USA', price:5500},
+        {id:'tp_usa', name:'TextPlus USA', price:2500},
+        {id:'tp_canada', name:'TextPlus Canada', price:2500},
+        {id:'textfree', name:'TextFree Account', price:2000},
+        {id:'telegram', name:'Telegram Session', price:3500}
+    ];
+
+    function filterShop(cat) {
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
+        document.getElementById('view-title').innerText = cat === 'all' ? "All Items" : cat.replace('_',' ').toUpperCase();
+        
+        products.forEach(p => {
+            if(cat === 'all' || p.id === cat) {
+                const count = inventory[p.id] ? inventory[p.id].length : 0;
+                grid.innerHTML += `
+                <div class="product-card">
+                    <span style="color:${count > 0 ? '#0070f3' : '#d32f2f'}; font-size:11px; font-weight:bold;">● Stock: ${count}</span>
+                    <h3>${p.name}</h3>
+                    <div style="color:#0070f3; font-size:22px; font-weight:900; margin:10px 0;">₦${p.price.toLocaleString()}</div>
+                    <button class="btn-blue" onclick="buyLogs('${p.id}', ${p.price})">${count > 0 ? 'PURCHASE' : 'OUT OF STOCK'}</button>
+                </div>`;
+            }
+        });
+    }
 
     function adminClick() {
         clickCount++;
-        if (clickCount >= 5) {
-            const pw = prompt("Enter Master Admin Password:");
-            if (pw === MASTER_PW) {
-                document.getElementById('admin-panel').style.display = 'block';
-            } else {
-                alert("Access Denied!");
-            }
+        if(clickCount >= 5) {
+            if(prompt("Admin Password:") === MASTER_PW) document.getElementById('admin-panel').style.display='block';
             clickCount = 0;
         }
-        setTimeout(() => { clickCount = 0; }, 3000); // Resets clicks if you are too slow
+        setTimeout(() => clickCount = 0, 3000);
     }
-
-    function hideAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
     function saveLogs() {
         const cat = document.getElementById('admin-cat').value;
         const newLogs = document.getElementById('admin-logs').value.trim().split('\n').filter(l => l !== '');
         inventory[cat] = [...(inventory[cat] || []), ...newLogs];
         localStorage.setItem('subby_stock', JSON.stringify(inventory));
-        alert(`${newLogs.length} logs added to ${cat}!`);
+        alert("Inventory Updated!");
         document.getElementById('admin-logs').value = '';
         filterShop('all');
     }
 
-    // (Rest of the shop and buy logic from the previous version goes here)
-    function filterShop(cat) {
-        const grid = document.getElementById('shop-grid');
-        grid.innerHTML = '';
-        const prods = [
-            {id:'facebook', name:'Facebook Aged', price:5000},
-            {id:'twitter', name:'Twitter (Aged)', price:4000},
-            {id:'telegram', name:'Telegram Session', price:3000}
-        ];
-        prods.forEach(p => {
-            if(cat === 'all' || p.id === cat) {
-                const count = inventory[p.id] ? inventory[p.id].length : 0;
-                grid.innerHTML += `
-                <div class="product-card">
-                    <span style="color:${count > 0 ? '#0070f3' : '#d32f2f'}; font-size:11px; font-weight:bold;">Stock: ${count}</span>
-                    <h3>${p.name}</h3>
-                    <div style="color:#0070f3; font-size:22px; font-weight:900; margin-top:10px;">₦${p.price.toLocaleString()}</div>
-                    <button class="btn-blue" onclick="buyLogs('${p.id}', ${p.price})">BUY NOW</button>
-                </div>`;
-            }
-        });
-    }
+    function hideAdmin() { document.getElementById('admin-panel').style.display='none'; }
 
     function processLogin() {
         const u = document.getElementById('login-u').value.trim();
         const p = document.getElementById('login-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{"Admin":{"p":"123","b":1000000}}');
+        let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
         if(users[u] && users[u].p === p) {
             activeUser = u;
             document.getElementById('auth-screen').style.display = 'none';
