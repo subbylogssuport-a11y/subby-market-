@@ -26,12 +26,12 @@
         
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; box-shadow: 0 0 10px rgba(0, 112, 243, 0.3); }
 
         .grid { padding: 15px; }
-        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; position: relative; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
-        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #222; color: #555; cursor: not-allowed; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #222; color: #555; cursor: not-allowed; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -45,7 +45,6 @@
             <span class="auth-link" onclick="toggleAuth('signup')">Create Account</span>
             <span class="auth-link" onclick="toggleAuth('forgot')">Forgot Password?</span>
         </div>
-
         <div class="auth-card" id="signup-form" style="display:none;">
             <h2>Create Account</h2>
             <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
@@ -53,20 +52,16 @@
             <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
             <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
         </div>
-
         <div class="auth-card" id="forgot-form" style="display:none;">
-            <h2>Reset Password</h2>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="Registered Email">
-            <button class="auth-btn" onclick="handleForgot()">Get Recovery Code</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
+            <h2>Reset Access</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Email Address">
+            <button class="auth-btn" onclick="handleForgot()">Get Code</button>
+            <span class="auth-link" onclick="toggleAuth('login')">Back</span>
         </div>
-
         <div class="auth-card" id="otp-form" style="display:none;">
             <h2 id="otp-title">Verify</h2>
             <input type="text" id="otp-input" class="auth-input" placeholder="6-digit code">
-            <div id="reset-area" style="display:none;">
-                <input type="password" id="new-pass" class="auth-input" placeholder="New Password">
-            </div>
+            <div id="reset-area" style="display:none;"><input type="password" id="new-pass" class="auth-input" placeholder="New Password"></div>
             <button class="auth-btn" id="otp-btn" onclick="verifyOTP()">Verify</button>
         </div>
     </div>
@@ -80,8 +75,9 @@
         <div class="categories-nav">
             <div class="cat-btn active" onclick="filterShop('All', this)">All</div>
             <div class="cat-btn" onclick="filterShop('Facebook', this)">Facebook</div>
-            <div class="cat-btn" onclick="filterShop('Audio', this)">Audio</div>
-            <div class="cat-btn" onclick="filterShop('Aged', this)">Aged Accounts</div>
+            <div class="cat-btn" onclick="filterShop('Instagram', this)">Instagram</div>
+            <div class="cat-btn" onclick="filterShop('Twitter', this)">Twitter</div>
+            <div class="cat-btn" onclick="filterShop('Netflix', this)">Netflix</div>
         </div>
 
         <div class="grid" id="market-grid"></div>
@@ -91,18 +87,25 @@
     let balance = 0, otp = "", isReset = false, tempUser = {};
 
     const items = [
-        // FACEBOOK SECTION
-        { n: "Facebook (High Quality Profile)", p: 8000, c: "Facebook" },
-        { n: "Facebook (Business Ready)", p: 15000, c: "Facebook" },
-        { n: "Facebook (Aged Activity)", p: 12000, c: "Facebook" },
-        // AUDIO SECTION
-        { n: "Spotify Premium Account", p: 3500, c: "Audio" },
-        { n: "Apple Music Premium", p: 4000, c: "Audio" },
-        { n: "Audiomack Premium", p: 2500, c: "Audio" },
-        // AGED ACCOUNTS SECTION
-        { n: "Aged Instagram (Real Followers)", p: 25000, c: "Aged" },
-        { n: "Aged Twitter / X", p: 18000, c: "Aged" },
-        { n: "Aged Telegram Premium", p: 10000, c: "Aged" }
+        // FACEBOOK
+        { n: "Facebook (Already created page)", p: 4000, c: "Facebook" },
+        { n: "Facebook (Fresh Profile Newly created)", p: 2500, c: "Facebook" },
+        { n: "Facebook (High-Activity Random Login)", p: 5500, c: "Facebook" },
+        { n: "Facebook (Standard Random Login)", p: 3000, c: "Facebook" },
+        { n: "USA Facebook (Random login 0-30 friends)", p: 7500, c: "Facebook" },
+        
+        // INSTAGRAM
+        { n: "Instagram (0–5,000 Followers)", p: 12000, c: "Instagram" },
+        { n: "Instagram (0-30 Followers)", p: 2000, c: "Instagram" },
+        { n: "Instagram (Established Account)", p: 8500, c: "Instagram" },
+        { n: "Random Instagram (0-300 Followers)", p: 3500, c: "Instagram" },
+        { n: "Foreign Instagram 🇺🇸 🇬🇧 🇮🇹 (200-400 Followers)", p: 10000, c: "Instagram" },
+
+        // TWITTER
+        { n: "Foreign Twitter 🇺🇸 🇬🇧 🇮🇹 (200-400 Followers)", p: 9500, c: "Twitter" },
+
+        // NETFLIX
+        { n: "Netflix Premium Logs", p: 4500, c: "Netflix" }
     ];
 
     function toggleAuth(v) {
@@ -127,7 +130,7 @@
             otp = Math.floor(100000 + Math.random() * 900000).toString();
             alert("Recovery Code: " + otp);
             isReset = true;
-            document.getElementById('otp-title').innerText = "Reset Password";
+            document.getElementById('otp-title').innerText = "Reset Access";
             toggleAuth('otp');
         } else alert("Email not found!");
     }
