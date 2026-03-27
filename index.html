@@ -18,7 +18,7 @@
         .auth-link { font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; display: block; margin-top: 10px; }
 
         /* --- MAIN SHOP STYLES --- */
-        #main-app { display: none; } /* Hidden until login */
+        #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
@@ -37,37 +37,42 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <span class="auth-link" onclick="toggleAuth('signup')">New here? Create Account</span>
+            <span class="auth-link" onclick="toggleAuth('signup')">Create Account</span>
             <span class="auth-link" onclick="toggleAuth('forgot')">Forgot Password?</span>
         </div>
 
         <div class="auth-card" id="signup-form" style="display:none;">
-            <h2>Create Account</h2>
+            <h2>Sign Up</h2>
             <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
-            <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Already have an account? Login</span>
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
+            <button class="auth-btn" onclick="handleSignUp()">Get Code</button>
+            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
+        </div>
+
+        <div class="auth-card" id="forgot-form" style="display:none;">
+            <h2>Reset Access</h2>
+            <p style="font-size:12px; color:#888; margin-bottom:10px;">Enter your registered email</p>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Email Address">
+            <button class="auth-btn" onclick="handleForgot()">Send Reset Code</button>
+            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
         </div>
 
         <div class="auth-card" id="otp-form" style="display:none;">
-            <h2>Verification</h2>
-            <p style="font-size: 12px; color: #888; margin-bottom: 15px;">Enter the 6-digit code sent to your email</p>
-            <input type="text" id="otp-input" class="auth-input" placeholder="000000" maxlength="6">
-            <button class="auth-btn" onclick="verifyOTP()">Verify</button>
+            <h2 id="otp-title">Verify</h2>
+            <input type="text" id="otp-input" class="auth-input" placeholder="Enter 6-digit code">
+            <div id="reset-pass-area" style="display:none;">
+                <input type="password" id="new-pass" class="auth-input" placeholder="Enter New Password">
+            </div>
+            <button class="auth-btn" id="otp-action-btn" onclick="verifyOTP()">Verify</button>
         </div>
     </div>
 
     <div id="main-app">
         <div class="navbar">
             <div class="brand">SUBBY MARKET</div>
-            <div class="bal-pill">
-                <span>₦<span id="bal-val">0</span></span>
-                <button class="plus-btn" onclick="fundWallet()">+</button>
-            </div>
+            <div class="bal-pill">₦<span id="bal-val">0</span> <button class="plus-btn" onclick="fundWallet()">+</button></div>
         </div>
-
-        <div style="padding: 15px; font-size: 14px; color: #0070f3;">Welcome, <span id="user-display"></span>!</div>
-
+        <div style="padding:15px; font-size:14px; color:#0070f3;">User: <span id="user-display"></span></div>
         <div class="grid" id="market-grid"></div>
     </div>
 
@@ -75,55 +80,75 @@
     let currentBalance = 0;
     let generatedOTP = "";
     let tempUser = {};
+    let isResetMode = false;
 
-    const items = [
-        { n: "Facebook (Create Profile)", p: 8000, s: 0 },
-        { n: "Spotify Premium Log", p: 3500, s: 0 },
-        { n: "Aged Twitter (2012)", p: 12000, s: 0 }
-    ];
-
-    // --- AUTH LOGIC ---
     function toggleAuth(view) {
-        document.getElementById('login-form').style.display = view === 'login' ? 'block' : 'none';
-        document.getElementById('signup-form').style.display = view === 'signup' ? 'block' : 'none';
-        document.getElementById('otp-form').style.display = view === 'otp' ? 'block' : 'none';
-        document.getElementById('forgot').style.display = view === 'forgot' ? 'block' : 'none';
+        const forms = ['login-form', 'signup-form', 'forgot-form', 'otp-form'];
+        forms.forEach(f => document.getElementById(f).style.display = 'none');
+        document.getElementById(view + '-form').style.display = 'block';
     }
 
     function handleSignUp() {
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-pass').value;
-        if(!email || !pass) return alert("Fill all fields!");
-
-        // Simulate OTP sending
+        if(!email || !pass) return alert("Fill all fields");
+        
+        isResetMode = false;
         generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         tempUser = { email, pass };
-        
-        alert("Your 6-digit Security Code is: " + generatedOTP); // In real app, this goes to email
+        alert("SECURITY CODE: " + generatedOTP);
         toggleAuth('otp');
+    }
+
+    function handleForgot() {
+        const email = document.getElementById('forgot-email').value;
+        const saved = JSON.parse(localStorage.getItem('subby_user'));
+        
+        if(saved && saved.email === email) {
+            isResetMode = true;
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            alert("RECOVERY CODE: " + generatedOTP);
+            document.getElementById('otp-title').innerText = "Reset Password";
+            toggleAuth('otp');
+        } else {
+            alert("Email not found in our database!");
+        }
     }
 
     function verifyOTP() {
         const input = document.getElementById('otp-input').value;
-        if(input === generatedOTP) {
-            localStorage.setItem('subby_user', JSON.stringify(tempUser));
-            alert("Account Verified!");
-            startApp(tempUser.email);
+        if(input !== generatedOTP) return alert("Invalid Code!");
+
+        if(isResetMode) {
+            document.getElementById('otp-input').style.display = 'none';
+            document.getElementById('reset-pass-area').style.display = 'block';
+            document.getElementById('otp-action-btn').innerText = "Save New Password";
+            document.getElementById('otp-action-btn').onclick = saveNewPassword;
         } else {
-            alert("Wrong Code!");
+            localStorage.setItem('subby_user', JSON.stringify(tempUser));
+            startApp(tempUser.email);
         }
+    }
+
+    function saveNewPassword() {
+        const newPass = document.getElementById('new-pass').value;
+        if(!newPass) return alert("Enter password");
+        
+        let saved = JSON.parse(localStorage.getItem('subby_user'));
+        saved.pass = newPass;
+        localStorage.setItem('subby_user', JSON.stringify(saved));
+        
+        alert("Password updated successfully!");
+        location.reload(); 
     }
 
     function handleLogin() {
         const email = document.getElementById('log-email').value;
         const pass = document.getElementById('log-pass').value;
         const saved = JSON.parse(localStorage.getItem('subby_user'));
-
         if(saved && saved.email === email && saved.pass === pass) {
             startApp(email);
-        } else {
-            alert("Invalid Login Credentials!");
-        }
+        } else { alert("Incorrect details!"); }
     }
 
     function startApp(email) {
@@ -133,25 +158,23 @@
         renderShop();
     }
 
-    // --- SHOP LOGIC ---
     function renderShop() {
         const grid = document.getElementById('market-grid');
-        grid.innerHTML = items.map(i => `
+        grid.innerHTML = `
             <div class="card">
                 <span style="color:#ff4d4d; font-size:10px;">SOLD OUT</span>
-                <h3>${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
+                <h3>Premium Logs Pack</h3>
+                <div class="price">₦8,000</div>
                 <button class="buy-btn" disabled>UNAVAILABLE</button>
-            </div>
-        `).join('');
+            </div>`;
     }
 
     function fundWallet() {
-        const amt = prompt("Amount to fund (₦):");
+        const amt = prompt("Amount (₦):");
         if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: tempUser.email || 'customer@subbymarket.com',
+            email: 'user@subbymarket.com',
             amount: amt * 100,
             callback: () => {
                 currentBalance += parseInt(amt);
