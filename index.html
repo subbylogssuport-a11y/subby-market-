@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | PREMIUM SECURE</title>
+    <title>SUBBY MARKET | PREMIUM</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
 
-        /* --- AUTH GATE STYLES --- */
+        /* --- AUTH GATE --- */
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
         .auth-card h2 { color: #0070f3; margin-bottom: 20px; font-size: 24px; }
@@ -17,14 +17,13 @@
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         .auth-link { font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; display: block; margin-top: 10px; }
 
-        /* --- MAIN APP STYLES --- */
+        /* --- MAIN APP --- */
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
         
-        /* Categories */
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
         .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
@@ -50,9 +49,9 @@
         <div class="auth-card" id="signup-form" style="display:none;">
             <h2>Create Account</h2>
             <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Already have an account? Login</span>
+            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
         </div>
 
         <div class="auth-card" id="forgot-form" style="display:none;">
@@ -64,9 +63,9 @@
 
         <div class="auth-card" id="otp-form" style="display:none;">
             <h2 id="otp-title">Verify</h2>
-            <input type="text" id="otp-input" class="auth-input" placeholder="Enter 6-digit code">
+            <input type="text" id="otp-input" class="auth-input" placeholder="6-digit code">
             <div id="reset-area" style="display:none;">
-                <input type="password" id="new-pass" class="auth-input" placeholder="Enter New Password">
+                <input type="password" id="new-pass" class="auth-input" placeholder="New Password">
             </div>
             <button class="auth-btn" id="otp-btn" onclick="verifyOTP()">Verify</button>
         </div>
@@ -82,28 +81,28 @@
             <div class="cat-btn active" onclick="filterShop('All', this)">All</div>
             <div class="cat-btn" onclick="filterShop('Facebook', this)">Facebook</div>
             <div class="cat-btn" onclick="filterShop('Audio', this)">Audio</div>
-            <div class="cat-btn" onclick="filterShop('Social', this)">Aged Accounts</div>
-            <div class="cat-btn" onclick="filterShop('Text', this)">TextNow/Free</div>
+            <div class="cat-btn" onclick="filterShop('Aged', this)">Aged Accounts</div>
         </div>
 
-        <div style="padding:15px; font-size:14px; color:#0070f3;">Welcome, <span id="user-display"></span>!</div>
         <div class="grid" id="market-grid"></div>
     </div>
 
 <script>
-    let balance = 0;
-    let otp = "";
-    let isReset = false;
-    let tempUser = {};
+    let balance = 0, otp = "", isReset = false, tempUser = {};
 
     const items = [
-        { n: "Facebook (Create Profile)", p: 8000, c: "Facebook" },
-        { n: "Spotify Premium Log", p: 3500, c: "Audio" },
-        { n: "Apple Music Log", p: 4000, c: "Audio" },
-        { n: "Aged Twitter (2012)", p: 12000, c: "Social" },
-        { n: "Instagram HD Log", p: 9000, c: "Social" },
-        { n: "TextNow USA", p: 5000, c: "Text" },
-        { n: "Telegram Premium", p: 7000, c: "Social" }
+        // FACEBOOK SECTION
+        { n: "Facebook (High Quality Profile)", p: 8000, c: "Facebook" },
+        { n: "Facebook (Business Ready)", p: 15000, c: "Facebook" },
+        { n: "Facebook (Aged Activity)", p: 12000, c: "Facebook" },
+        // AUDIO SECTION
+        { n: "Spotify Premium Account", p: 3500, c: "Audio" },
+        { n: "Apple Music Premium", p: 4000, c: "Audio" },
+        { n: "Audiomack Premium", p: 2500, c: "Audio" },
+        // AGED ACCOUNTS SECTION
+        { n: "Aged Instagram (Real Followers)", p: 25000, c: "Aged" },
+        { n: "Aged Twitter / X", p: 18000, c: "Aged" },
+        { n: "Aged Telegram Premium", p: 10000, c: "Aged" }
     ];
 
     function toggleAuth(v) {
@@ -160,7 +159,6 @@
     function startApp(e) {
         document.getElementById('auth-gate').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-display').innerText = e;
         renderItems(items);
     }
 
@@ -173,7 +171,7 @@
     function renderItems(data) {
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
-                <span style="color:#ff4d4d; font-size:10px;">SOLD OUT</span>
+                <span style="color:#ff4d4d; font-size:10px; font-weight:800;">SOLD OUT</span>
                 <h3>${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="buy-btn" disabled>UNAVAILABLE</button>
@@ -185,12 +183,11 @@
         if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: 'user@subbymarket.com',
+            email: 'customer@subbymarket.com',
             amount: amt * 100,
             callback: () => {
                 balance += parseInt(amt);
                 document.getElementById('bal-val').innerText = balance.toLocaleString();
-                alert("Deposit Success!");
             }
         }).openIframe();
     }
