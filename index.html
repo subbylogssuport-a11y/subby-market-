@@ -3,178 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | PREMIUM</title>
+    <title>SUBBY MARKET | SECURE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; overflow-x: hidden; }
+        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
 
-        /* Premium Navbar */
-        .navbar { 
-            background: rgba(22, 22, 26, 0.85); 
-            backdrop-filter: blur(12px); 
-            padding: 18px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; text-transform: uppercase; }
-        .bal-pill { 
-            background: #111; 
-            border: 1px solid #0070f3; 
-            padding: 6px 14px; 
-            border-radius: 30px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            box-shadow: 0 0 15px rgba(0, 112, 243, 0.3);
-        }
-        .plus-btn { 
-            background: #0070f3; 
-            color: #fff; 
-            border: none; 
-            width: 26px; 
-            height: 26px; 
-            border-radius: 50%; 
-            cursor: pointer; 
-            font-weight: 800; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-        }
+        /* --- AUTH GATE STYLES --- */
+        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
+        .auth-card h2 { color: #0070f3; margin-bottom: 20px; font-size: 24px; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .auth-link { font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; display: block; margin-top: 10px; }
 
-        /* Categories Scroll */
-        .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
-        .categories-nav::-webkit-scrollbar { display: none; }
-        .cat-btn { 
-            background: #16161a; 
-            color: #888; 
-            padding: 10px 18px; 
-            border-radius: 12px; 
-            border: 1px solid #222; 
-            white-space: nowrap; 
-            cursor: pointer; 
-            font-size: 13px; 
-            font-weight: 600; 
-            transition: 0.3s;
-        }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; box-shadow: 0 5px 15px rgba(0, 112, 243, 0.4); }
-
-        /* Duplex Layout Cards */
-        .grid { padding: 10px 15px; }
-        .card { 
-            background: linear-gradient(145deg, #16161a, #0c0c0e); 
-            border: 1px solid #222; 
-            border-radius: 20px; 
-            padding: 22px; 
-            margin-bottom: 15px; 
-            text-align: left;
-        }
-        .stock-status { font-size: 10px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-        .price { font-size: 26px; font-weight: 900; color: #0070f3; margin: 12px 0; }
-        .buy-btn { 
-            width: 100%; padding: 16px; border-radius: 12px; border: none; 
-            background: #fff; color: #000; font-weight: 900; cursor: pointer; 
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .buy-btn.locked { background: #222; color: #555; cursor: not-allowed; border: 1px solid #333; }
-
-        .footer { padding: 30px; text-align: center; border-top: 1px solid #111; margin-top: 20px; color: #555; font-size: 12px; }
+        /* --- MAIN SHOP STYLES --- */
+        #main-app { display: none; } /* Hidden until login */
+        .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
+        .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
+        .grid { padding: 15px; }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
+        .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #222; color: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="brand">SUBBY MARKET</div>
-        <div class="bal-pill">
-            <span>₦<span id="bal-display">0</span></span>
-            <button class="plus-btn" onclick="payWithPaystack()">+</button>
+    <div id="auth-gate">
+        <div class="auth-card" id="login-form">
+            <h2>Login</h2>
+            <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
+            <button class="auth-btn" onclick="handleLogin()">Sign In</button>
+            <span class="auth-link" onclick="toggleAuth('signup')">New here? Create Account</span>
+            <span class="auth-link" onclick="toggleAuth('forgot')">Forgot Password?</span>
+        </div>
+
+        <div class="auth-card" id="signup-form" style="display:none;">
+            <h2>Create Account</h2>
+            <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
+            <span class="auth-link" onclick="toggleAuth('login')">Already have an account? Login</span>
+        </div>
+
+        <div class="auth-card" id="otp-form" style="display:none;">
+            <h2>Verification</h2>
+            <p style="font-size: 12px; color: #888; margin-bottom: 15px;">Enter the 6-digit code sent to your email</p>
+            <input type="text" id="otp-input" class="auth-input" placeholder="000000" maxlength="6">
+            <button class="auth-btn" onclick="verifyOTP()">Verify</button>
         </div>
     </div>
 
-    <div class="categories-nav">
-        <div class="cat-btn active" onclick="filterMenu('All', this)">All Categories</div>
-        <div class="cat-btn" onclick="filterMenu('Facebook', this)">Facebook</div>
-        <div class="cat-btn" onclick="filterMenu('Audio', this)">Audio Accounts</div>
-        <div class="cat-btn" onclick="filterMenu('Social', this)">Aged Accounts</div>
-        <div class="cat-btn" onclick="filterMenu('Text', this)">TextNow/Free</div>
-    </div>
+    <div id="main-app">
+        <div class="navbar">
+            <div class="brand">SUBBY MARKET</div>
+            <div class="bal-pill">
+                <span>₦<span id="bal-val">0</span></span>
+                <button class="plus-btn" onclick="fundWallet()">+</button>
+            </div>
+        </div>
 
-    <div class="grid" id="product-grid"></div>
+        <div style="padding: 15px; font-size: 14px; color: #0070f3;">Welcome, <span id="user-display"></span>!</div>
 
-    <div class="footer">
-        <p>Official Support: subbylogssuport@gmail.com</p>
-        <p style="margin-top: 10px; font-size: 10px;">SUBBY MARKET PREMIUM v3.2 ACTIVE</p>
+        <div class="grid" id="market-grid"></div>
     </div>
 
 <script>
-    let walletBalance = 0;
+    let currentBalance = 0;
+    let generatedOTP = "";
+    let tempUser = {};
 
-    // INVENTORY DATA - ALL OUT OF STOCK
-    const database = [
-        { name: "Facebook (Create Profile)", price: 8000, stock: 0, cat: "Facebook" },
-        { name: "Facebook (Existing Profile)", price: 5500, stock: 0, cat: "Facebook" },
-        { name: "Spotify Premium Log", price: 3500, stock: 0, cat: "Audio" },
-        { name: "Apple Music Log", price: 4000, stock: 0, cat: "Audio" },
-        { name: "Audiomack Premium", price: 2500, stock: 0, cat: "Audio" },
-        { name: "Aged Twitter (2012)", price: 12000, stock: 0, cat: "Social" },
-        { name: "Instagram HD Log", price: 9000, stock: 0, cat: "Social" },
-        { name: "TextNow USA", price: 5000, stock: 0, cat: "Text" },
-        { name: "TextPlus Canada", price: 5000, stock: 0, cat: "Text" },
-        { name: "Telegram Premium", price: 7000, stock: 0, cat: "Social" }
+    const items = [
+        { n: "Facebook (Create Profile)", p: 8000, s: 0 },
+        { n: "Spotify Premium Log", p: 3500, s: 0 },
+        { n: "Aged Twitter (2012)", p: 12000, s: 0 }
     ];
 
-    // PAYSTACK DEPOSIT LOGIC
-    function payWithPaystack() {
-        const amountToPay = prompt("How much do you want to fund (₦)?");
+    // --- AUTH LOGIC ---
+    function toggleAuth(view) {
+        document.getElementById('login-form').style.display = view === 'login' ? 'block' : 'none';
+        document.getElementById('signup-form').style.display = view === 'signup' ? 'block' : 'none';
+        document.getElementById('otp-form').style.display = view === 'otp' ? 'block' : 'none';
+        document.getElementById('forgot').style.display = view === 'forgot' ? 'block' : 'none';
+    }
+
+    function handleSignUp() {
+        const email = document.getElementById('reg-email').value;
+        const pass = document.getElementById('reg-pass').value;
+        if(!email || !pass) return alert("Fill all fields!");
+
+        // Simulate OTP sending
+        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        tempUser = { email, pass };
         
-        if (!amountToPay || isNaN(amountToPay) || amountToPay <= 0) {
-            alert("Please enter a valid amount.");
-            return;
+        alert("Your 6-digit Security Code is: " + generatedOTP); // In real app, this goes to email
+        toggleAuth('otp');
+    }
+
+    function verifyOTP() {
+        const input = document.getElementById('otp-input').value;
+        if(input === generatedOTP) {
+            localStorage.setItem('subby_user', JSON.stringify(tempUser));
+            alert("Account Verified!");
+            startApp(tempUser.email);
+        } else {
+            alert("Wrong Code!");
         }
-
-        const handler = PaystackPop.setup({
-            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', // YOUR LIVE KEY
-            email: 'customer@subbymarket.com',
-            amount: amountToPay * 100, // Convert to kobo
-            currency: 'NGN',
-            callback: function(response) {
-                // Success! Update balance
-                walletBalance += parseInt(amountToPay);
-                document.getElementById('bal-display').innerText = walletBalance.toLocaleString();
-                alert("Deposit Successful! ₦" + amountToPay + " added to wallet.");
-            },
-            onClose: function() {
-                alert('Transaction cancelled.');
-            }
-        });
-        handler.openIframe();
     }
 
-    // FILTER & RENDER LOGIC
-    function filterMenu(cat, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        displayProducts(cat === 'All' ? database : database.filter(i => i.cat === cat));
+    function handleLogin() {
+        const email = document.getElementById('log-email').value;
+        const pass = document.getElementById('log-pass').value;
+        const saved = JSON.parse(localStorage.getItem('subby_user'));
+
+        if(saved && saved.email === email && saved.pass === pass) {
+            startApp(email);
+        } else {
+            alert("Invalid Login Credentials!");
+        }
     }
 
-    function displayProducts(data) {
-        const grid = document.getElementById('product-grid');
-        grid.innerHTML = data.map(item => `
+    function startApp(email) {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-display').innerText = email;
+        renderShop();
+    }
+
+    // --- SHOP LOGIC ---
+    function renderShop() {
+        const grid = document.getElementById('market-grid');
+        grid.innerHTML = items.map(i => `
             <div class="card">
-                <span class="stock-status" style="color:#ff4d4d">SOLD OUT</span>
-                <h3>${item.name}</h3>
-                <div class="price">₦${item.price.toLocaleString()}</div>
-                <button class="buy-btn locked" disabled>UNAVAILABLE</button>
+                <span style="color:#ff4d4d; font-size:10px;">SOLD OUT</span>
+                <h3>${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
+                <button class="buy-btn" disabled>UNAVAILABLE</button>
             </div>
         `).join('');
     }
 
-    displayProducts(database);
+    function fundWallet() {
+        const amt = prompt("Amount to fund (₦):");
+        if(!amt) return;
+        PaystackPop.setup({
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+            email: tempUser.email || 'customer@subbymarket.com',
+            amount: amt * 100,
+            callback: () => {
+                currentBalance += parseInt(amt);
+                document.getElementById('bal-val').innerText = currentBalance.toLocaleString();
+            }
+        }).openIframe();
+    }
 </script>
 </body>
 </html>
