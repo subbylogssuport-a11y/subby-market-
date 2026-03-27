@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | SECURE</title>
+    <title>SUBBY MARKET | PREMIUM SECURE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -17,12 +17,18 @@
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         .auth-link { font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; display: block; margin-top: 10px; }
 
-        /* --- MAIN SHOP STYLES --- */
+        /* --- MAIN APP STYLES --- */
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
+        
+        /* Categories */
+        .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
+
         .grid { padding: 15px; }
         .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
@@ -42,28 +48,27 @@
         </div>
 
         <div class="auth-card" id="signup-form" style="display:none;">
-            <h2>Sign Up</h2>
+            <h2>Create Account</h2>
             <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleSignUp()">Get Code</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
+            <span class="auth-link" onclick="toggleAuth('login')">Already have an account? Login</span>
         </div>
 
         <div class="auth-card" id="forgot-form" style="display:none;">
-            <h2>Reset Access</h2>
-            <p style="font-size:12px; color:#888; margin-bottom:10px;">Enter your registered email</p>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="Email Address">
-            <button class="auth-btn" onclick="handleForgot()">Send Reset Code</button>
+            <h2>Reset Password</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Registered Email">
+            <button class="auth-btn" onclick="handleForgot()">Get Recovery Code</button>
             <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
         </div>
 
         <div class="auth-card" id="otp-form" style="display:none;">
             <h2 id="otp-title">Verify</h2>
             <input type="text" id="otp-input" class="auth-input" placeholder="Enter 6-digit code">
-            <div id="reset-pass-area" style="display:none;">
+            <div id="reset-area" style="display:none;">
                 <input type="password" id="new-pass" class="auth-input" placeholder="Enter New Password">
             </div>
-            <button class="auth-btn" id="otp-action-btn" onclick="verifyOTP()">Verify</button>
+            <button class="auth-btn" id="otp-btn" onclick="verifyOTP()">Verify</button>
         </div>
     </div>
 
@@ -72,101 +77,107 @@
             <div class="brand">SUBBY MARKET</div>
             <div class="bal-pill">₦<span id="bal-val">0</span> <button class="plus-btn" onclick="fundWallet()">+</button></div>
         </div>
-        <div style="padding:15px; font-size:14px; color:#0070f3;">User: <span id="user-display"></span></div>
+
+        <div class="categories-nav">
+            <div class="cat-btn active" onclick="filterShop('All', this)">All</div>
+            <div class="cat-btn" onclick="filterShop('Facebook', this)">Facebook</div>
+            <div class="cat-btn" onclick="filterShop('Audio', this)">Audio</div>
+            <div class="cat-btn" onclick="filterShop('Social', this)">Aged Accounts</div>
+            <div class="cat-btn" onclick="filterShop('Text', this)">TextNow/Free</div>
+        </div>
+
+        <div style="padding:15px; font-size:14px; color:#0070f3;">Welcome, <span id="user-display"></span>!</div>
         <div class="grid" id="market-grid"></div>
     </div>
 
 <script>
-    let currentBalance = 0;
-    let generatedOTP = "";
+    let balance = 0;
+    let otp = "";
+    let isReset = false;
     let tempUser = {};
-    let isResetMode = false;
 
-    function toggleAuth(view) {
-        const forms = ['login-form', 'signup-form', 'forgot-form', 'otp-form'];
-        forms.forEach(f => document.getElementById(f).style.display = 'none');
-        document.getElementById(view + '-form').style.display = 'block';
+    const items = [
+        { n: "Facebook (Create Profile)", p: 8000, c: "Facebook" },
+        { n: "Spotify Premium Log", p: 3500, c: "Audio" },
+        { n: "Apple Music Log", p: 4000, c: "Audio" },
+        { n: "Aged Twitter (2012)", p: 12000, c: "Social" },
+        { n: "Instagram HD Log", p: 9000, c: "Social" },
+        { n: "TextNow USA", p: 5000, c: "Text" },
+        { n: "Telegram Premium", p: 7000, c: "Social" }
+    ];
+
+    function toggleAuth(v) {
+        ['login-form', 'signup-form', 'forgot-form', 'otp-form'].forEach(f => document.getElementById(f).style.display = 'none');
+        document.getElementById(v + '-form').style.display = 'block';
     }
 
     function handleSignUp() {
-        const email = document.getElementById('reg-email').value;
-        const pass = document.getElementById('reg-pass').value;
-        if(!email || !pass) return alert("Fill all fields");
-        
-        isResetMode = false;
-        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-        tempUser = { email, pass };
-        alert("SECURITY CODE: " + generatedOTP);
+        const e = document.getElementById('reg-email').value, p = document.getElementById('reg-pass').value;
+        if(!e || !p) return alert("Fill all fields");
+        otp = Math.floor(100000 + Math.random() * 900000).toString();
+        tempUser = { e, p };
+        alert("Verification Code: " + otp);
+        isReset = false;
         toggleAuth('otp');
     }
 
     function handleForgot() {
-        const email = document.getElementById('forgot-email').value;
+        const e = document.getElementById('forgot-email').value;
         const saved = JSON.parse(localStorage.getItem('subby_user'));
-        
-        if(saved && saved.email === email) {
-            isResetMode = true;
-            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            alert("RECOVERY CODE: " + generatedOTP);
+        if(saved && saved.e === e) {
+            otp = Math.floor(100000 + Math.random() * 900000).toString();
+            alert("Recovery Code: " + otp);
+            isReset = true;
             document.getElementById('otp-title').innerText = "Reset Password";
             toggleAuth('otp');
-        } else {
-            alert("Email not found in our database!");
-        }
+        } else alert("Email not found!");
     }
 
     function verifyOTP() {
-        const input = document.getElementById('otp-input').value;
-        if(input !== generatedOTP) return alert("Invalid Code!");
-
-        if(isResetMode) {
+        if(document.getElementById('otp-input').value !== otp) return alert("Wrong code!");
+        if(isReset) {
             document.getElementById('otp-input').style.display = 'none';
-            document.getElementById('reset-pass-area').style.display = 'block';
-            document.getElementById('otp-action-btn').innerText = "Save New Password";
-            document.getElementById('otp-action-btn').onclick = saveNewPassword;
+            document.getElementById('reset-area').style.display = 'block';
+            document.getElementById('otp-btn').innerText = "Update Password";
+            document.getElementById('otp-btn').onclick = () => {
+                let s = JSON.parse(localStorage.getItem('subby_user'));
+                s.p = document.getElementById('new-pass').value;
+                localStorage.setItem('subby_user', JSON.stringify(s));
+                alert("Updated!"); location.reload();
+            };
         } else {
             localStorage.setItem('subby_user', JSON.stringify(tempUser));
-            startApp(tempUser.email);
+            startApp(tempUser.e);
         }
     }
 
-    function saveNewPassword() {
-        const newPass = document.getElementById('new-pass').value;
-        if(!newPass) return alert("Enter password");
-        
-        let saved = JSON.parse(localStorage.getItem('subby_user'));
-        saved.pass = newPass;
-        localStorage.setItem('subby_user', JSON.stringify(saved));
-        
-        alert("Password updated successfully!");
-        location.reload(); 
-    }
-
     function handleLogin() {
-        const email = document.getElementById('log-email').value;
-        const pass = document.getElementById('log-pass').value;
-        const saved = JSON.parse(localStorage.getItem('subby_user'));
-        if(saved && saved.email === email && saved.pass === pass) {
-            startApp(email);
-        } else { alert("Incorrect details!"); }
+        const e = document.getElementById('log-email').value, p = document.getElementById('log-pass').value;
+        const s = JSON.parse(localStorage.getItem('subby_user'));
+        if(s && s.e === e && s.p === p) startApp(e); else alert("Invalid login!");
     }
 
-    function startApp(email) {
+    function startApp(e) {
         document.getElementById('auth-gate').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-display').innerText = email;
-        renderShop();
+        document.getElementById('user-display').innerText = e;
+        renderItems(items);
     }
 
-    function renderShop() {
-        const grid = document.getElementById('market-grid');
-        grid.innerHTML = `
+    function filterShop(c, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderItems(c === 'All' ? items : items.filter(i => i.c === c));
+    }
+
+    function renderItems(data) {
+        document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
                 <span style="color:#ff4d4d; font-size:10px;">SOLD OUT</span>
-                <h3>Premium Logs Pack</h3>
-                <div class="price">₦8,000</div>
+                <h3>${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="buy-btn" disabled>UNAVAILABLE</button>
-            </div>`;
+            </div>`).join('');
     }
 
     function fundWallet() {
@@ -177,8 +188,9 @@
             email: 'user@subbymarket.com',
             amount: amt * 100,
             callback: () => {
-                currentBalance += parseInt(amt);
-                document.getElementById('bal-val').innerText = currentBalance.toLocaleString();
+                balance += parseInt(amt);
+                document.getElementById('bal-val').innerText = balance.toLocaleString();
+                alert("Deposit Success!");
             }
         }).openIframe();
     }
