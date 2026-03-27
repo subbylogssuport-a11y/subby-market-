@@ -14,30 +14,29 @@
         .auth-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); border: 1px solid #333; padding: 30px; border-radius: 20px; width: 100%; max-width: 420px; text-align: center; }
         
         /* NAVBAR */
-        .navbar { background: #16161a; padding: 15px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; gap: 10px; position: sticky; top: 0; z-index: 100; }
-        .search-bar { flex: 1; min-width: 200px; }
-        .search-bar input { width: 100%; padding: 10px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; }
-
-        /* SIDEBAR & CONTENT */
+        .navbar { background: #16161a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        
+        /* SIDEBAR */
         .content-wrapper { display: flex; flex-direction: column; }
         @media (min-width: 768px) { .content-wrapper { flex-direction: row; } .sidebar { width: 260px; min-height: 100vh; border-right: 1px solid #222; } }
         .sidebar { background: #16161a; padding: 20px; }
-        .cat-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #ccc; margin-bottom: 5px; font-size: 14px; transition: 0.3s; }
-        .cat-item:hover { background: #0070f3; color: #fff; }
+        .cat-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #ccc; margin-bottom: 5px; font-size: 13px; border-left: 3px solid transparent; transition: 0.3s; }
+        .cat-item:hover { background: #1a1a20; border-left: 3px solid #0070f3; color: #fff; }
 
-        .support-box { margin-top: 30px; padding: 15px; background: rgba(0, 112, 243, 0.1); border-radius: 12px; border: 1px solid #0070f3; }
-        .support-link { display: block; color: #eee; font-size: 13px; text-decoration: none; margin-bottom: 8px; font-weight: bold; }
+        /* SUPPORT BOX */
+        .support-box { margin-top: 30px; padding: 15px; background: rgba(0, 112, 243, 0.05); border-radius: 12px; border: 1px solid #222; }
+        .support-link { display: block; color: #0070f3; font-size: 12px; text-decoration: none; margin-bottom: 12px; font-weight: bold; overflow-wrap: break-word; }
 
+        /* PRODUCTS */
         .main-content { flex: 1; padding: 25px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; opacity: 0.8; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+        .product-card { background: #16161a; border: 1px solid #222; border-radius: 10px; padding: 15px; opacity: 0.8; }
         
-        /* BUTTONS */
         .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 700; margin-top: 10px; }
-        .btn-disabled { background: #333; color: #777; border: none; padding: 12px; border-radius: 6px; width: 100%; cursor: not-allowed; font-weight: bold; text-transform: uppercase; margin-top: 15px; }
+        .btn-disabled { background: #222; color: #555; border: none; padding: 10px; border-radius: 6px; width: 100%; cursor: not-allowed; font-weight: bold; text-transform: uppercase; margin-top: 15px; font-size: 11px; }
         
-        .auth-nav-btn { background: #222; border: 1px solid #444; color: #0070f3; font-size: 12px; cursor: pointer; padding: 8px 12px; border-radius: 6px; font-weight: bold; width: 48%; }
-        .otp-display { background: #000; color: #ffcc00; font-family: monospace; font-size: 24px; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 5px; }
+        .auth-nav-btn { background: #222; border: 1px solid #333; color: #0070f3; font-size: 12px; cursor: pointer; padding: 10px; border-radius: 8px; width: 48%; }
+        .otp-display { background: #000; color: #ffcc00; font-size: 24px; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 5px; text-align: center; font-family: monospace; }
 
         input { width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; outline: none; }
     </style>
@@ -46,141 +45,28 @@
 
 <div id="auth-screen">
     <div class="auth-card" id="login-box">
-        <h1 style="color:#0070f3; margin-bottom:10px;">SUBBY LOGS</h1>
+        <h1 style="color:#0070f3; margin-bottom:10px; font-size:24px;">SUBBY LOGS</h1>
         <input type="text" id="login-u" placeholder="Username">
         <input type="password" id="login-p" placeholder="Password">
         <button class="btn-blue" onclick="processLogin()">LOGIN</button>
         <div style="margin-top:20px; display:flex; justify-content: space-between;">
-            <button class="auth-nav-btn" onclick="toggleAuth('signup')">Create Account</button>
-            <button class="auth-nav-btn" onclick="openReset()">Forgot Access?</button>
+            <button class="auth-nav-btn" onclick="toggleAuth('signup')">New Account</button>
+            <button class="auth-nav-btn" onclick="openReset()">Forgot?</button>
         </div>
     </div>
 
     <div class="auth-card" id="signup-box" style="display:none;">
-        <h2 style="color:#0070f3;">Registration</h2>
+        <h2 style="color:#0070f3;">Join Terminal</h2>
         <input type="text" id="reg-u" placeholder="Username">
         <input type="password" id="reg-p" placeholder="Password">
-        <button class="btn-blue" onclick="processSignup()">CONFIRM SIGNUP</button>
-        <button class="auth-nav-btn" style="width:100%; margin-top:10px; color:#888;" onclick="toggleAuth('login')">Back to Login</button>
+        <button class="btn-blue" onclick="processSignup()">CREATE ACCOUNT</button>
+        <button class="auth-nav-btn" style="width:100%; margin-top:10px;" onclick="toggleAuth('login')">Back</button>
     </div>
 
     <div class="auth-card" id="forgot-box" style="display:none;">
-        <h2 style="color:#ffcc00;">Security Verification</h2>
-        <p style="font-size:12px; color:#888; margin-top:5px;">Enter the code below to reset:</p>
+        <h2 style="color:#ffcc00;">Recovery</h2>
+        <p style="font-size:11px; color:#666;">Enter your username and the code shown below:</p>
         <div class="otp-display" id="otp-val">000000</div>
-        <input type="text" id="for-u" placeholder="Your Username">
-        <input type="text" id="for-otp" placeholder="Enter Code Shown Above">
-        <input type="password" id="for-new-p" placeholder="New Password">
-        <button class="btn-blue" style="background:#ffcc00; color:#000;" onclick="processReset()">VERIFY & RESET</button>
-        <button class="auth-nav-btn" style="width:100%; margin-top:10px; color:#888;" onclick="toggleAuth('login')">Back to Login</button>
-    </div>
-</div>
-
-<div id="main-site" style="display:none;">
-    <div class="navbar">
-        <div style="font-weight:900; color:#0070f3; font-size:18px;">SUBBY MARKET</div>
-        <div style="font-weight:bold; font-size: 14px;">₦<span id="bal">0</span> <button onclick="deposit()" style="padding:2px 6px;">+</button></div>
-    </div>
-
-    <div class="content-wrapper">
-        <div class="sidebar">
-            <div class="cat-item">Aged Accounts</div>
-            <div class="cat-item">Random Logs</div>
-            <div class="support-box">
-                <a href="mailto:SUBBYLOGSSUPPORT@GMAIL.COM" class="support-link">📧 Email Admin</a>
-                <a href="https://wa.me/234XXXXXXXXXX" class="support-link">💬 WhatsApp Admin</a>
-            </div>
-        </div>
-        <div class="main-content">
-            <div class="product-grid">
-                <div class="product-card">
-                    <span style="color:#d32f2f; font-size:12px; font-weight:bold;">● In Stock: 0</span>
-                    <h3 style="margin:10px 0 5px;">Aged Facebook</h3>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦5,000.00</div>
-                    <button class="btn-disabled">View Accounts</button>
-                </div>
-                <div class="product-card">
-                    <span style="color:#d32f2f; font-size:12px; font-weight:bold;">● In Stock: 0</span>
-                    <h3 style="margin:10px 0 5px;">Instagram Aged</h3>
-                    <div style="color:#0070f3; font-size:20px; font-weight:800; margin-top:10px;">₦3,500.00</div>
-                    <button class="btn-disabled">View Accounts</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    let activeUser = null;
-    let currentOTP = null;
-    const P_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
-
-    function toggleAuth(box) {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('signup-box').style.display = 'none';
-        document.getElementById('forgot-box').style.display = 'none';
-        document.getElementById(box + '-box').style.display = 'block';
-    }
-
-    function openReset() {
-        currentOTP = Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('otp-val').innerText = currentOTP;
-        toggleAuth('forgot');
-    }
-
-    function processSignup() {
-        const u = document.getElementById('reg-u').value.trim();
-        const p = document.getElementById('reg-p').value.trim();
-        if(!u || !p) return alert("Fill all fields!");
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
-        if(users[u]) return alert("Username taken!");
-        users[u] = { p: p, b: 0 };
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Registration Confirmed!");
-        toggleAuth('login');
-    }
-
-    function processLogin() {
-        const u = document.getElementById('login-u').value.trim();
-        const p = document.getElementById('login-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
-        if(users[u] && users[u].p === p) {
-            activeUser = u;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-site').style.display = 'block';
-            document.getElementById('bal').innerText = users[u].b.toLocaleString();
-        } else { alert("Access Denied!"); }
-    }
-
-    function processReset() {
-        const u = document.getElementById('for-u').value.trim();
-        const enteredOtp = document.getElementById('for-otp').value.trim();
-        const newP = document.getElementById('for-new-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{}');
-
-        if(!users[u]) return alert("Username not found!");
-        if(enteredOtp != currentOTP) return alert("Security Code Incorrect!");
-        if(!newP) return alert("Enter a new password!");
-
-        users[u].p = newP;
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Password Reset Successful!");
-        toggleAuth('login');
-    }
-
-    function deposit() {
-        const amt = prompt("Amount (₦):");
-        if(!amt || isNaN(amt)) return;
-        new PaystackPop().setup({
-            key: P_KEY, email: activeUser + "@subby.com", amount: amt * 100,
-            callback: (r) => {
-                let users = JSON.parse(localStorage.getItem('sys_users'));
-                users[activeUser].b += parseInt(amt);
-                localStorage.setItem('sys_users', JSON.stringify(users));
-                document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
-            }
-        }).openIframe();
-    }
-</script>
-</body>
-</html>
+        <input type="text" id="for-u" placeholder="Username">
+        <input type="text" id="for-otp" placeholder="Enter Code">
+        <input type="password" id="
