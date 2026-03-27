@@ -3,38 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | PREMIUM</title>
+    <title>SUBBY MARKET | ADMIN SECURE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
 
-        /* --- AUTH GATE --- */
-        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        /* --- HIDDEN ADMIN PANEL --- */
+        #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; padding: 20px; overflow-y: auto; }
+        .admin-box { background: #16161a; border: 1px solid #0070f3; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; }
+        .admin-title { color: #0070f3; margin-bottom: 15px; font-weight: 900; text-align: center; }
+        select, textarea { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; margin-bottom: 10px; }
+        
+        /* --- AUTH & SHOP STYLES (Existing) --- */
+        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
-        .auth-card h2 { color: #0070f3; margin-bottom: 20px; font-size: 24px; }
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-        .auth-link { font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; display: block; margin-top: 10px; }
-
-        /* --- MAIN APP --- */
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; user-select: none; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
         
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; box-shadow: 0 0 10px rgba(0, 112, 243, 0.3); }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
         .grid { padding: 15px; }
-        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; position: relative; }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
-        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #222; color: #555; cursor: not-allowed; font-weight: 800; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
+        .buy-btn:disabled { background: #222; color: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
+
+    <div id="admin-panel">
+        <div class="admin-box">
+            <h3 class="admin-title">RESTOCK CENTRE</h3>
+            <label>Select Item to Restock:</label>
+            <select id="restock-item"></select>
+            <label>New Stock Quantity:</label>
+            <input type="number" id="restock-qty" class="auth-input" placeholder="Amount">
+            <button class="auth-btn" onclick="applyRestock()">Apply Restock</button>
+            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
+        </div>
+    </div>
 
     <div id="auth-gate">
         <div class="auth-card" id="login-form">
@@ -42,127 +57,91 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <span class="auth-link" onclick="toggleAuth('signup')">Create Account</span>
-            <span class="auth-link" onclick="toggleAuth('forgot')">Forgot Password?</span>
-        </div>
-        <div class="auth-card" id="signup-form" style="display:none;">
-            <h2>Create Account</h2>
-            <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleSignUp()">Sign Up</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Back to Login</span>
-        </div>
-        <div class="auth-card" id="forgot-form" style="display:none;">
-            <h2>Reset Access</h2>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="Email Address">
-            <button class="auth-btn" onclick="handleForgot()">Get Code</button>
-            <span class="auth-link" onclick="toggleAuth('login')">Back</span>
-        </div>
-        <div class="auth-card" id="otp-form" style="display:none;">
-            <h2 id="otp-title">Verify</h2>
-            <input type="text" id="otp-input" class="auth-input" placeholder="6-digit code">
-            <div id="reset-area" style="display:none;"><input type="password" id="new-pass" class="auth-input" placeholder="New Password"></div>
-            <button class="auth-btn" id="otp-btn" onclick="verifyOTP()">Verify</button>
         </div>
     </div>
 
     <div id="main-app">
         <div class="navbar">
-            <div class="brand">SUBBY MARKET</div>
-            <div class="bal-pill">₦<span id="bal-val">0</span> <button class="plus-btn" onclick="fundWallet()">+</button></div>
+            <div class="brand" onmousedown="startAdminTimer()" onmouseup="clearAdminTimer()" ontouchstart="startAdminTimer()" ontouchend="clearAdminTimer()">SUBBY MARKET</div>
+            <div class="bal-pill">₦<span id="bal-val">0</span> <button class="plus-btn" style="background:transparent; border:none; color:#0070f3; font-weight:bold; cursor:pointer;" onclick="fundWallet()">+</button></div>
         </div>
 
-        <div class="categories-nav">
-            <div class="cat-btn active" onclick="filterShop('All', this)">All</div>
-            <div class="cat-btn" onclick="filterShop('Facebook', this)">Facebook</div>
-            <div class="cat-btn" onclick="filterShop('Instagram', this)">Instagram</div>
-            <div class="cat-btn" onclick="filterShop('Twitter', this)">Twitter</div>
-            <div class="cat-btn" onclick="filterShop('Netflix', this)">Netflix</div>
-        </div>
-
+        <div class="categories-nav" id="cat-bar"></div>
         <div class="grid" id="market-grid"></div>
     </div>
 
 <script>
-    let balance = 0, otp = "", isReset = false, tempUser = {};
+    let balance = 0, adminTimer, adminPIN = "1234"; 
 
+    // YOUR FULL INVENTORY LIST
     const items = [
-        // FACEBOOK
-        { n: "Facebook (Already created page)", p: 4000, c: "Facebook" },
-        { n: "Facebook (Fresh Profile Newly created)", p: 2500, c: "Facebook" },
-        { n: "Facebook (High-Activity Random Login)", p: 5500, c: "Facebook" },
-        { n: "Facebook (Standard Random Login)", p: 3000, c: "Facebook" },
-        { n: "USA Facebook (Random login 0-30 friends)", p: 7500, c: "Facebook" },
-        
-        // INSTAGRAM
-        { n: "Instagram (0–5,000 Followers)", p: 12000, c: "Instagram" },
-        { n: "Instagram (0-30 Followers)", p: 2000, c: "Instagram" },
-        { n: "Instagram (Established Account)", p: 8500, c: "Instagram" },
-        { n: "Random Instagram (0-300 Followers)", p: 3500, c: "Instagram" },
-        { n: "Foreign Instagram 🇺🇸 🇬🇧 🇮🇹 (200-400 Followers)", p: 10000, c: "Instagram" },
-
-        // TWITTER
-        { n: "Foreign Twitter 🇺🇸 🇬🇧 🇮🇹 (200-400 Followers)", p: 9500, c: "Twitter" },
-
-        // NETFLIX
-        { n: "Netflix Premium Logs", p: 4500, c: "Netflix" }
+        { id: 1, n: "Facebook (Aged Profile)", p: 4000, c: "Facebook", s: 0 },
+        { id: 2, n: "Facebook (Fresh Profile)", p: 2500, c: "Facebook", s: 0 },
+        { id: 3, n: "USA Facebook (Targeted)", p: 7500, c: "Facebook", s: 0 },
+        { id: 4, n: "Instagram (5k Followers)", p: 12000, c: "Instagram", s: 0 },
+        { id: 5, n: "Foreign Twitter 🇺🇸", p: 9500, c: "Twitter", s: 0 },
+        { id: 6, n: "Netflix Premium Logs", p: 4500, c: "Netflix", s: 0 }
     ];
 
-    function toggleAuth(v) {
-        ['login-form', 'signup-form', 'forgot-form', 'otp-form'].forEach(f => document.getElementById(f).style.display = 'none');
-        document.getElementById(v + '-form').style.display = 'block';
+    // --- ADMIN HIDDEN LOGIC ---
+    function startAdminTimer() { adminTimer = setTimeout(() => { 
+        let pass = prompt("Enter Admin Security PIN:");
+        if(pass === adminPIN) { 
+            document.getElementById('admin-panel').style.display = 'flex';
+            loadAdminList();
+        }
+    }, 3000); }
+    function clearAdminTimer() { clearTimeout(adminTimer); }
+    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+
+    function loadAdminList() {
+        const sel = document.getElementById('restock-item');
+        sel.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
     }
 
-    function handleSignUp() {
-        const e = document.getElementById('reg-email').value, p = document.getElementById('reg-pass').value;
-        if(!e || !p) return alert("Fill all fields");
-        otp = Math.floor(100000 + Math.random() * 900000).toString();
-        tempUser = { e, p };
-        alert("Verification Code: " + otp);
-        isReset = false;
-        toggleAuth('otp');
-    }
-
-    function handleForgot() {
-        const e = document.getElementById('forgot-email').value;
-        const saved = JSON.parse(localStorage.getItem('subby_user'));
-        if(saved && saved.e === e) {
-            otp = Math.floor(100000 + Math.random() * 900000).toString();
-            alert("Recovery Code: " + otp);
-            isReset = true;
-            document.getElementById('otp-title').innerText = "Reset Access";
-            toggleAuth('otp');
-        } else alert("Email not found!");
-    }
-
-    function verifyOTP() {
-        if(document.getElementById('otp-input').value !== otp) return alert("Wrong code!");
-        if(isReset) {
-            document.getElementById('otp-input').style.display = 'none';
-            document.getElementById('reset-area').style.display = 'block';
-            document.getElementById('otp-btn').innerText = "Update Password";
-            document.getElementById('otp-btn').onclick = () => {
-                let s = JSON.parse(localStorage.getItem('subby_user'));
-                s.p = document.getElementById('new-pass').value;
-                localStorage.setItem('subby_user', JSON.stringify(s));
-                alert("Updated!"); location.reload();
-            };
-        } else {
-            localStorage.setItem('subby_user', JSON.stringify(tempUser));
-            startApp(tempUser.e);
+    function applyRestock() {
+        const id = document.getElementById('restock-item').value;
+        const qty = document.getElementById('restock-qty').value;
+        const item = items.find(i => i.id == id);
+        if(item) {
+            item.s = parseInt(qty);
+            alert(`${item.n} restocked to ${qty}`);
+            renderItems(items);
+            closeAdmin();
         }
     }
 
-    function handleLogin() {
-        const e = document.getElementById('log-email').value, p = document.getElementById('log-pass').value;
-        const s = JSON.parse(localStorage.getItem('subby_user'));
-        if(s && s.e === e && s.p === p) startApp(e); else alert("Invalid login!");
+    // --- MAIN APP LOGIC ---
+    function renderItems(data) {
+        document.getElementById('market-grid').innerHTML = data.map(i => `
+            <div class="card">
+                <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:10px; font-weight:800;">
+                    ${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}
+                </span>
+                <h3>${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
+                <button class="buy-btn" ${i.s === 0 ? 'disabled' : ''}>
+                    ${i.s > 0 ? 'PURCHASE' : 'UNAVAILABLE'}
+                </button>
+            </div>`).join('');
     }
 
-    function startApp(e) {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        renderItems(items);
+    function handleLogin() {
+        const e = document.getElementById('log-email').value;
+        const p = document.getElementById('log-pass').value;
+        if(e && p) { 
+            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            renderItems(items);
+            setupCategories();
+        }
+    }
+
+    function setupCategories() {
+        const cats = ['All', ...new Set(items.map(i => i.c))];
+        document.getElementById('cat-bar').innerHTML = cats.map(c => 
+            `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`
+        ).join('');
     }
 
     function filterShop(c, btn) {
@@ -171,22 +150,12 @@
         renderItems(c === 'All' ? items : items.filter(i => i.c === c));
     }
 
-    function renderItems(data) {
-        document.getElementById('market-grid').innerHTML = data.map(i => `
-            <div class="card">
-                <span style="color:#ff4d4d; font-size:10px; font-weight:800;">SOLD OUT</span>
-                <h3>${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn" disabled>UNAVAILABLE</button>
-            </div>`).join('');
-    }
-
     function fundWallet() {
-        const amt = prompt("Amount (₦):");
+        const amt = prompt("Amount to fund (₦):");
         if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: 'customer@subbymarket.com',
+            email: 'user@subbymarket.com',
             amount: amt * 100,
             callback: () => {
                 balance += parseInt(amt);
