@@ -3,118 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | OFFICIAL</title>
+    <title>SUBBY MARKET</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        body { background: #000; color: #eee; min-height: 100vh; }
         
-        /* Login Screen */
-        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
-        h1 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
-        input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
-        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; }
+        /* Navbar */
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .bal-display { background: #1a1a20; border: 1px solid #0070f3; padding: 8px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; }
+        .plus-btn { background: #0070f3; color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
         
-        /* Main Market */
-        #main-site { display: none; width: 100%; position: fixed; inset: 0; background: #000; overflow-y: auto; }
-        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
-        .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 6px 12px; border-radius: 20px; border: 1px solid #0070f3; }
-        .plus-btn { background: #0070f3; color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; }
-        
-        .category-header { padding: 20px 15px 5px; color: #0070f3; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .product-list { padding: 10px 15px; }
-        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
-        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 5px 0; }
+        /* Categories Sidebar/Menu */
+        .categories-container { background: #0a0a0c; padding: 15px; border-bottom: 1px solid #222; }
+        .cat-item { padding: 12px; color: #aaa; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+        .cat-item:hover { background: #16161a; color: #fff; }
+        .cat-item.active { border-left: 3px solid #0070f3; color: #fff; background: #16161a; }
+
+        /* Support Links */
+        .support-box { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin: 15px; font-size: 13px; }
+        .support-box a { color: #58a6ff; text-decoration: none; display: block; margin: 5px 0; }
+
+        /* Product Cards */
+        .product-section { padding: 15px; }
+        .section-title { color: #0070f3; text-transform: uppercase; margin-bottom: 15px; font-size: 14px; letter-spacing: 1px; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 18px; border-radius: 15px; margin-bottom: 15px; }
+        .stock-tag { color: #ff4d4d; font-size: 10px; font-weight: bold; }
+        .price { color: #0070f3; font-weight: bold; font-size: 22px; margin: 10px 0; }
+        .btn-buy { background: #222; color: #555; border: 1px solid #333; padding: 12px; border-radius: 8px; width: 100%; cursor: not-allowed; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="auth-container">
-    <div class="auth-card">
-        <h1>SUBBY LOGS</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn-blue" onclick="doLogin()">LOGIN</button>
-    </div>
-</div>
-
-<div id="main-site">
+<div id="app">
     <div class="navbar">
-        <b style="color:#0070f3;">SUBBY MARKET</b>
-        <div class="bal-box">
+        <b style="color:#0070f3; font-size: 18px;">SUBBY MARKET</b>
+        <div class="bal-display">
             <span>₦<span id="bal-val">0</span></span>
-            <button class="plus-btn" onclick="payWithPaystack()">+</button>
+            <button class="plus-btn" onclick="openDeposit()">+</button>
         </div>
     </div>
-    <div id="shop-content"></div>
+
+    <div class="categories-container">
+        <div style="font-size: 12px; color: #555; margin-bottom: 10px;">CATEGORIES</div>
+        <div class="cat-item active">Show All</div>
+        <div class="cat-item">Aged Twitter</div>
+        <div class="cat-item">Aged Instagram</div>
+        <div class="cat-item">Facebook Logs</div>
+        <div class="cat-item">TikTok / Snapchat</div>
+        <div class="cat-item">TextNow / TextFree</div>
+        <div class="cat-item">Telegram / WhatsApp</div>
+
+        <div class="support-box">
+            <a href="mailto:subbylogssuport@gmail.com">📩 subbylogssuport@gmail.com</a>
+            <a href="https://wa.me/yournumber">💬 WhatsApp Support</a>
+        </div>
+    </div>
+
+    <div class="product-section">
+        <div class="section-title">ALL</div>
+        
+        <div class="card">
+            <div class="stock-tag">IN STOCK: 0</div>
+            <h3>Aged Twitter (2012)</h3>
+            <div class="price">₦4,000</div>
+            <button class="btn-buy">NOT AVAILABLE</button>
+        </div>
+
+        <div class="card">
+            <div class="stock-tag" style="color:#00c853;">IN STOCK: 15</div>
+            <h3>Facebook (Create Profile)</h3>
+            <div class="price">₦8,000</div>
+            <button class="btn-buy" style="background:#0070f3; color:#fff; border:none; cursor:pointer;">Buy Now</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const myKey = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
-    let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0,"e":"admin@mail.com"}}');
-    let activeUser = null;
+    let userBalance = 0;
+    const publicKey = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
 
-    function doLogin() {
-        const u = document.getElementById('username').value.trim();
-        const p = document.getElementById('password').value.trim();
-        if(users[u] && users[u].p === p) {
-            activeUser = u;
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('main-site').style.display = 'block';
-            updateUI();
-            renderShop();
-        } else { alert("Login Error!"); }
-    }
+    function openDeposit() {
+        const amount = prompt("Enter Amount to Deposit (₦):");
+        if (!amount || isNaN(amount)) return;
 
-    function updateUI() {
-        document.getElementById('bal-val').innerText = users[activeUser].b.toLocaleString();
-    }
-
-    function payWithPaystack() {
-        const amt = prompt("Amount (₦):");
-        if(!amt || isNaN(amt)) return;
-        
-        let handler = PaystackPop.setup({
-            key: myKey,
-            email: users[activeUser].e,
-            amount: amt * 100,
-            currency: "NGN",
-            callback: function(res) {
-                users[activeUser].b += parseInt(amt);
-                localStorage.setItem('sys_users', JSON.stringify(users));
-                updateUI();
+        const handler = PaystackPop.setup({
+            key: publicKey,
+            email: 'Pelumi@subbymarket.com', // Email from your video
+            amount: amount * 100,
+            currency: 'NGN',
+            callback: function(response) {
+                userBalance += parseInt(amount);
+                document.getElementById('bal-val').innerText = userBalance.toLocaleString();
                 alert("Deposit Success!");
+            },
+            onClose: function() {
+                alert('Transaction cancelled.');
             }
         });
         handler.openIframe();
-    }
-
-    function renderShop() {
-        const categories = {
-            "Facebook Logs": [
-                {n:"Facebook with create profile", p:8000},
-                {n:"Facebook already created Profile", p:5500}
-            ],
-            "Aged Accounts": [
-                {n:"Aged Facebook (2014)", p:10000},
-                {n:"Aged Instagram", p:8500},
-                {n:"Aged Twitter (2012)", p:12000}
-            ]
-        };
-        
-        let html = '';
-        for(let cat in categories) {
-            html += `<div class="category-header">${cat}</div><div class="product-list">`;
-            categories[cat].forEach(i => {
-                html += `<div class="card">
-                    <h3>${i.n}</h3>
-                    <div class="price">₦${i.p.toLocaleString()}</div>
-                    <button class="btn-blue" style="padding:10px; font-size:12px;">Buy Now</button>
-                </div>`;
-            });
-            html += `</div>`;
-        }
-        document.getElementById('shop-content').innerHTML = html;
     }
 </script>
 </body>
