@@ -9,28 +9,25 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: #eee; min-height: 100vh; }
         
-        /* Navbar */
         .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
         .bal-display { background: #1a1a20; border: 1px solid #0070f3; padding: 8px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         .plus-btn { background: #0070f3; color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
         
-        /* Sidebar/Categories */
         .categories-container { background: #0a0a0c; padding: 15px; border-bottom: 1px solid #222; }
         .cat-title { font-size: 11px; color: #555; margin-bottom: 10px; letter-spacing: 1px; }
         .cat-item { padding: 12px; color: #aaa; border-bottom: 1px solid #111; cursor: pointer; font-size: 14px; }
         .cat-item.active { border-left: 3px solid #0070f3; color: #fff; background: #16161a; }
 
-        /* Support Links */
         .support-box { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 13px; }
         .support-box a { color: #58a6ff; text-decoration: none; display: block; margin: 5px 0; }
 
-        /* Product Cards */
         .product-section { padding: 15px; }
         .section-title { color: #0070f3; margin-bottom: 15px; font-size: 14px; font-weight: bold; }
         .card { background: #16161a; border: 1px solid #262626; padding: 18px; border-radius: 15px; margin-bottom: 15px; }
         .stock-tag { font-size: 10px; font-weight: bold; margin-bottom: 5px; }
         .price { color: #0070f3; font-weight: bold; font-size: 22px; margin: 10px 0; }
         .btn-buy { background: #0070f3; color: #fff; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; }
+        .btn-buy.out-of-stock { background: #222; color: #555; border: 1px solid #333; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -45,12 +42,12 @@
 
     <div class="categories-container">
         <div class="cat-title">CATEGORIES</div>
-        <div class="cat-item active">Show All</div>
-        <div class="cat-item">Facebook Logs</div>
-        <div class="cat-item">Twitter Accounts</div>
-        <div class="cat-item">Instagram Profiles</div>
-        <div class="cat-item">TextPlus / TextNow</div>
-        <div class="cat-item">Telegram / WhatsApp</div>
+        <div class="cat-item active" onclick="filterCategory('Show All', this)">Show All</div>
+        <div class="cat-item" onclick="filterCategory('Facebook Logs', this)">Facebook Logs</div>
+        <div class="cat-item" onclick="filterCategory('Twitter Accounts', this)">Twitter Accounts</div>
+        <div class="cat-item" onclick="filterCategory('Instagram Profiles', this)">Instagram Profiles</div>
+        <div class="cat-item" onclick="filterCategory('TextPlus / TextNow / TextFree', this)">TextPlus / TextNow / TextFree</div>
+        <div class="cat-item" onclick="filterCategory('Telegram / WhatsApp', this)">Telegram / WhatsApp</div>
 
         <div class="support-box">
             <a href="mailto:subbylogssuport@gmail.com">📩 subbylogssuport@gmail.com</a>
@@ -59,37 +56,48 @@
     </div>
 
     <div class="product-section">
-        <div class="section-title">AVAILABLE LOGS</div>
+        <div class="section-title" id="current-category">AVAILABLE LOGS</div>
         <div id="shop-content"></div>
     </div>
 
 <script>
     let balance = 0;
     const items = [
-        {n: "Facebook with create profile", p: 8000, s: 12},
-        {n: "Facebook with already created profile", p: 5500, s: 8},
-        {n: "Random Facebook", p: 3000, s: 25},
-        {n: "Aged Twitter", p: 10000, s: 5},
-        {n: "Twitter (Standard)", p: 4500, s: 15},
-        {n: "Instagram HD", p: 9000, s: 10},
-        {n: "Instagram (Standard)", p: 4000, s: 20},
-        {n: "TextPlus USA", p: 5000, s: 30},
-        {n: "TextPlus Canada", p: 5000, s: 18},
-        {n: "TextNow", p: 4500, s: 22},
-        {n: "TextFree", p: 4000, s: 14},
-        {n: "Telegram", p: 6000, s: 9}
+        {n: "Random Facebook", p: 3000, s: 25, c: "Facebook Logs"},
+        {n: "Facebook with already created profile", p: 5500, s: 8, c: "Facebook Logs"},
+        {n: "Facebook with create profile", p: 8000, s: 12, c: "Facebook Logs"},
+        {n: "Aged Twitter", p: 10000, s: 5, c: "Twitter Accounts"},
+        {n: "Twitter (Standard)", p: 4500, s: 0, c: "Twitter Accounts"},
+        {n: "Instagram HD", p: 9000, s: 10, c: "Instagram Profiles"},
+        {n: "Instagram (Standard)", p: 4000, s: 20, c: "Instagram Profiles"},
+        {n: "TextPlus USA", p: 5000, s: 30, c: "TextPlus / TextNow / TextFree"},
+        {n: "TextPlus Canada", p: 5000, s: 18, c: "TextPlus / TextNow / TextFree"},
+        {n: "TextNow", p: 4500, s: 22, c: "TextPlus / TextNow / TextFree"},
+        {n: "TextFree", p: 4000, s: 14, c: "TextPlus / TextNow / TextFree"},
+        {n: "Telegram", p: 6000, s: 0, c: "Telegram / WhatsApp"}
     ];
 
-    function renderShop() {
+    function filterCategory(category, element) {
+        document.querySelectorAll('.cat-item').forEach(item => item.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('current-category').innerText = category.toUpperCase();
+        renderShop(category);
+    }
+
+    function renderShop(filter = 'Show All') {
         const grid = document.getElementById('shop-content');
-        grid.innerHTML = items.map(i => `
+        const filteredItems = filter === 'Show All' ? items : items.filter(i => i.c === filter);
+        
+        grid.innerHTML = filteredItems.map(i => `
             <div class="card">
                 <div class="stock-tag" style="color:${i.s > 0 ? '#00c853' : '#ff4d4d'}">
                     IN STOCK: ${i.s}
                 </div>
                 <h3>${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="btn-buy" onclick="buyItem('${i.n}', ${i.p})">Buy Now</button>
+                ${i.s > 0 ? 
+                    `<button class="btn-buy" onclick="buyItem('${i.n}', ${i.p})">Buy Now</button>` : 
+                    `<button class="btn-buy out-of-stock" disabled>NOT AVAILABLE</button>`}
             </div>
         `).join('');
     }
