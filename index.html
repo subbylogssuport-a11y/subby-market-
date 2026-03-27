@@ -3,65 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | PRO V3</title>
+    <title>SUBBY MARKET | PRO V4</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
+        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- ADMIN PANEL --- */
+        /* --- AUTH GATES --- */
+        .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; transition: border 0.3s; }
+        .auth-input:focus { border-color: #0070f3; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .gate-link { color: #888; font-size: 13px; margin-top: 15px; display: inline-block; text-decoration: none; cursor: pointer; }
+        .gate-link span { color: #0070f3; font-weight: bold; }
+
+        /* --- ADMIN & LAYOUT --- */
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; }
         .admin-box { background: #16161a; border: 1px solid #0070f3; padding: 25px; border-radius: 20px; width: 100%; max-width: 450px; margin: 40px auto; }
-        .admin-title { color: #0070f3; margin-bottom: 20px; font-weight: 900; text-align: center; }
-        select, textarea, .adm-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 15px; outline: none; }
-        textarea { height: 150px; font-family: monospace; }
-        
-        /* --- UI COMPONENTS --- */
-        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; user-select: none; }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; font-weight: bold; }
-        
+
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; font-size: 13px; font-weight: 600; cursor: pointer; }
         .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
-        .grid { padding: 15px; }
-        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
+        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; }
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
         .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
-        .buy-btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+        .buy-btn:disabled { background: #222; color: #555; }
 
-        /* --- ORDERS SECTION --- */
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
         .order-item { background: #111; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #0070f3; font-size: 12px; word-break: break-all; }
     </style>
 </head>
 <body>
 
-    <div id="admin-panel">
-        <div class="admin-box">
-            <h3 class="admin-title">WAREHOUSE (ADMIN)</h3>
-            <label>Choose Item</label>
-            <select id="restock-item"></select>
-            <label>Paste Logs (One per line)</label>
-            <textarea id="log-input" placeholder="user:pass:cookie"></textarea>
-            <button class="auth-btn" onclick="applyRestock()">Submit to Inventory</button>
-            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Cancel</button>
+    <div id="login-gate" class="gate-container">
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:20px;">SUBBY LOGIN</h2>
+            <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
+            <button class="auth-btn" onclick="handleLogin()">Sign In</button>
+            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span>Create Account</span></div><br>
+            <div class="gate-link" onclick="showGate('forgot-gate')">Forgot Password?</div>
         </div>
     </div>
 
-    <div id="auth-gate">
+    <div id="reg-gate" class="gate-container" style="display:none;">
         <div class="auth-card">
-            <h2 style="color:#0070f3; margin-bottom:20px;">SUBBY LOGIN</h2>
-            <input type="email" id="log-email" class="auth-input" placeholder="Email">
-            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleLogin()">Sign In</button>
+            <h2 style="color:#0070f3; margin-bottom:20px;">JOIN SUBBY</h2>
+            <input type="email" id="reg-email" class="auth-input" placeholder="Enter Email">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <button class="auth-btn" onclick="handleRegister()">Get Code</button>
+            <div class="gate-link" onclick="showGate('login-gate')">Already have an account? <span>Login</span></div>
+        </div>
+    </div>
+
+    <div id="verify-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:10px;">VERIFY IT'S YOU</h2>
+            <p style="font-size:12px; color:#666; margin-bottom:20px;">A 6-digit code was sent to your email.</p>
+            <input type="text" id="verify-code" class="auth-input" style="text-align:center; font-size:24px; letter-spacing:8px;" placeholder="000000" maxlength="6">
+            <button class="auth-btn" onclick="confirmVerify()">Verify & Register</button>
+        </div>
+    </div>
+
+    <div id="forgot-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:10px;">RESET ACCESS</h2>
+            <p style="font-size:12px; color:#666; margin-bottom:20px;">Enter email to receive reset code.</p>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Email Address">
+            <button class="auth-btn" onclick="handleForgot()">Send Reset Code</button>
+            <div class="gate-link" onclick="showGate('login-gate')">Back to Login</div>
+        </div>
+    </div>
+
+    <div id="admin-panel">
+        <div class="admin-box">
+            <h3 style="color:#0070f3; margin-bottom:20px; text-align:center;">WAREHOUSE CONTROL</h3>
+            <select id="restock-item" class="auth-input"></select>
+            <textarea id="log-input" class="auth-input" style="height:120px;" placeholder="Paste Logs (user:pass:cookie)"></textarea>
+            <button class="auth-btn" onclick="applyRestock()">Apply Restock</button>
+            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
         </div>
     </div>
 
@@ -72,7 +100,6 @@
         </div>
 
         <div class="categories-nav" id="cat-bar"></div>
-
         <div class="grid" id="market-grid"></div>
 
         <div class="orders-section">
@@ -83,20 +110,81 @@
 
 <script>
     let balance = 0, adminTimer, adminPIN = "1234", myOrders = [];
+    let tempUserData = {}, generatedCode = "";
 
     const items = [
-        { id: 1, n: "Facebook (Page Created)", p: 4000, c: "Facebook", s: 0, logs: [] },
-        { id: 2, n: "Facebook (Fresh Profile)", p: 2500, c: "Facebook", s: 0, logs: [] },
-        { id: 3, n: "Facebook (Random High-Act)", p: 5500, c: "Facebook", s: 0, logs: [] },
-        { id: 4, n: "USA Facebook (0-30 Friends)", p: 7500, c: "Facebook", s: 0, logs: [] },
-        { id: 5, n: "Instagram (0-5,000 Followers)", p: 12000, c: "Instagram", s: 0, logs: [] },
-        { id: 6, n: "Instagram (Established)", p: 8500, c: "Instagram", s: 0, logs: [] },
-        { id: 7, n: "Twitter (Foreign 🇺🇸🇬🇧🇮🇹)", p: 9500, c: "Twitter", s: 0, logs: [] },
-        { id: 8, n: "Netflix Premium Logs", p: 3500, c: "Netflix", s: 0, logs: [] }
+        { id: 1, n: "Facebook (Aged Profile)", p: 4000, c: "Facebook", s: 0, logs: [] },
+        { id: 2, n: "USA Facebook (Targeted)", p: 7500, c: "Facebook", s: 0, logs: [] },
+        { id: 3, n: "Instagram (10k+ Followers)", p: 15000, c: "Instagram", s: 0, logs: [] },
+        { id: 4, n: "Spotify Premium Log", p: 3500, c: "Music", s: 0, logs: [] }
     ];
 
+    // --- GATE LOGIC ---
+    function showGate(gateId) {
+        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
+        document.getElementById(gateId).style.display = 'flex';
+    }
+
+    function handleRegister() {
+        const email = document.getElementById('reg-email').value;
+        const pass = document.getElementById('reg-pass').value;
+        if(!email || !pass) return alert("Fill all fields");
+        
+        // Generate random 6 digits
+        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        tempUserData = { email, pass };
+        
+        alert(`DEMO MODE: Your 6-digit code is: ${generatedCode}`);
+        showGate('verify-gate');
+    }
+
+    function confirmVerify() {
+        const inputCode = document.getElementById('verify-code').value;
+        if(inputCode === generatedCode) {
+            localStorage.setItem('subby_user', JSON.stringify(tempUserData));
+            alert("Registration successful!");
+            showGate('login-gate');
+        } else {
+            alert("Invalid code!");
+        }
+    }
+
+    function handleLogin() {
+        const email = document.getElementById('log-email').value;
+        const pass = document.getElementById('log-pass').value;
+        const stored = JSON.parse(localStorage.getItem('subby_user'));
+
+        if(stored && stored.email === email && stored.pass === pass) {
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            setupCategories();
+            renderItems(items);
+        } else {
+            alert("Invalid Credentials!");
+        }
+    }
+
+    function handleForgot() {
+        const email = document.getElementById('forgot-email').value;
+        const stored = JSON.parse(localStorage.getItem('subby_user'));
+        if(stored && stored.email === email) {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            alert(`Password reset code: ${code}`);
+            const newPass = prompt("Enter New Password:");
+            if(newPass) {
+                stored.pass = newPass;
+                localStorage.setItem('subby_user', JSON.stringify(stored));
+                alert("Password updated!");
+                showGate('login-gate');
+            }
+        } else {
+            alert("Email not found!");
+        }
+    }
+
+    // --- MARKET LOGIC ---
     function startAdminTimer() { adminTimer = setTimeout(() => { 
-        if(prompt("Security PIN:") === adminPIN) { 
+        if(prompt("Admin PIN:") === adminPIN) { 
             document.getElementById('admin-panel').style.display = 'block';
             document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
         }
@@ -114,7 +202,7 @@
             item.s = item.logs.length;
             renderItems(items);
             closeAdmin();
-            alert("Restocked successfully!");
+            alert("Stock Added!");
         }
     }
 
@@ -122,44 +210,31 @@
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
                 <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px; font-weight:800;">
-                    ${i.s > 0 ? 'INSTOCK: ' + i.s : 'SOLD OUT'}
+                    ${i.s > 0 ? 'IN STOCK: ' + i.s : 'SOLD OUT'}
                 </span>
                 <h3 style="margin:5px 0;">${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>
-                    ${i.s > 0 ? 'BUY NOW' : 'OUT OF STOCK'}
+                    ${i.s > 0 ? 'PURCHASE NOW' : 'UNAVAILABLE'}
                 </button>
             </div>`).join('');
     }
 
     function buyItem(id) {
         const item = items.find(i => i.id == id);
-        if(balance < item.p) return alert("Low Balance! Please fund your wallet.");
-        
+        if(balance < item.p) return alert("Insufficient Balance!");
         const log = item.logs.shift();
         item.s = item.logs.length;
         balance -= item.p;
         document.getElementById('bal-val').innerText = balance.toLocaleString();
-        
         myOrders.unshift({ name: item.n, log: log });
         updateOrdersUI();
         renderItems(items);
-        alert("Purchase Successful! Check 'My Purchased Logs' below.");
     }
 
     function updateOrdersUI() {
-        const list = document.getElementById('orders-list');
-        list.innerHTML = myOrders.map(o => `
-            <div class="order-item">
-                <strong>${o.name}</strong><br>${o.log}
-            </div>`).join('');
-    }
-
-    function handleLogin() {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        setupCategories();
-        renderItems(items);
+        document.getElementById('orders-list').innerHTML = myOrders.map(o => `
+            <div class="order-item"><strong>${o.name}</strong><br>${o.log}</div>`).join('');
     }
 
     function setupCategories() {
@@ -176,11 +251,11 @@
     }
 
     function fundWallet() {
-        const amt = prompt("Fund Amount (₦):");
+        const amt = prompt("Enter Amount to Fund (₦):");
         if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: 'user@subbymarket.com',
+            email: tempUserData.email || 'user@subby.com',
             amount: amt * 100,
             callback: () => {
                 balance += parseInt(amt);
