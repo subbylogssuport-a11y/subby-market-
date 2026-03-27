@@ -43,7 +43,7 @@
         <button class="btn-blue" style="background:#222;" onclick="toggleAuth('signup')">Create Account</button>
         <p style="margin-top:15px; font-size:12px; color:#0070f3; cursor:pointer;" onclick="openReset()">Forgot Password?</p>
     </div>
-    </div>
+</div>
 
 <div id="main-site" style="display:none;">
     <div class="navbar">
@@ -59,6 +59,8 @@
             <div class="cat-item" onclick="filterShop('fb_usa')">Facebook USA</div>
             <div class="cat-item" onclick="filterShop('fb_naija')">Facebook Naija</div>
             <div class="cat-item" onclick="filterShop('fb_aged_profile')">Aged Profiled FB</div>
+            <div class="cat-item" onclick="filterShop('fb_great_profile')">Great Profile FB</div>
+            <div class="cat-item" onclick="filterShop('fb_created_profile')">Created Profile FB</div>
             <div class="cat-item" onclick="filterShop('fb_random')">Random Facebook</div>
 
             <div class="cat-title">Instagram Section</div>
@@ -84,11 +86,12 @@
 <div id="admin-panel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:2000; padding:20px; overflow-y:auto;">
     <div style="max-width:500px; margin:auto; background:#16161a; padding:25px; border-radius:15px; border:1px solid #0070f3;">
         <h2 style="color:#0070f3;">Restock Warehouse</h2>
-        <label style="font-size:12px; color:#666;">Select Category to Restock:</label>
         <select id="admin-cat">
             <option value="fb_usa">Facebook USA</option>
             <option value="fb_naija">Facebook Naija</option>
             <option value="fb_aged_profile">Aged Profiled FB</option>
+            <option value="fb_great_profile">Great Profile FB</option>
+            <option value="fb_created_profile">Created Profile FB</option>
             <option value="fb_random">Random Facebook</option>
             <option value="ig_aged">Aged Instagram</option>
             <option value="ig_usa">Instagram USA</option>
@@ -105,14 +108,15 @@
 
 <script>
     const MASTER_PW = "SubbyAdmin2026";
-    let clickCount = 0;
-    let activeUser = null;
+    let clickCount = 0; let activeUser = null;
     let inventory = JSON.parse(localStorage.getItem('subby_stock') || '{}');
 
     const products = [
         {id:'fb_usa', name:'Facebook USA', price:6000},
         {id:'fb_naija', name:'Facebook Naija', price:4500},
         {id:'fb_aged_profile', name:'Aged Profiled FB', price:7500},
+        {id:'fb_great_profile', name:'Great Profile FB', price:8000},
+        {id:'fb_created_profile', name:'Created Profile FB', price:5500},
         {id:'fb_random', name:'Random Facebook', price:3000},
         {id:'ig_aged', name:'Aged Instagram', price:5000},
         {id:'ig_usa', name:'Instagram USA', price:5500},
@@ -141,39 +145,22 @@
         });
     }
 
+    function buyLogs(id, price) {
+        let users = JSON.parse(localStorage.getItem('sys_users'));
+        if (!inventory[id] || inventory[id].length === 0) return alert("Out of stock!");
+        if (users[activeUser].b < price) return alert("Insufficient balance!");
+
+        if (confirm(`Confirm purchase for ₦${price.toLocaleString()}?`)) {
+            users[activeUser].b -= price;
+            const log = inventory[id].shift();
+            localStorage.setItem('sys_users', JSON.stringify(users));
+            localStorage.setItem('subby_stock', JSON.stringify(inventory));
+            document.getElementById('bal').innerText = users[activeUser].b.toLocaleString();
+            filterShop('all');
+            alert("✅ SUCCESS!\n\nDetails:\n" + log);
+        }
+    }
+
     function adminClick() {
         clickCount++;
         if(clickCount >= 5) {
-            if(prompt("Admin Password:") === MASTER_PW) document.getElementById('admin-panel').style.display='block';
-            clickCount = 0;
-        }
-        setTimeout(() => clickCount = 0, 3000);
-    }
-
-    function saveLogs() {
-        const cat = document.getElementById('admin-cat').value;
-        const newLogs = document.getElementById('admin-logs').value.trim().split('\n').filter(l => l !== '');
-        inventory[cat] = [...(inventory[cat] || []), ...newLogs];
-        localStorage.setItem('subby_stock', JSON.stringify(inventory));
-        alert("Inventory Updated!");
-        document.getElementById('admin-logs').value = '';
-        filterShop('all');
-    }
-
-    function hideAdmin() { document.getElementById('admin-panel').style.display='none'; }
-
-    function processLogin() {
-        const u = document.getElementById('login-u').value.trim();
-        const p = document.getElementById('login-p').value.trim();
-        let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
-        if(users[u] && users[u].p === p) {
-            activeUser = u;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-site').style.display = 'block';
-            document.getElementById('bal').innerText = users[u].b.toLocaleString();
-            filterShop('all');
-        } else { alert("Login failed!"); }
-    }
-</script>
-</body>
-</html>
