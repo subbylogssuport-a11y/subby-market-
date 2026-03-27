@@ -7,30 +7,83 @@
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
+        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* Glass Navbar */
-        .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
-        .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+        /* Premium Navbar */
+        .navbar { 
+            background: rgba(22, 22, 26, 0.85); 
+            backdrop-filter: blur(12px); 
+            padding: 18px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; text-transform: uppercase; }
+        .bal-pill { 
+            background: #111; 
+            border: 1px solid #0070f3; 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            box-shadow: 0 0 15px rgba(0, 112, 243, 0.3);
+        }
+        .plus-btn { 
+            background: #0070f3; 
+            color: #fff; 
+            border: none; 
+            width: 26px; 
+            height: 26px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
 
-        /* Categories */
+        /* Categories Scroll */
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .categories-nav::-webkit-scrollbar { display: none; }
-        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
+        .cat-btn { 
+            background: #16161a; 
+            color: #888; 
+            padding: 10px 18px; 
+            border-radius: 12px; 
+            border: 1px solid #222; 
+            white-space: nowrap; 
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: 600; 
+            transition: 0.3s;
+        }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; box-shadow: 0 5px 15px rgba(0, 112, 243, 0.4); }
 
-        /* Duplex Cards */
+        /* Duplex Layout Cards */
         .grid { padding: 10px 15px; }
-        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        .stock { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .price { font-size: 24px; font-weight: 800; color: #0070f3; margin: 10px 0; }
-        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; }
-        .buy-btn.out { background: #222; color: #555; cursor: not-allowed; border: 1px solid #333; }
+        .card { 
+            background: linear-gradient(145deg, #16161a, #0c0c0e); 
+            border: 1px solid #222; 
+            border-radius: 20px; 
+            padding: 22px; 
+            margin-bottom: 15px; 
+            text-align: left;
+        }
+        .stock-status { font-size: 10px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .price { font-size: 26px; font-weight: 900; color: #0070f3; margin: 12px 0; }
+        .buy-btn { 
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            background: #fff; color: #000; font-weight: 900; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .buy-btn.locked { background: #222; color: #555; cursor: not-allowed; border: 1px solid #333; }
 
-        .support { padding: 20px; text-align: center; border-top: 1px solid #111; margin-top: 20px; }
-        .support a { color: #58a6ff; text-decoration: none; font-size: 13px; }
+        .footer { padding: 30px; text-align: center; border-top: 1px solid #111; margin-top: 20px; color: #555; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -38,74 +91,90 @@
     <div class="navbar">
         <div class="brand">SUBBY MARKET</div>
         <div class="bal-pill">
-            <span>₦<span id="bal-val">0</span></span>
-            <button class="plus-btn" onclick="openDeposit()">+</button>
+            <span>₦<span id="bal-display">0</span></span>
+            <button class="plus-btn" onclick="payWithPaystack()">+</button>
         </div>
     </div>
 
     <div class="categories-nav">
-        <div class="cat-btn active" onclick="filterShop('All', this)">All Logs</div>
-        <div class="cat-btn" onclick="filterShop('Facebook', this)">Facebook</div>
-        <div class="cat-btn" onclick="filterShop('Audio', this)">Audio Accounts</div>
-        <div class="cat-btn" onclick="filterShop('Social', this)">Aged Accounts</div>
-        <div class="cat-btn" onclick="filterShop('Text', this)">TextNow/Free</div>
+        <div class="cat-btn active" onclick="filterMenu('All', this)">All Categories</div>
+        <div class="cat-btn" onclick="filterMenu('Facebook', this)">Facebook</div>
+        <div class="cat-btn" onclick="filterMenu('Audio', this)">Audio Accounts</div>
+        <div class="cat-btn" onclick="filterMenu('Social', this)">Aged Accounts</div>
+        <div class="cat-btn" onclick="filterMenu('Text', this)">TextNow/Free</div>
     </div>
 
-    <div class="grid" id="main-grid"></div>
+    <div class="grid" id="product-grid"></div>
 
-    <div class="support">
-        <a href="mailto:subbylogssuport@gmail.com">📩 subbylogssuport@gmail.com</a>
+    <div class="footer">
+        <p>Official Support: subbylogssuport@gmail.com</p>
+        <p style="margin-top: 10px; font-size: 10px;">SUBBY MARKET PREMIUM v3.2 ACTIVE</p>
     </div>
 
 <script>
-    let balance = 0;
-    // ALL STOCK SET TO 0
-    const items = [
-        { n: "Facebook (Create Profile)", p: 8000, s: 0, c: "Facebook" },
-        { n: "Facebook (Existing Profile)", p: 5500, s: 0, c: "Facebook" },
-        { n: "Spotify Premium Log", p: 3500, s: 0, c: "Audio" },
-        { n: "Apple Music Log", p: 4000, s: 0, c: "Audio" },
-        { n: "Audiomack Premium", p: 2500, s: 0, c: "Audio" },
-        { n: "Aged Twitter (2012)", p: 12000, s: 0, c: "Social" },
-        { n: "Instagram HD Log", p: 9000, s: 0, c: "Social" },
-        { n: "TextNow USA", p: 5000, s: 0, c: "Text" },
-        { n: "TextPlus Canada", p: 5000, s: 0, c: "Text" },
-        { n: "Telegram Premium", p: 7000, s: 0, c: "Social" }
+    let walletBalance = 0;
+
+    // INVENTORY DATA - ALL OUT OF STOCK
+    const database = [
+        { name: "Facebook (Create Profile)", price: 8000, stock: 0, cat: "Facebook" },
+        { name: "Facebook (Existing Profile)", price: 5500, stock: 0, cat: "Facebook" },
+        { name: "Spotify Premium Log", price: 3500, stock: 0, cat: "Audio" },
+        { name: "Apple Music Log", price: 4000, stock: 0, cat: "Audio" },
+        { name: "Audiomack Premium", price: 2500, stock: 0, cat: "Audio" },
+        { name: "Aged Twitter (2012)", price: 12000, stock: 0, cat: "Social" },
+        { name: "Instagram HD Log", price: 9000, stock: 0, cat: "Social" },
+        { name: "TextNow USA", price: 5000, stock: 0, cat: "Text" },
+        { name: "TextPlus Canada", price: 5000, stock: 0, cat: "Text" },
+        { name: "Telegram Premium", price: 7000, stock: 0, cat: "Social" }
     ];
 
-    function filterShop(category, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderItems(category === 'All' ? items : items.filter(i => i.c === category));
+    // PAYSTACK DEPOSIT LOGIC
+    function payWithPaystack() {
+        const amountToPay = prompt("How much do you want to fund (₦)?");
+        
+        if (!amountToPay || isNaN(amountToPay) || amountToPay <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        const handler = PaystackPop.setup({
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', // YOUR LIVE KEY
+            email: 'customer@subbymarket.com',
+            amount: amountToPay * 100, // Convert to kobo
+            currency: 'NGN',
+            callback: function(response) {
+                // Success! Update balance
+                walletBalance += parseInt(amountToPay);
+                document.getElementById('bal-display').innerText = walletBalance.toLocaleString();
+                alert("Deposit Successful! ₦" + amountToPay + " added to wallet.");
+            },
+            onClose: function() {
+                alert('Transaction cancelled.');
+            }
+        });
+        handler.openIframe();
     }
 
-    function renderItems(data) {
-        const grid = document.getElementById('main-grid');
-        grid.innerHTML = data.map(i => `
+    // FILTER & RENDER LOGIC
+    function filterMenu(cat, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        displayProducts(cat === 'All' ? database : database.filter(i => i.cat === cat));
+    }
+
+    function displayProducts(data) {
+        const grid = document.getElementById('product-grid');
+        grid.innerHTML = data.map(item => `
             <div class="card">
-                <span class="stock" style="color:#ff4d4d">SOLD OUT</span>
-                <h3>${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn out" disabled>UNAVAILABLE</button>
+                <span class="stock-status" style="color:#ff4d4d">SOLD OUT</span>
+                <h3>${item.name}</h3>
+                <div class="price">₦${item.price.toLocaleString()}</div>
+                <button class="buy-btn locked" disabled>UNAVAILABLE</button>
             </div>
         `).join('');
     }
 
-    function openDeposit() {
-        const amt = prompt("Deposit Amount (₦):");
-        if(!amt || isNaN(amt)) return;
-        PaystackPop.setup({
-            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: 'user@subbymarket.com',
-            amount: amt * 100,
-            callback: (res) => {
-                balance += parseInt(amt);
-                document.getElementById('bal-val').innerText = balance.toLocaleString();
-            }
-        }).openIframe();
-    }
-
-    renderItems(items);
+    displayProducts(database);
 </script>
 </body>
 </html>
