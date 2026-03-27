@@ -4,29 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SUBBY LOGS | OFFICIAL</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 15px; }
-
-        /* Auth Cards */
-        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
+        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        /* Auth Styles */
+        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
         h1, h2 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
         input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
-        
-        /* Buttons */
-        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; }
         .btn-dark { background: #222; margin-top: 10px; }
-        .btn-link { background: none; border: none; color: #0070f3; margin-top: 15px; cursor: pointer; font-size: 13px; width: 100%; }
+        .btn-link { background: none; border: none; color: #0070f3; margin-top: 15px; cursor: pointer; font-size: 13px; }
 
-        /* Market */
+        /* Market Styles */
         #main-site { display: none; width: 100%; position: fixed; inset: 0; background: #000; overflow-y: auto; }
-        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
         .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 6px 12px; border-radius: 20px; border: 1px solid #0070f3; }
-        .paystack-btn { background: #0070f3; color: #fff; text-decoration: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        .logout-btn { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
         
         .product-list { padding: 15px; }
-        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
-        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 5px 0; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -42,70 +41,77 @@
     </div>
 
     <div class="auth-card" id="signup-box" style="display:none;">
-        <h2>CREATE ACCOUNT</h2>
-        <input type="text" id="s-u" placeholder="Choose Username">
-        <input type="password" id="s-p" placeholder="Choose Password">
-        <button class="btn-blue" onclick="doSignup()">REGISTER</button>
+        <h2>REGISTER</h2>
+        <input type="text" id="s-u" placeholder="Username">
+        <input type="email" id="s-e" placeholder="Email Address">
+        <input type="password" id="s-p" placeholder="Password">
+        <button class="btn-blue" onclick="doSignup()">CREATE ACCOUNT</button>
         <button class="btn-link" onclick="showBox('login')">Back to Login</button>
     </div>
 
     <div class="auth-card" id="forgot-box" style="display:none;">
         <h2>RECOVERY</h2>
-        <p style="font-size:12px; color:#888;">Emergency Reset Code:</p>
-        <div id="random-otp" style="font-size:24px; color:#ffcc00; margin:10px 0; font-weight:bold;"></div>
+        <p style="font-size: 12px; color: #888;">Enter this temporary code:</p>
+        <h1 id="otp-display" style="color:#ffcc00; letter-spacing: 5px;"></h1>
         <input type="text" id="f-u" placeholder="Username">
-        <input type="text" id="f-otp" placeholder="Enter Code Above">
+        <input type="text" id="f-otp" placeholder="Enter Code">
         <input type="password" id="f-new-p" placeholder="New Password">
-        <button class="btn-blue" onclick="doReset()">RESET PASSWORD</button>
+        <button class="btn-blue" onclick="doReset()">UPDATE PASSWORD</button>
         <button class="btn-link" onclick="showBox('login')">Back</button>
     </div>
 </div>
 
 <div id="main-site">
     <div class="navbar">
-        <b style="color:#0070f3;">SUBBY MARKET</b>
+        <div>
+            <b style="color:#0070f3;">SUBBY MARKET</b><br>
+            <button class="logout-btn" onclick="location.reload()">Logout</button>
+        </div>
         <div class="bal-box">
             <span>₦<span id="bal-val">0</span></span>
-            <a href="https://paystack.com/pay/your-link" class="paystack-btn">+</a>
+            <button style="background:#0070f3; border:none; color:#fff; width:28px; height:28px; border-radius:50%; font-weight:bold; cursor:pointer;" onclick="payWithPaystack()">+</button>
         </div>
     </div>
     <div class="product-list" id="shop-grid"></div>
 </div>
 
 <script>
-    let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
+    // System Data
+    let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0,"e":"admin@mail.com"}}');
+    let activeUser = null;
     let currentOTP = "";
 
     function showBox(id) {
         document.getElementById('login-box').style.display = id === 'login' ? 'block' : 'none';
         document.getElementById('signup-box').style.display = id === 'signup' ? 'block' : 'none';
         document.getElementById('forgot-box').style.display = id === 'forgot' ? 'block' : 'none';
-        
         if(id === 'forgot') {
-            currentOTP = Math.floor(1000 + Math.random() * 9000); // Generates random 4-digit code
-            document.getElementById('random-otp').innerText = currentOTP;
+            currentOTP = Math.floor(1000 + Math.random() * 9000); // Random Figure
+            document.getElementById('otp-display').innerText = currentOTP;
         }
+    }
+
+    function doSignup() {
+        const u = document.getElementById('s-u').value.trim();
+        const e = document.getElementById('s-e').value.trim();
+        const p = document.getElementById('s-p').value.trim();
+        if(!u || !e || !p) return alert("All fields are required!");
+        users[u] = {p: p, b: 0, e: e};
+        localStorage.setItem('sys_users', JSON.stringify(users));
+        alert("Account Created Successfully!");
+        showBox('login');
     }
 
     function doLogin() {
         const u = document.getElementById('l-u').value.trim();
         const p = document.getElementById('l-p').value.trim();
         if(users[u] && users[u].p === p) {
+            activeUser = u;
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('main-site').style.display = 'block';
-            document.getElementById('bal-val').innerText = users[u].b.toLocaleString();
+            updateUI();
             renderShop();
-        } else { alert("Wrong details!"); }
-    }
-
-    function doSignup() {
-        const u = document.getElementById('s-u').value.trim();
-        const p = document.getElementById('s-p').value.trim();
-        if(!u || !p) return alert("Fill all fields");
-        users[u] = {p: p, b: 0};
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Account Created! Login now.");
-        showBox('login');
+        } else { alert("Invalid Credentials!"); }
     }
 
     function doReset() {
@@ -114,28 +120,51 @@
         if(otp == currentOTP && users[u]) {
             users[u].p = document.getElementById('f-new-p').value;
             localStorage.setItem('sys_users', JSON.stringify(users));
-            alert("Password Updated!");
+            alert("Password Changed!");
             showBox('login');
         } else { alert("Invalid Code or User!"); }
     }
 
+    function updateUI() {
+        document.getElementById('bal-val').innerText = users[activeUser].b.toLocaleString();
+    }
+
+    function payWithPaystack() {
+        const amt = prompt("Enter deposit amount (₦):");
+        if(!amt || isNaN(amt)) return;
+
+        let handler = PaystackPop.setup({
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', // Your Live Key
+            email: users[activeUser].e,
+            amount: amt * 100, // Kobo conversion
+            currency: "NGN",
+            callback: function(response) {
+                users[activeUser].b += parseInt(amt);
+                localStorage.setItem('sys_users', JSON.stringify(users));
+                updateUI();
+                alert("Deposit of ₦" + amt + " confirmed!");
+            },
+            onClose: function() { alert("Deposit Cancelled"); }
+        });
+        handler.openIframe();
+    }
+
     function renderShop() {
-        const grid = document.getElementById('shop-grid');
         const items = [
-            {n:"Facebook (Create Profile)", p:8000}, {n:"Facebook (Existing)", p:5500},
-            {n:"Aged Facebook", p:10000}, {n:"Random Facebook", p:2500},
-            {n:"Instagram (Aged)", p:8500}, {n:"Twitter (50-100 followers)", p:12000},
-            {n:"USA TextPlus", p:5000}, {n:"Canada TextPlus", p:5000}
+            {n:"Facebook (Create Profile)", p:8000},
+            {n:"Facebook (Existing Profile)", p:5500},
+            {n:"Aged Facebook", p:10000},
+            {n:"Instagram (Aged)", p:8500},
+            {n:"Twitter (50-100 followers)", p:12000},
+            {n:"USA TextPlus", p:5000}
         ];
-        grid.innerHTML = '';
-        items.forEach(i => {
-            grid.innerHTML += `<div class="card">
-                <p style="font-size:10px; color:#555;">STOCK: 0</p>
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = items.map(i => `
+            <div class="card">
                 <h3>${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="btn-blue" style="padding:10px; font-size:12px;">Buy Now</button>
-            </div>`;
-        });
+            </div>`).join('');
     }
 </script>
 </body>
