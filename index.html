@@ -7,73 +7,27 @@
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        /* Dope Radial Gradient Background */
-        body { 
-            background: radial-gradient(circle at top, #1a1a2e, #000000); 
-            color: #eee; 
-            min-height: 100vh; 
-        }
+        body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
 
-        /* Glassmorphism Navbar */
-        .navbar { 
-            background: rgba(22, 22, 26, 0.85); 
-            backdrop-filter: blur(12px); 
-            padding: 18px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; letter-spacing: -0.5px; }
-        .bal-pill { 
-            background: #111; 
-            border: 1px solid #0070f3; 
-            padding: 6px 14px; 
-            border-radius: 30px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(0, 112, 243, 0.2);
-        }
+        /* Glass Navbar */
+        .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
+        .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; }
 
-        /* Duplex Category Layout */
+        /* Categories */
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
         .categories-nav::-webkit-scrollbar { display: none; }
-        .cat-btn { 
-            background: #16161a; 
-            color: #888; 
-            padding: 10px 18px; 
-            border-radius: 12px; 
-            border: 1px solid #222; 
-            white-space: nowrap; 
-            cursor: pointer; 
-            font-size: 13px; 
-            font-weight: 600;
-        }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; box-shadow: 0 5px 15px rgba(0, 112, 243, 0.3); }
+        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
-        /* Product Cards */
+        /* Duplex Cards */
         .grid { padding: 10px 15px; }
-        .card { 
-            background: linear-gradient(145deg, #16161a, #0c0c0e); 
-            border: 1px solid #222; 
-            border-radius: 20px; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-        }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; }
         .stock { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
         .price { font-size: 24px; font-weight: 800; color: #0070f3; margin: 10px 0; }
-        .buy-btn { 
-            width: 100%; padding: 14px; border-radius: 12px; border: none; 
-            background: #fff; color: #000; font-weight: 800; cursor: pointer; 
-        }
-        .buy-btn.out { background: #222; color: #555; cursor: not-allowed; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; }
+        .buy-btn.out { background: #222; color: #555; cursor: not-allowed; border: 1px solid #333; }
 
         .support { padding: 20px; text-align: center; border-top: 1px solid #111; margin-top: 20px; }
         .support a { color: #58a6ff; text-decoration: none; font-size: 13px; }
@@ -101,22 +55,22 @@
 
     <div class="support">
         <a href="mailto:subbylogssuport@gmail.com">📩 subbylogssuport@gmail.com</a>
-        <p style="color:#222; font-size:10px; margin-top:10px;">PREMIUM v3.1</p>
     </div>
 
 <script>
     let balance = 0;
+    // ALL STOCK SET TO 0
     const items = [
-        { n: "Facebook (Create Profile)", p: 8000, s: 15, c: "Facebook" },
-        { n: "Facebook (Existing Profile)", p: 5500, s: 8, c: "Facebook" },
-        { n: "Spotify Premium Log", p: 3500, s: 10, c: "Audio" },
-        { n: "Apple Music Log", p: 4000, s: 5, c: "Audio" },
-        { n: "Audiomack Premium", p: 2500, s: 12, c: "Audio" },
-        { n: "Aged Twitter (2012)", p: 12000, s: 3, c: "Social" },
-        { n: "Instagram HD Log", p: 9000, s: 7, c: "Social" },
+        { n: "Facebook (Create Profile)", p: 8000, s: 0, c: "Facebook" },
+        { n: "Facebook (Existing Profile)", p: 5500, s: 0, c: "Facebook" },
+        { n: "Spotify Premium Log", p: 3500, s: 0, c: "Audio" },
+        { n: "Apple Music Log", p: 4000, s: 0, c: "Audio" },
+        { n: "Audiomack Premium", p: 2500, s: 0, c: "Audio" },
+        { n: "Aged Twitter (2012)", p: 12000, s: 0, c: "Social" },
+        { n: "Instagram HD Log", p: 9000, s: 0, c: "Social" },
         { n: "TextNow USA", p: 5000, s: 0, c: "Text" },
-        { n: "TextPlus Canada", p: 5000, s: 20, c: "Text" },
-        { n: "Telegram Premium", p: 7000, s: 6, c: "Social" }
+        { n: "TextPlus Canada", p: 5000, s: 0, c: "Text" },
+        { n: "Telegram Premium", p: 7000, s: 0, c: "Social" }
     ];
 
     function filterShop(category, btn) {
@@ -129,14 +83,10 @@
         const grid = document.getElementById('main-grid');
         grid.innerHTML = data.map(i => `
             <div class="card">
-                <span class="stock" style="color:${i.s > 0 ? '#00c853' : '#ff4d4d'}">
-                    ${i.s > 0 ? 'IN STOCK: ' + i.s : 'OUT OF STOCK'}
-                </span>
+                <span class="stock" style="color:#ff4d4d">SOLD OUT</span>
                 <h3>${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
-                ${i.s > 0 ? 
-                    `<button class="buy-btn" onclick="buyProcess('${i.n}', ${i.p})">PURCHASE NOW</button>` : 
-                    `<button class="buy-btn out" disabled>UNAVAILABLE</button>`}
+                <button class="buy-btn out" disabled>UNAVAILABLE</button>
             </div>
         `).join('');
     }
@@ -148,20 +98,11 @@
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: 'user@subbymarket.com',
             amount: amt * 100,
-            currency: 'NGN',
             callback: (res) => {
                 balance += parseInt(amt);
                 document.getElementById('bal-val').innerText = balance.toLocaleString();
             }
         }).openIframe();
-    }
-
-    function buyProcess(name, cost) {
-        if(balance >= cost) {
-            balance -= cost;
-            document.getElementById('bal-val').innerText = balance.toLocaleString();
-            alert("Order Success: " + name + "\nContact Admin for access.");
-        } else { alert("Insufficient balance! Fund your wallet."); }
     }
 
     renderItems(items);
