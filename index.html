@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUBBY MARKET | OFFICIAL</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        /* General Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #eee; min-height: 100vh; }
+        
+        /* Navbar */
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .bal-display { background: #1a1a20; border: 1px solid #0070f3; padding: 8px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .plus-btn { background: #0070f3; color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        
+        /* Category Navigation */
+        .categories-container { background: #0a0a0c; padding: 15px; border-bottom: 1px solid #222; overflow-x: auto; white-space: nowrap; }
+        .cat-title { font-size: 11px; color: #555; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .cat-item { display: inline-block; padding: 10px 15px; color: #aaa; cursor: pointer; font-size: 14px; border-radius: 8px; margin-right: 5px; transition: 0.3s; }
+        .cat-item.active { background: #16161a; color: #fff; border-left: 3px solid #0070f3; }
+
+        /* Product Grid */
+        .product-section { padding: 15px; }
+        .section-title { color: #0070f3; margin-bottom: 15px; font-size: 14px; font-weight: bold; text-transform: uppercase; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 18px; border-radius: 15px; margin-bottom: 15px; }
+        .stock-tag { font-size: 11px; font-weight: bold; margin-bottom: 8px; }
+        .price { color: #0070f3; font-weight: bold; font-size: 24px; margin: 10px 0; }
+        .btn-buy { background: #0070f3; color: #
