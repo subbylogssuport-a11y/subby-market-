@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUBBY LOGS | OFFICIAL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+        /* BOX STYLING */
+        .auth-card { 
+            background: #16161a; 
+            border: 1px solid #333; 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 100%; 
+            max-width: 380px; 
+            text-align: center; 
+            display: block;
+        }
+        
+        h1 { color: #0070f3; margin-bottom: 20px; font-size: 24px; font-weight: 900; }
+        h2 { color: #0070f3; margin-bottom: 15px; }
+
+        /* INPUTS */
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            background: #000; 
+            border: 1px solid #333; 
+            border-radius: 10px; 
+            color: #fff; 
+            font-size: 16px; 
+            outline: none; 
+        }
+
+        /* BUTTONS */
+        .btn-blue { 
+            background: #0070f3; 
+            color: #fff; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 10px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 14px; 
+            margin-top: 5px; 
+        }
+
+        .btn-dark { background: #222; margin-top: 10px; }
+        
+        .btn-link { 
+            background: none; 
+            border: none; 
+            color: #0070f3; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            display: block; 
+            width: 100%; 
+        }
+
+        /* MARKET LAYOUT */
+        #main-site { display: none; width: 100%; height: 100vh; position: fixed; inset: 0; background: #000; overflow-y: auto; }
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .product-list { padding: 15px; }
+        .card { background: #16161a; border: 1px solid #333; padding: 20px; border-radius: 15px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="auth-card" id="login-box">
+    <h1>SUBBY LOGS</h1>
+    <input type="text" id="login-u" placeholder="Username">
+    <input type="password" id="login-p" placeholder="Password">
+    <button class="btn-blue" onclick="processLogin()">LOGIN</button>
+    <button class="btn-blue btn-dark" onclick="showBox('signup')">Create Account</button>
+    <button class="btn-link" onclick="showBox('forgot')">Forgot Password?</button>
+</div>
+
+<div class="auth-card" id="signup-box" style="display:none;">
+    <h2>CREATE ACCOUNT</h2>
+    <input type="text" id="reg-u" placeholder="New Username">
+    <input type="password" id="reg-p" placeholder="New Password">
+    <button class="btn-blue" onclick="processSignup()">SIGN UP</button>
+    <button class="btn-link" onclick="showBox('login')">Back to Login</button>
+</div>
+
+<div class="auth-card" id="forgot-box" style="display:none;">
+    <h2 style="color:#ffcc00;">RECOVERY</h2>
+    <div id="otp-display" style="font-size:24px; color:#ffcc00; margin-bottom:15px; font-weight:bold;"></div>
+    <input type="text" id="for-u" placeholder="Username">
+    <input type="text" id="for-otp" placeholder="Enter Code Above">
+    <input type="password" id="for-new-p" placeholder="New Password">
+    <button class="btn-blue" style="background:#ffcc00; color:#000;" onclick="processReset()">RESET PASSWORD</button>
+    <button class="btn-link" onclick="showBox('login')">Back to Login</button>
+</div>
+
+<div id="main-site">
+    <div class="navbar">
+        <b style="color:#0070f3;" onclick="adminClick()">SUBBY MARKET</b>
+        <b>₦<span id="bal">0</span></b>
+    </div>
+    <div class="product-list">
+        <div class="card">
+            <p style="color:#0070f3; font-size:12px;">Stock: 0</p>
+            <h3>Facebook with create profile</h3>
+            <p style="font-size:20px; font-weight:bold; margin:10px 0;">₦8,000</p>
+            <button class="btn-blue">Buy Now</button>
+        </div>
+        <div class="card">
+            <p style="color:#0070f3; font-size:12px;">Stock: 0</p>
+            <h3>Facebook with already created Profile</h3>
+            <p style="font-size:20px; font-weight:bold; margin:10px 0;">₦5,500</p>
+            <button class="btn-blue">Buy Now</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":20000}}');
+    let currentOTP = "";
+
+    function showBox(id) {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('signup-box').style.display = 'none';
+        document.getElementById('forgot-box').style.display = 'none';
+        document.getElementById(id + '-box').style.display = 'block';
+        
+        if(id === 'forgot') {
+            currentOTP = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('otp-display').innerText = currentOTP;
+        }
+    }
+
+    function processLogin() {
+        const u = document.getElementById('login-u').value.trim();
+        const p = document.getElementById('login-p').value.trim();
+        if(users[u] && users[u].p === p) {
+            document.getElementById('login-box').parentElement.style.display = 'none';
+            document.getElementById('main-site').style.display = 'block';
+            document.getElementById('bal').innerText = users[u].b.toLocaleString();
+        } else { alert("Wrong Username or Password!"); }
+    }
+
+    function processSignup() {
+        const u = document.getElementById('reg-u').value.trim();
+        const p = document.getElementById('reg-p').value.trim();
+        if(!u || !p) return alert("Fill all fields");
+        users[u] = {p: p, b: 0};
+        localStorage.setItem('sys_users', JSON.stringify(users));
+        alert("Account Created!");
+        showBox('login');
+    }
+
+    function processReset() {
+        const u = document.getElementById('for-u').value.trim();
+        const otp = document.getElementById('for-otp').value.trim();
+        const newP = document.getElementById('for-new-p').value.trim();
+        if(otp == currentOTP && users[u]) {
+            users[u].p = newP;
+            localStorage.setItem('sys_users', JSON.stringify(users));
+            alert("Password Reset!");
+            showBox('login');
+        } else { alert("Invalid details!"); }
+    }
+</script>
+</body>
+</html>
