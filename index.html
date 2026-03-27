@@ -3,218 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBBY LOGS | ELITE TERMINAL</title>
+    <title>SUBBY LOGS | OFFICIAL MARKET</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0f0f12; color: #eee; }
+
+        /* AUTH SCREEN - DOPE STYLE */
+        #auth-screen { 
+            position: fixed; inset: 0; z-index: 1000; 
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid #333; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
+
+        /* MAIN LAYOUT */
+        #main-site { display: none; min-height: 100vh; }
+        .navbar { background: #16161a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; sticky: top; }
+        .content-wrapper { display: flex; flex-direction: column; }
         
-        /* THE "DOPE" BACKGROUND */
-        body { 
-            background: radial-gradient(circle at top right, #1a1a2e, #0f0f1a, #000000);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
+        @media (min-width: 768px) {
+            .content-wrapper { flex-direction: row; }
+            .sidebar { width: 250px; background: #16161a; min-height: 100vh; border-right: 1px solid #222; padding: 20px; }
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 40px 25px;
-            width: 100%;
-            max-width: 450px;
-            margin: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
+        .sidebar { background: #16161a; padding: 20px; }
+        .sidebar h3 { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+        .cat-item { padding: 12px; border-radius: 8px; cursor: pointer; color: #ccc; transition: 0.3s; margin-bottom: 5px; font-size: 14px; }
+        .cat-item:hover { background: #0070f3; color: #fff; }
 
-        .logo-text {
-            font-size: 32px;
-            font-weight: 900;
-            background: linear-gradient(to right, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
+        .main-content { flex: 1; padding: 25px; }
+        .header-banner { background: #1a1a20; padding: 30px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222; }
+        
+        /* GRID LAYOUT LIKE SCREENSHOT */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: #16161a; border: 1px solid #222; border-radius: 12px; padding: 20px; transition: 0.3s; }
+        .product-card:hover { border-color: #0070f3; transform: translateY(-5px); }
+        .stock-tag { font-size: 12px; color: #238636; margin-bottom: 10px; display: block; }
+        .price-tag { font-size: 18px; font-weight: 700; color: #0070f3; margin: 10px 0; }
+        
+        .view-btn { width: 100%; padding: 12px; background: #c4302b; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 12px; }
 
-        h2 { text-align: center; font-size: 18px; color: #888; margin-bottom: 30px; }
-
-        /* FORM STYLING */
-        input {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 15px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid #333;
-            border-radius: 15px;
-            color: #fff;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-        input:focus { border-color: #00d2ff; outline: none; box-shadow: 0 0 15px rgba(0,210,255,0.2); }
-
-        .btn-main {
-            width: 100%;
-            padding: 18px;
-            border-radius: 15px;
-            border: none;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 15px;
-        }
-        .btn-primary { background: #0070f3; color: white; }
-        .btn-outline { background: transparent; border: 1px solid #444; color: #ccc; }
-        .btn-main:active { transform: scale(0.97); }
-
-        /* DASHBOARD */
-        .wallet-card {
-            background: linear-gradient(135deg, #0070f3, #00a1ff);
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-row {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            border: 1px solid #222;
-        }
-
-        .tag-blue { color: #00d2ff; font-weight: bold; font-size: 14px; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; }
+        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 700; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen" class="glass-panel">
-    <div class="logo-text">SUBBY MARKET</div>
-    <h2 id="auth-title">Welcome Back</h2>
-    
-    <input type="text" id="auth-user" placeholder="Enter Username">
-    <input type="password" id="auth-pass" placeholder="Enter Password">
-    
-    <button class="btn-main btn-primary" onclick="handleAuth('login')">Login to Terminal</button>
-    <button class="btn-main btn-outline" onclick="handleAuth('signup')">Create Official Account</button>
-    
-    <p id="auth-msg" style="text-align:center; font-size:13px; margin-top:10px;"></p>
+<div id="auth-screen">
+    <div class="auth-card">
+        <h1 style="color:#0070f3; margin-bottom:10px;">SUBBY LOGS</h1>
+        <p style="color:#888; margin-bottom:20px;">Secure Terminal Login</p>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-blue" onclick="auth('login')">LOGIN</button>
+        <button style="background:none; border:1px solid #444; color:#aaa;" class="btn-blue" onclick="auth('signup')">CREATE ACCOUNT</button>
+    </div>
 </div>
 
-<div id="dashboard" class="glass-panel" style="display:none;">
-    <div class="logo-text" style="font-size:20px;">DASHBOARD</div>
-    <h2 id="welcome-user">Welcome Back, User</h2>
-
-    <div class="wallet-card">
-        <div>
-            <p style="font-size:12px; opacity:0.8;">CURRENT BALANCE</p>
-            <p style="font-size:32px; font-weight:800;">₦<span id="bal-val">0</span></p>
-        </div>
-        <button onclick="deposit()" style="width:50px; height:50px; border-radius:50%; border:none; font-size:24px; font-weight:bold; cursor:pointer;">+</button>
+<div id="main-site">
+    <div class="navbar">
+        <div style="font-weight:800; color:#0070f3;">SUBBY MARKET</div>
+        <div>Balance: <span style="color:#238636; font-weight:700;">₦<span id="bal">0</span></span> <button onclick="deposit()" style="margin-left:10px; padding:2px 8px; border-radius:4px; border:none; cursor:pointer;">+</button></div>
     </div>
 
-    <p style="margin-bottom:15px; font-weight:bold; color:#888;">PREMIUM INVENTORY</p>
-
-    <div class="item-row">
-        <div>
-            <p style="font-weight:600;">FB Business Log</p>
-            <p class="tag-blue">₦5,000</p>
+    <div class="content-wrapper">
+        <div class="sidebar">
+            <h3>Categories</h3>
+            <div class="cat-item">Aged Twitter</div>
+            <div class="cat-item">Aged Instagram</div>
+            <div class="cat-item">Random Facebook</div>
+            <div class="cat-item">USA Facebook</div>
+            <div class="cat-item">TikTok Accounts</div>
+            <div class="cat-item">Snapchat Logs</div>
+            <div class="cat-item">VPN & Tools</div>
         </div>
-        <button class="btn-main btn-outline" style="width:auto; padding:10px 20px; margin:0;" onclick="buy('FB-LOG', 5000)">Buy</button>
-    </div>
 
-    <div class="item-row">
-        <div>
-            <p style="font-weight:600;">IG Aged Log</p>
-            <p class="tag-blue">₦3,500</p>
+        <div class="main-content">
+            <div class="header-banner">
+                <h2 id="welcome-msg">Welcome Back</h2>
+                <p style="color:#888;">Select a category to view available logs.</p>
+            </div>
+
+            <div class="product-grid">
+                <div class="product-card">
+                    <span class="stock-tag">● In Stock: 42</span>
+                    <h4 style="margin-bottom:5px;">2010-2015 Facebook Personal</h4>
+                    <p style="font-size:12px; color:#777;">High quality, aged with posts.</p>
+                    <div class="price-tag">₦2,500.00</div>
+                    <button class="view-btn" onclick="buy('FB-AGED', 2500)">View Accounts</button>
+                </div>
+                <div class="product-card">
+                    <span class="stock-tag">● In Stock: 15</span>
+                    <h4 style="margin-bottom:5px;">Instagram 1000+ Followers</h4>
+                    <p style="font-size:12px; color:#777;">Organic growth, original mail.</p>
+                    <div class="price-tag">₦5,000.00</div>
+                    <button class="view-btn" onclick="buy('IG-1K', 5000)">View Accounts</button>
+                </div>
+                <div class="product-card">
+                    <span class="stock-tag">● In Stock: 8</span>
+                    <h4 style="margin-bottom:5px;">Aged Twitter (2009-2012)</h4>
+                    <p style="font-size:12px; color:#777;">Verified by email, 2FA enabled.</p>
+                    <div class="price-tag">₦10,000.00</div>
+                    <button class="view-btn" onclick="buy('TW-AGED', 10000)">View Accounts</button>
+                </div>
+            </div>
         </div>
-        <button class="btn-main btn-outline" style="width:auto; padding:10px 20px; margin:0;" onclick="buy('IG-LOG', 3500)">Buy</button>
     </div>
 </div>
 
 <script>
-    let activeUser = null;
-    const P_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
+    let cur = null;
+    const KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
 
-    function handleAuth(type) {
-        const u = document.getElementById('auth-user').value.trim();
-        const p = document.getElementById('auth-pass').value.trim();
-        const msg = document.getElementById('auth-msg');
-
+    function auth(type) {
+        const u = document.getElementById('u').value.trim();
+        const p = document.getElementById('p').value.trim();
         if(!u || !p) return alert("Fill all fields");
-
-        let users = JSON.parse(localStorage.getItem('subby_users') || '{}');
+        let users = JSON.parse(localStorage.getItem('sub_u') || '{}');
 
         if(type === 'signup') {
-            if(users[u]) {
-                msg.style.color = "orange";
-                msg.innerText = "Account already exists! Use Login.";
-            } else {
-                users[u] = { password: p, balance: 0 };
-                localStorage.setItem('subby_users', JSON.stringify(users));
-                msg.style.color = "#00d2ff";
-                msg.innerText = "Account Created! Now click Login.";
-            }
+            if(users[u]) return alert("Exists!");
+            users[u] = { p: p, b: 0 };
+            localStorage.setItem('sub_u', JSON.stringify(users));
+            alert("Account Created! Click Login.");
         } else {
-            if(users[u] && users[u].password === p) {
-                activeUser = u;
-                launchDashboard(users[u]);
-            } else {
-                msg.style.color = "#ff4d4d";
-                msg.innerText = "ERROR: Invalid Credentials. Access Denied.";
-            }
+            if(users[u] && users[u].p === p) {
+                cur = u;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-site').style.display = 'block';
+                document.getElementById('welcome-msg').innerText = "Welcome back, " + cur;
+                document.getElementById('bal').innerText = users[u].b.toLocaleString();
+            } else { alert("Access Denied"); }
         }
-    }
-
-    function launchDashboard(userData) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('welcome-user').innerText = "Welcome back, " + activeUser;
-        document.getElementById('bal-val').innerText = userData.balance.toLocaleString();
     }
 
     function deposit() {
-        const amt = prompt("Deposit Amount (₦):", "1000");
-        if(!amt || isNaN(amt)) return;
-
-        let handler = PaystackPop.setup({
-            key: P_KEY,
-            email: activeUser + "@subby.com",
-            amount: amt * 100,
-            currency: 'NGN',
-            callback: function(res) {
-                let users = JSON.parse(localStorage.getItem('subby_users'));
-                users[activeUser].balance += parseInt(amt);
-                localStorage.setItem('subby_users', JSON.stringify(users));
-                document.getElementById('bal-val').innerText = users[activeUser].balance.toLocaleString();
-                alert("Deposit Confirmed!");
+        const amt = prompt("Amount:");
+        if(!amt) return;
+        new PaystackPop().setup({
+            key: KEY, email: cur+"@sub.com", amount: amt*100,
+            callback: (res) => {
+                let users = JSON.parse(localStorage.getItem('sub_u'));
+                users[cur].b += parseInt(amt);
+                localStorage.setItem('sub_u', JSON.stringify(users));
+                document.getElementById('bal').innerText = users[cur].b.toLocaleString();
             }
-        });
-        handler.openIframe();
+        }).openIframe();
     }
 
     function buy(item, price) {
-        let users = JSON.parse(localStorage.getItem('subby_users'));
-        if(users[activeUser].balance >= price) {
-            users[activeUser].balance -= price;
-            localStorage.setItem('subby_users', JSON.stringify(users));
-            document.getElementById('bal-val').innerText = users[activeUser].balance.toLocaleString();
-            alert("LOG UNLOCKED:\nUser: admin_logs\nPass: 9922Subby");
-        } else {
-            alert("Insufficient Balance. Fund your wallet first.");
-        }
+        let users = JSON.parse(localStorage.getItem('sub_u'));
+        if(users[cur].b >= price) {
+            users[cur].b -= price;
+            localStorage.setItem('sub_u', JSON.stringify(users));
+            document.getElementById('bal').innerText = users[cur].b.toLocaleString();
+            alert("LOG UNLOCKED:\nUser: log_admin\nPass: SubbyPass2026");
+        } else { alert("Insufficient Balance"); }
     }
 </script>
-
 </body>
 </html>
