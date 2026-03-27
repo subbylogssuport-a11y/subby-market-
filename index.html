@@ -6,23 +6,26 @@
     <title>SUBBY LOGS | OFFICIAL</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; }
+        body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 15px; }
 
-        /* Auth Boxes */
-        #auth-container { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; z-index: 1000; padding: 20px; }
-        .auth-card { background: #16161a; border: 1px solid #333; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
+        /* Auth Cards */
+        .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
         h1, h2 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
-        input { width: 100%; padding: 15px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
-        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-link { background: none; border: none; color: #0070f3; margin-top: 20px; cursor: pointer; font-size: 14px; width: 100%; }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
+        
+        /* Buttons */
+        .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .btn-dark { background: #222; margin-top: 10px; }
+        .btn-link { background: none; border: none; color: #0070f3; margin-top: 15px; cursor: pointer; font-size: 13px; width: 100%; }
 
-        /* Market Section */
-        #main-site { display: none; }
-        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
-        .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 8px 12px; border-radius: 20px; }
-        .plus-btn { background: #0070f3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; font-weight: bold; cursor: pointer; }
-        .product-list { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; }
+        /* Market */
+        #main-site { display: none; width: 100%; position: fixed; inset: 0; background: #000; overflow-y: auto; }
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 6px 12px; border-radius: 20px; border: 1px solid #0070f3; }
+        .paystack-btn { background: #0070f3; color: #fff; text-decoration: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        
+        .product-list { padding: 15px; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
         .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 5px 0; }
     </style>
 </head>
@@ -34,17 +37,27 @@
         <input type="text" id="l-u" placeholder="Username">
         <input type="password" id="l-p" placeholder="Password">
         <button class="btn-blue" onclick="doLogin()">LOGIN</button>
+        <button class="btn-blue btn-dark" onclick="showBox('signup')">Create Account</button>
         <button class="btn-link" onclick="showBox('forgot')">Forgot Password?</button>
+    </div>
+
+    <div class="auth-card" id="signup-box" style="display:none;">
+        <h2>CREATE ACCOUNT</h2>
+        <input type="text" id="s-u" placeholder="Choose Username">
+        <input type="password" id="s-p" placeholder="Choose Password">
+        <button class="btn-blue" onclick="doSignup()">REGISTER</button>
+        <button class="btn-link" onclick="showBox('login')">Back to Login</button>
     </div>
 
     <div class="auth-card" id="forgot-box" style="display:none;">
         <h2>RECOVERY</h2>
-        <p style="font-size:12px; color:#888; margin-bottom:10px;">Contact admin for your Reset Key</p>
+        <p style="font-size:12px; color:#888;">Emergency Reset Code:</p>
+        <div id="random-otp" style="font-size:24px; color:#ffcc00; margin:10px 0; font-weight:bold;"></div>
         <input type="text" id="f-u" placeholder="Username">
-        <input type="text" id="f-key" placeholder="Reset Key">
+        <input type="text" id="f-otp" placeholder="Enter Code Above">
         <input type="password" id="f-new-p" placeholder="New Password">
         <button class="btn-blue" onclick="doReset()">RESET PASSWORD</button>
-        <button class="btn-link" onclick="showBox('login')">Back to Login</button>
+        <button class="btn-link" onclick="showBox('login')">Back</button>
     </div>
 </div>
 
@@ -53,80 +66,73 @@
         <b style="color:#0070f3;">SUBBY MARKET</b>
         <div class="bal-box">
             <span>₦<span id="bal-val">0</span></span>
-            <button class="plus-btn" onclick="addMoney()">+</button>
+            <a href="https://paystack.com/pay/your-link" class="paystack-btn">+</a>
         </div>
     </div>
     <div class="product-list" id="shop-grid"></div>
 </div>
 
 <script>
-    let activeUser = null;
     let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0}}');
+    let currentOTP = "";
 
     function showBox(id) {
         document.getElementById('login-box').style.display = id === 'login' ? 'block' : 'none';
+        document.getElementById('signup-box').style.display = id === 'signup' ? 'block' : 'none';
         document.getElementById('forgot-box').style.display = id === 'forgot' ? 'block' : 'none';
+        
+        if(id === 'forgot') {
+            currentOTP = Math.floor(1000 + Math.random() * 9000); // Generates random 4-digit code
+            document.getElementById('random-otp').innerText = currentOTP;
+        }
     }
 
     function doLogin() {
         const u = document.getElementById('l-u').value.trim();
         const p = document.getElementById('l-p').value.trim();
         if(users[u] && users[u].p === p) {
-            activeUser = u;
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('main-site').style.display = 'block';
-            updateUI();
+            document.getElementById('bal-val').innerText = users[u].b.toLocaleString();
             renderShop();
         } else { alert("Wrong details!"); }
     }
 
+    function doSignup() {
+        const u = document.getElementById('s-u').value.trim();
+        const p = document.getElementById('s-p').value.trim();
+        if(!u || !p) return alert("Fill all fields");
+        users[u] = {p: p, b: 0};
+        localStorage.setItem('sys_users', JSON.stringify(users));
+        alert("Account Created! Login now.");
+        showBox('login');
+    }
+
     function doReset() {
         const u = document.getElementById('f-u').value.trim();
-        const k = document.getElementById('f-key').value.trim();
-        if(k === "SUBBY99" && users[u]) {
+        const otp = document.getElementById('f-otp').value.trim();
+        if(otp == currentOTP && users[u]) {
             users[u].p = document.getElementById('f-new-p').value;
             localStorage.setItem('sys_users', JSON.stringify(users));
-            alert("Password Reset Success!");
+            alert("Password Updated!");
             showBox('login');
-        } else { alert("Invalid Key or User!"); }
-    }
-
-    function updateUI() {
-        document.getElementById('bal-val').innerText = users[activeUser].b.toLocaleString();
-    }
-
-    function addMoney() {
-        const amt = prompt("Enter amount to deposit (₦):");
-        if(amt && !isNaN(amt)) {
-            users[activeUser].b += parseInt(amt);
-            localStorage.setItem('sys_users', JSON.stringify(users));
-            updateUI();
-            alert("Deposit submitted! Balance updated.");
-        }
+        } else { alert("Invalid Code or User!"); }
     }
 
     function renderShop() {
         const grid = document.getElementById('shop-grid');
-        const cats = [
-            { n: "Facebook with create profile", p: 8000 },
-            { n: "Facebook with already created profile", p: 5500 },
-            { n: "Aged Facebook", p: 10000 },
-            { n: "Newly created Facebook", p: 3000 },
-            { n: "Random Facebook", p: 2500 },
-            { n: "Instagram", p: 4000 },
-            { n: "Aged Instagram", p: 8500 },
-            { n: "Twitter", p: 3500 },
-            { n: "Aged Twitter", p: 7000 },
-            { n: "Twitter with 50-100 followers", p: 12000 },
-            { n: "USA TextPlus", p: 5000 },
-            { n: "Canada TextPlus", p: 5000 }
+        const items = [
+            {n:"Facebook (Create Profile)", p:8000}, {n:"Facebook (Existing)", p:5500},
+            {n:"Aged Facebook", p:10000}, {n:"Random Facebook", p:2500},
+            {n:"Instagram (Aged)", p:8500}, {n:"Twitter (50-100 followers)", p:12000},
+            {n:"USA TextPlus", p:5000}, {n:"Canada TextPlus", p:5000}
         ];
         grid.innerHTML = '';
-        cats.forEach(item => {
+        items.forEach(i => {
             grid.innerHTML += `<div class="card">
                 <p style="font-size:10px; color:#555;">STOCK: 0</p>
-                <h3>${item.n}</h3>
-                <div class="price">₦${item.p.toLocaleString()}</div>
+                <h3>${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="btn-blue" style="padding:10px; font-size:12px;">Buy Now</button>
             </div>`;
         });
