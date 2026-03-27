@@ -3,156 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBBY LOGS | SECURE MARKET</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Subby Logs - Official Marketplace</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        :root { --neon: #22c55e; --dark: #0a0a0a; --glass: rgba(20, 20, 20, 0.8); }
-        body { background-color: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; overflow-x: hidden; }
-        .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
-        .neon-border { border: 1px solid var(--neon); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: #161b22; padding: 25px; border-radius: 15px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .logo { font-size: 28px; font-weight: bold; color: #58a6ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .balance-card { background: #21262d; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #238636; }
+        .balance-amount { font-size: 24px; font-weight: bold; color: #3fb950; }
+        .btn-pay { background: #238636; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; }
+        .item-list { text-align: left; margin-top: 20px; }
+        .item { display: flex; justify-content: space-between; align-items: center; background: #21262d; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #30363d; }
+        .buy-btn { background: #58a6ff; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        #login-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d1117; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        input { width: 80%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <div id="page-auth" class="min-h-screen flex items-center justify-center p-6">
-        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] neon-border text-center">
-            <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-shield-halved text-3xl text-green-500"></i>
-            </div>
-            <h1 class="text-2xl font-black italic mb-1 uppercase text-white">SUBBY <span class="text-green-500">LOGS</span></h1>
-            <p class="text-gray-500 text-[10px] mb-8 tracking-widest uppercase font-bold">Identity Verification Required</p>
-            
-            <div class="space-y-4 text-left">
-                <input type="text" id="reg-user" placeholder="Username" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-green-500 text-sm">
-                <input type="email" id="reg-email" placeholder="Gmail Address" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-green-500 text-sm">
-                
-                <div id="otp-section" class="hidden animate-pulse">
-                    <p class="text-[10px] text-green-500 mb-2 font-bold ml-2 italic">Verification Code Sent To Gmail</p>
-                    <input type="text" id="otp-code" placeholder="Enter 6-Digit Code (123456)" class="w-full p-4 bg-white/10 border border-green-500 rounded-2xl outline-none text-center font-black tracking-[10px]">
-                </div>
-
-                <button id="auth-btn" onclick="sendVerification()" class="w-full bg-green-500 text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-green-500/20 mt-4">Send Code</button>
-            </div>
+<div id="login-gate">
+    <div class="container">
+        <div class="logo">Identity Verification</div>
+        <input type="text" id="username" placeholder="Username">
+        <input type="email" id="email" placeholder="Gmail Address">
+        <button class="btn-pay" onclick="sendCode()">Send Code</button>
+        <div id="otp-section" style="display:none; margin-top: 20px;">
+            <input type="text" id="otp" placeholder="Enter 6-digit code">
+            <button class="btn-pay" onclick="verifyCode()">Verify Access</button>
         </div>
     </div>
+</div>
 
-    <div id="page-dashboard" class="hidden">
-        <header class="p-6 flex justify-between items-center glass sticky top-0 z-50">
-            <div>
-                <p class="text-[9px] text-green-500 font-bold uppercase tracking-tighter">Authorized Seller</p>
-                <h2 class="text-xl font-black italic text-white" id="display-name">...</h2>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="text-right">
-                    <p class="text-[8px] text-gray-500 uppercase font-bold">Wallet Balance</p>
-                    <p class="font-black text-green-500 text-sm">₦<span id="user-bal">0</span></p>
-                </div>
-                <button onclick="fundWallet()" class="w-10 h-10 bg-green-500/20 border border-green-500/40 rounded-full flex items-center justify-center text-green-500 active:scale-90">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                </button>
-            </div>
-        </header>
-
-        <div class="px-6 py-4 flex gap-3 overflow-x-auto no-scrollbar">
-            <button onclick="filter('all')" class="px-6 py-2 glass rounded-full text-[10px] font-black uppercase border border-green-500 text-green-500">All</button>
-            <button onclick="filter('facebook')" class="px-6 py-2 glass rounded-full text-[10px] font-black uppercase border border-white/10 text-gray-400">Facebook</button>
-            <button onclick="filter('instagram')" class="px-6 py-2 glass rounded-full text-[10px] font-black uppercase border border-white/10 text-gray-400">Instagram</button>
-        </div>
-
-        <div id="listings-grid" class="px-6 py-2">
-            </div>
+<div class="container" id="main-site" style="display:none;">
+    <div class="logo">Subby Logs Official</div>
+    
+    <div class="balance-card">
+        <div>Your Balance</div>
+        <div class="balance-amount">₦<span id="balance">0</span></div>
+        <button class="btn-pay" onclick="openPayment()">+</button>
     </div>
 
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 glass h-20 flex items-center justify-around border-t border-white/5 hidden">
-        <i class="fa-solid fa-house text-green-500 text-lg"></i>
-        <i class="fa-solid fa-clock-rotate-left text-gray-600 text-lg"></i>
-        <i class="fa-solid fa-user text-gray-600 text-lg"></i>
-    </nav>
+    <div class="item-list">
+        <div class="item">
+            <span>📘 Facebook Log (High Quality)</span>
+            <span>₦5,000 <button class="buy-btn" onclick="buyLog('FB-LOG-9921', 5000)">Buy</button></span>
+        </div>
+        <div class="item">
+            <span>📸 Instagram Log (Aged)</span>
+            <span>₦3,500 <button class="buy-btn" onclick="buyLog('IG-LOG-4412', 3500)">Buy</button></span>
+        </div>
+    </div>
+</div>
 
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-    <script>
-        // 1. CLEAN MARKET DATA
-        const items = [
-            { category: 'facebook', name: 'Facebook', desc: 'Aged Premium Account', price: 5000, log: 'FB_USER: subby_pro | PASS: green88 | 2FA: K9J2L1', icon: 'fa-brands fa-facebook-f', color: 'blue-600' },
-            { category: 'instagram', name: 'Instagram', desc: 'High Quality Active Account', price: 8000, log: 'IG_USER: subby_ig | PASS: logmaster | MAIL: sub@gm.com', icon: 'fa-brands fa-instagram', color: 'pink-500' },
-            { category: 'twitter', name: 'Twitter (X)', desc: 'Verified Active Account', price: 12000, log: 'X_USER: subby_x | PASS: xtreme99 | TOKEN: xyz_88', icon: 'fa-brands fa-x-twitter', color: 'sky-500' },
-            { category: 'snapchat', name: 'Snapchat', desc: 'High Score Account', price: 7000, log: 'SNAP: subby_snap | PASS: snap776', icon: 'fa-brands fa-snapchat', color: 'yellow-400' },
-            { category: 'tiktok', name: 'TikTok', desc: 'Live Stream Ready', price: 6500, log: 'TIK: subby_tok | PASS: tok123', icon: 'fa-brands fa-tiktok', color: 'purple-500' }
-        ];
+<script>
+    let currentBalance = 0;
+    let userEmail = "";
+    const LIVE_KEY = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
 
-        let currentBalance = parseInt(localStorage.getItem('subby_balance')) || 0;
+    function sendCode() {
+        userEmail = document.getElementById('email').value;
+        if(!userEmail) return alert("Enter a valid email");
+        alert("Security Code: 123456");
+        document.getElementById('otp-section').style.display = 'block';
+    }
 
-        // 2. SECURITY GATE LOGIC
-        function sendVerification() {
-            const user = document.getElementById('reg-user').value;
-            const email = document.getElementById('reg-email').value;
-            if(user && email.includes('@')) {
-                document.getElementById('otp-section').classList.remove('hidden');
-                const btn = document.getElementById('auth-btn');
-                btn.innerText = "Verify Access";
-                btn.setAttribute("onclick", "verify()");
-                alert("Security Code: 123456");
-            } else { alert("Enter Username and valid Gmail"); }
+    function verifyCode() {
+        const otp = document.getElementById('otp').value;
+        if(otp === '123456') {
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-site').style.display = 'block';
+        } else {
+            alert("Incorrect code");
         }
+    }
 
-        function verify() {
-            if(document.getElementById('otp-code').value === "123456") {
-                document.getElementById('page-auth').classList.add('hidden');
-                document.getElementById('page-dashboard').classList.remove('hidden');
-                document.getElementById('bottom-nav').classList.remove('hidden');
-                document.getElementById('display-name').innerText = document.getElementById('reg-user').value.toUpperCase();
-                renderListings('all');
-            } else { alert("Invalid Code!"); }
-        }
+    function openPayment() {
+        const amount = prompt("Enter amount to deposit (₦):", "1000");
+        if (!amount || isNaN(amount)) return;
 
-        // 3. MARKET ENGINE
-        function renderListings(cat) {
-            const grid = document.getElementById('listings-grid');
-            grid.innerHTML = items.filter(i => cat === 'all' || i.category === cat).map(i => `
-                <div class="glass p-5 rounded-[2.5rem] border-l-4 border-${i.color} mb-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-${i.color} rounded-2xl flex items-center justify-center text-white"><i class="${i.icon}"></i></div>
-                            <div><h4 class="font-bold text-sm text-white uppercase">${i.name}</h4><p class="text-[9px] text-gray-500">${i.desc}</p></div>
-                        </div>
-                        <p class="font-black text-white text-sm">₦${i.price.toLocaleString()}</p>
-                    </div>
-                    <button onclick="buyItem(${i.price}, '${i.name}', '${i.log}')" class="w-full bg-green-500 text-black py-3 rounded-2xl font-black uppercase text-[10px]">Buy Log</button>
-                </div>
-            `).join('');
-            document.getElementById('user-bal').innerText = currentBalance.toLocaleString();
-        }
-
-        function filter(c) { renderListings(c); }
-
-        // 4. PAYSTACK LOGIC
-        function fundWallet() {
-            const amt = prompt("Amount to Deposit (₦):");
-            if(amt >= 500) {
-                let handler = PaystackPop.setup({
-                    key: 'pk_live_YOUR_KEY', // <-- PASTE YOUR KEY HERE
-                    email: document.getElementById('reg-email').value,
-                    amount: amt * 100,
-                    callback: function() {
-                        currentBalance += parseInt(amt);
-                        localStorage.setItem('subby_balance', currentBalance);
-                        document.getElementById('user-bal').innerText = currentBalance.toLocaleString();
-                        alert("Wallet Funded Successfully!");
-                    }
-                });
-                handler.openIframe();
+        let handler = PaystackPop.setup({
+            key: LIVE_KEY,
+            email: userEmail,
+            amount: amount * 100,
+            currency: 'NGN',
+            callback: function(response) {
+                currentBalance += parseInt(amount);
+                document.getElementById('balance').innerText = currentBalance;
+                alert("Deposit Successful! Reference: " + response.reference);
+            },
+            onClose: function() {
+                alert("Payment Cancelled.");
             }
-        }
+        });
+        handler.openIframe();
+    }
 
-        function buyItem(p, n, log) {
-            if(currentBalance >= p) {
-                currentBalance -= p;
-                localStorage.setItem('subby_balance', currentBalance);
-                document.getElementById('user-bal').innerText = currentBalance.toLocaleString();
-                alert("SUCCESS! " + n + " PURCHASED.\n\nLOG DETAILS:\n" + log);
-            } else { alert("Insufficient Balance!"); }
+    function buyLog(logName, price) {
+        if (currentBalance >= price) {
+            currentBalance -= price;
+            document.getElementById('balance').innerText = currentBalance;
+            alert("SUCCESS! Log: " + logName + "\nUser: subby_admin\nPass: LogPass9922");
+        } else {
+            alert("Insufficient Balance. Please tap + to fund your wallet.");
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
