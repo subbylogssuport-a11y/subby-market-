@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | ADMIN SECURE</title>
+    <title>SUBBY MARKET | PRO</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
 
-        /* --- HIDDEN ADMIN PANEL --- */
-        #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; padding: 20px; overflow-y: auto; }
-        .admin-box { background: #16161a; border: 1px solid #0070f3; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; }
-        .admin-title { color: #0070f3; margin-bottom: 15px; font-weight: 900; text-align: center; }
-        select, textarea { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; margin-bottom: 10px; }
+        /* --- SECRET ADMIN PANEL --- */
+        #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; align-items: center; justify-content: center; }
+        .admin-box { background: #16161a; border: 1px solid #0070f3; padding: 25px; border-radius: 20px; width: 100%; max-width: 450px; }
+        .admin-title { color: #0070f3; margin-bottom: 20px; font-weight: 900; text-align: center; font-size: 22px; }
+        label { display: block; margin: 10px 0 5px; font-size: 12px; color: #888; text-transform: uppercase; }
+        select, textarea, .adm-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 15px; outline: none; }
+        textarea { height: 120px; font-family: monospace; font-size: 12px; }
         
-        /* --- AUTH & SHOP STYLES (Existing) --- */
+        /* --- AUTH GATE --- */
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; }
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         
+        /* --- MAIN APP --- */
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; user-select: none; }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         
         .categories-nav { padding: 20px 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
@@ -41,31 +44,30 @@
 
     <div id="admin-panel">
         <div class="admin-box">
-            <h3 class="admin-title">RESTOCK CENTRE</h3>
-            <label>Select Item to Restock:</label>
+            <h3 class="admin-title">WAREHOUSE CONTROL</h3>
+            <label>Select Category Item</label>
             <select id="restock-item"></select>
-            <label>New Stock Quantity:</label>
-            <input type="number" id="restock-qty" class="auth-input" placeholder="Amount">
-            <button class="auth-btn" onclick="applyRestock()">Apply Restock</button>
-            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
+            <label>Paste Logs (One per line)</label>
+            <textarea id="log-input" placeholder="user:pass:cookie&#10;user:pass:cookie"></textarea>
+            <button class="auth-btn" onclick="applyRestock()">Save to Warehouse</button>
+            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Cancel</button>
         </div>
     </div>
 
     <div id="auth-gate">
-        <div class="auth-card" id="login-form">
-            <h2>Login</h2>
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:20px;">Subby Login</h2>
             <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleLogin()">Sign In</button>
+            <button class="auth-btn" onclick="handleLogin()">Enter Market</button>
         </div>
     </div>
 
     <div id="main-app">
         <div class="navbar">
             <div class="brand" onmousedown="startAdminTimer()" onmouseup="clearAdminTimer()" ontouchstart="startAdminTimer()" ontouchend="clearAdminTimer()">SUBBY MARKET</div>
-            <div class="bal-pill">₦<span id="bal-val">0</span> <button class="plus-btn" style="background:transparent; border:none; color:#0070f3; font-weight:bold; cursor:pointer;" onclick="fundWallet()">+</button></div>
+            <div class="bal-pill">₦<span id="bal-val">0</span> <button style="background:transparent; border:none; color:#0070f3; font-weight:bold; cursor:pointer;" onclick="fundWallet()">+</button></div>
         </div>
-
         <div class="categories-nav" id="cat-bar"></div>
         <div class="grid" id="market-grid"></div>
     </div>
@@ -73,85 +75,93 @@
 <script>
     let balance = 0, adminTimer, adminPIN = "1234"; 
 
-    // YOUR FULL INVENTORY LIST
     const items = [
-        { id: 1, n: "Facebook (Aged Profile)", p: 4000, c: "Facebook", s: 0 },
-        { id: 2, n: "Facebook (Fresh Profile)", p: 2500, c: "Facebook", s: 0 },
-        { id: 3, n: "USA Facebook (Targeted)", p: 7500, c: "Facebook", s: 0 },
-        { id: 4, n: "Instagram (5k Followers)", p: 12000, c: "Instagram", s: 0 },
-        { id: 5, n: "Foreign Twitter 🇺🇸", p: 9500, c: "Twitter", s: 0 },
-        { id: 6, n: "Netflix Premium Logs", p: 4500, c: "Netflix", s: 0 }
+        { id: 1, n: "Facebook (Already Created Page)", p: 4000, c: "Facebook", s: 0, logs: [] },
+        { id: 2, n: "Facebook (Fresh Profile)", p: 2500, c: "Facebook", s: 0, logs: [] },
+        { id: 3, n: "Facebook (High-Activity Random)", p: 5500, c: "Facebook", s: 0, logs: [] },
+        { id: 4, n: "USA Facebook (0-30 Friends)", p: 7500, c: "Facebook", s: 0, logs: [] },
+        { id: 5, n: "Instagram (0-5,000 Followers)", p: 12000, c: "Instagram", s: 0, logs: [] },
+        { id: 6, n: "Instagram (Established Account)", p: 8500, c: "Instagram", s: 0, logs: [] },
+        { id: 7, n: "Foreign Twitter 🇺🇸 🇬🇧 🇮🇹", p: 9500, c: "Twitter", s: 0, logs: [] },
+        { id: 8, n: "Netflix Premium Logs", p: 3500, c: "Netflix", s: 0, logs: [] }
     ];
 
-    // --- ADMIN HIDDEN LOGIC ---
     function startAdminTimer() { adminTimer = setTimeout(() => { 
-        let pass = prompt("Enter Admin Security PIN:");
+        let pass = prompt("Admin Security PIN:");
         if(pass === adminPIN) { 
             document.getElementById('admin-panel').style.display = 'flex';
-            loadAdminList();
+            const sel = document.getElementById('restock-item');
+            sel.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
         }
     }, 3000); }
     function clearAdminTimer() { clearTimeout(adminTimer); }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
-    function loadAdminList() {
-        const sel = document.getElementById('restock-item');
-        sel.innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join('');
-    }
-
     function applyRestock() {
         const id = document.getElementById('restock-item').value;
-        const qty = document.getElementById('restock-qty').value;
+        const logText = document.getElementById('log-input').value.trim();
         const item = items.find(i => i.id == id);
-        if(item) {
-            item.s = parseInt(qty);
-            alert(`${item.n} restocked to ${qty}`);
+        
+        if(logText) {
+            const newLogs = logText.split('\n').filter(line => line.length > 5);
+            item.logs = [...item.logs, ...newLogs];
+            item.s = item.logs.length;
+            alert(`Warehouse Updated: ${item.n} now has ${item.s} accounts.`);
             renderItems(items);
+            document.getElementById('log-input').value = "";
             closeAdmin();
         }
     }
 
-    // --- MAIN APP LOGIC ---
     function renderItems(data) {
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
                 <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:10px; font-weight:800;">
-                    ${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}
+                    ${i.s > 0 ? 'IN STOCK: ' + i.s : 'SOLD OUT'}
                 </span>
-                <h3>${i.n}</h3>
+                <h3 style="margin-top:5px;">${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn" ${i.s === 0 ? 'disabled' : ''}>
-                    ${i.s > 0 ? 'PURCHASE' : 'UNAVAILABLE'}
+                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>
+                    ${i.s > 0 ? 'PURCHASE NOW' : 'UNAVAILABLE'}
                 </button>
             </div>`).join('');
     }
 
+    function buyItem(id) {
+        const item = items.find(i => i.id == id);
+        if(balance < item.p) return alert("Insufficient Balance! Please fund your wallet.");
+        
+        const log = item.logs.shift(); // Takes the first log out of the "warehouse"
+        item.s = item.logs.length;
+        balance -= item.p;
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        
+        alert(`SUCCESS!\n\nYour Log:\n${log}\n\nPlease copy this now!`);
+        renderItems(items);
+    }
+
     function handleLogin() {
-        const e = document.getElementById('log-email').value;
-        const p = document.getElementById('log-pass').value;
-        if(e && p) { 
-            document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            renderItems(items);
-            setupCategories();
-        }
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        setupCategories();
+        renderItems(items);
     }
 
     function setupCategories() {
-        const cats = ['All', ...new Set(items.map(i => i.c))];
+        const cats = ['All Logs', ...new Set(items.map(i => i.c))];
         document.getElementById('cat-bar').innerHTML = cats.map(c => 
-            `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`
+            `<div class="cat-btn ${c==='All Logs'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`
         ).join('');
     }
 
     function filterShop(c, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        renderItems(c === 'All' ? items : items.filter(i => i.c === c));
+        renderItems(c === 'All Logs' ? items : items.filter(i => i.c === c));
     }
 
     function fundWallet() {
-        const amt = prompt("Amount to fund (₦):");
+        const amt = prompt("Amount (₦):");
         if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
