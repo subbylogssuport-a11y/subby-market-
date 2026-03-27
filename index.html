@@ -8,24 +8,15 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: #eee; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        
-        /* Auth Styles */
         .auth-card { background: #16161a; border: 1px solid #333; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; }
-        h1, h2 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
+        h1 { color: #0070f3; margin-bottom: 20px; font-weight: 900; }
         input { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
         .btn-blue { background: #0070f3; color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; }
-        .btn-dark { background: #222; margin-top: 10px; }
-        .btn-link { background: none; border: none; color: #0070f3; margin-top: 15px; cursor: pointer; font-size: 13px; }
-
-        /* Market Styles */
         #main-site { display: none; width: 100%; position: fixed; inset: 0; background: #000; overflow-y: auto; }
-        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        .navbar { background: #16161a; padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
         .bal-box { display: flex; align-items: center; gap: 8px; background: #222; padding: 6px 12px; border-radius: 20px; border: 1px solid #0070f3; }
-        .logout-btn { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
-        
-        .product-list { padding: 15px; }
-        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .price { color: #0070f3; font-weight: bold; font-size: 20px; margin: 10px 0; }
+        .card { background: #16161a; border: 1px solid #262626; padding: 15px; border-radius: 12px; margin: 15px; }
+        .price { color: #0070f3; font-weight: bold; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -36,70 +27,25 @@
         <input type="text" id="l-u" placeholder="Username">
         <input type="password" id="l-p" placeholder="Password">
         <button class="btn-blue" onclick="doLogin()">LOGIN</button>
-        <button class="btn-blue btn-dark" onclick="showBox('signup')">Create Account</button>
-        <button class="btn-link" onclick="showBox('forgot')">Forgot Password?</button>
-    </div>
-
-    <div class="auth-card" id="signup-box" style="display:none;">
-        <h2>REGISTER</h2>
-        <input type="text" id="s-u" placeholder="Username">
-        <input type="email" id="s-e" placeholder="Email Address">
-        <input type="password" id="s-p" placeholder="Password">
-        <button class="btn-blue" onclick="doSignup()">CREATE ACCOUNT</button>
-        <button class="btn-link" onclick="showBox('login')">Back to Login</button>
-    </div>
-
-    <div class="auth-card" id="forgot-box" style="display:none;">
-        <h2>RECOVERY</h2>
-        <p style="font-size: 12px; color: #888;">Enter this temporary code:</p>
-        <h1 id="otp-display" style="color:#ffcc00; letter-spacing: 5px;"></h1>
-        <input type="text" id="f-u" placeholder="Username">
-        <input type="text" id="f-otp" placeholder="Enter Code">
-        <input type="password" id="f-new-p" placeholder="New Password">
-        <button class="btn-blue" onclick="doReset()">UPDATE PASSWORD</button>
-        <button class="btn-link" onclick="showBox('login')">Back</button>
     </div>
 </div>
 
 <div id="main-site">
     <div class="navbar">
-        <div>
-            <b style="color:#0070f3;">SUBBY MARKET</b><br>
-            <button class="logout-btn" onclick="location.reload()">Logout</button>
-        </div>
+        <b style="color:#0070f3;">SUBBY MARKET</b>
         <div class="bal-box">
             <span>₦<span id="bal-val">0</span></span>
-            <button style="background:#0070f3; border:none; color:#fff; width:28px; height:28px; border-radius:50%; font-weight:bold; cursor:pointer;" onclick="payWithPaystack()">+</button>
+            <button style="background:#0070f3; border:none; color:#fff; width:24px; height:24px; border-radius:50%; font-weight:bold; cursor:pointer;" onclick="payWithPaystack()">+</button>
         </div>
     </div>
-    <div class="product-list" id="shop-grid"></div>
+    <div id="shop-grid"></div>
 </div>
 
 <script>
+    // Set your live key here
+    const myKey = 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661';
     let users = JSON.parse(localStorage.getItem('sys_users') || '{"Pelumi":{"p":"123","b":0,"e":"admin@mail.com"}}');
     let activeUser = null;
-    let currentOTP = "";
-
-    function showBox(id) {
-        document.getElementById('login-box').style.display = id === 'login' ? 'block' : 'none';
-        document.getElementById('signup-box').style.display = id === 'signup' ? 'block' : 'none';
-        document.getElementById('forgot-box').style.display = id === 'forgot' ? 'block' : 'none';
-        if(id === 'forgot') {
-            currentOTP = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('otp-display').innerText = currentOTP;
-        }
-    }
-
-    function doSignup() {
-        const u = document.getElementById('s-u').value.trim();
-        const e = document.getElementById('s-e').value.trim();
-        const p = document.getElementById('s-p').value.trim();
-        if(!u || !e || !p) return alert("All fields are required!");
-        users[u] = {p: p, b: 0, e: e};
-        localStorage.setItem('sys_users', JSON.stringify(users));
-        alert("Account Created Successfully!");
-        showBox('login');
-    }
 
     function doLogin() {
         const u = document.getElementById('l-u').value.trim();
@@ -108,40 +54,25 @@
             activeUser = u;
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('main-site').style.display = 'block';
-            updateUI();
+            document.getElementById('bal-val').innerText = users[u].b.toLocaleString();
             renderShop();
-        } else { alert("Invalid Credentials!"); }
-    }
-
-    function doReset() {
-        const u = document.getElementById('f-u').value.trim();
-        const otp = document.getElementById('f-otp').value.trim();
-        if(otp == currentOTP && users[u]) {
-            users[u].p = document.getElementById('f-new-p').value;
-            localStorage.setItem('sys_users', JSON.stringify(users));
-            alert("Password Changed!");
-            showBox('login');
-        } else { alert("Invalid Code or User!"); }
-    }
-
-    function updateUI() {
-        document.getElementById('bal-val').innerText = users[activeUser].b.toLocaleString();
+        } else { alert("Login failed!"); }
     }
 
     function payWithPaystack() {
-        const amt = prompt("Enter deposit amount (₦):");
+        const amt = prompt("Amount to deposit (₦):");
         if(!amt || isNaN(amt)) return;
-
+        
         let handler = PaystackPop.setup({
-            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+            key: myKey,
             email: users[activeUser].e,
             amount: amt * 100,
             currency: "NGN",
-            callback: function(response) {
+            callback: function(res) {
                 users[activeUser].b += parseInt(amt);
                 localStorage.setItem('sys_users', JSON.stringify(users));
-                updateUI();
-                alert("Deposit of ₦" + amt + " confirmed!");
+                document.getElementById('bal-val').innerText = users[activeUser].b.toLocaleString();
+                alert("Payment Success!");
             }
         });
         handler.openIframe();
@@ -153,8 +84,7 @@
             {n:"Facebook with already created Profile", p:5500},
             {n:"Aged Facebook", p:10000},
             {n:"Aged Instagram Log", p:4000},
-            {n:"Aged Twitter (2012)", p:4500},
-            {n:"Clubhouse Account", p:12000}
+            {n:"Aged Twitter (2012)", p:4500}
         ];
         const grid = document.getElementById('shop-grid');
         grid.innerHTML = items.map(i => `
