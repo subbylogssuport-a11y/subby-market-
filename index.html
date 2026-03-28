@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V7 TOTAL PERSISTENCE</title>
+    <title>SUBBY MARKET | V9 SUPPORT PRO</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -15,12 +15,11 @@
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 14px; }
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .gate-link { color: #888; font-size: 12px; margin-top: 12px; display: inline-block; cursor: pointer; }
-        .gate-link span { color: #0070f3; font-weight: bold; }
 
         /* --- ADMIN PANEL --- */
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; }
         .admin-box { background:#16161a; padding:25px; border-radius:20px; max-width:400px; margin:20px auto; border:1px solid #0070f3; }
-        .tab-btn { background: #222; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; font-size: 12px; }
+        .tab-btn { background: #222; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; font-size: 11px; }
         .tab-btn.active { background: #0070f3; }
 
         /* --- MAIN UI --- */
@@ -38,9 +37,14 @@
         .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
         .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
         
+        /* --- ORDER HISTORY --- */
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
-        .order-item { background: #111; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #0070f3; font-size: 12px; word-break: break-all; }
-        .logout-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; border-radius: 8px; font-size: 11px; margin-top: 10px; width: 100%; cursor: pointer; }
+        .order-item { background: #111; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid #0070f3; position: relative; }
+        .action-btns { display: flex; gap: 8px; margin-top: 12px; }
+        .mini-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 10px; font-weight: bold; cursor: pointer; color: #fff; }
+        .copy-btn { background: #0070f3; }
+        .report-btn { background: #444; }
+        .logout-btn { background: transparent; border: 1px solid #444; color: #888; padding: 8px; border-radius: 8px; font-size: 11px; margin-top: 15px; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -51,8 +55,8 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span>Create Account</span></div><br>
-            <div class="gate-link" onclick="showGate('forgot-gate')">Forgot Password?</div>
+            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span style="color:#0070f3;">Create Account</span></div>
+            <div class="gate-link" onclick="showGate('forgot-gate')"><br>Forgot Password?</div>
         </div>
     </div>
 
@@ -76,33 +80,34 @@
 
     <div id="forgot-gate" class="gate-container" style="display:none;">
         <div class="auth-card">
-            <h2 style="color:#0070f3; margin-bottom:10px;">RESET PASS</h2>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="Registered Email">
-            <button class="auth-btn" onclick="handleForgot()">Get Reset Code</button>
+            <h2 style="color:#0070f3; margin-bottom:10px;">RESET</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Email">
+            <button class="auth-btn" onclick="handleForgot()">Get Code</button>
             <div class="gate-link" onclick="showGate('login-gate')">Back</div>
         </div>
     </div>
 
     <div id="admin-panel">
         <div class="admin-box">
-            <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE CONTROL</h3>
+            <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE</h3>
             <div style="display:flex; gap:10px; justify-content:center;">
-                <button class="tab-btn active" id="tab-edit" onclick="setAdminTab('edit')">Manage Stock</button>
-                <button class="tab-btn" id="tab-add" onclick="setAdminTab('add')">+ New Type</button>
+                <button class="tab-btn active" id="tab-edit" onclick="setAdminTab('edit')">Stock/Price</button>
+                <button class="tab-btn" id="tab-add" onclick="setAdminTab('add')">+ New Card</button>
             </div>
             <div id="admin-edit-sec">
                 <select id="restock-item" class="auth-input" onchange="loadCurrentData()"></select>
                 <input type="number" id="edit-price" class="auth-input" placeholder="Price">
-                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Logs (user:pass)"></textarea>
+                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Paste Logs (one per line)"></textarea>
                 <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
+                <button class="auth-btn" style="background:#ff4d4d; margin-top:10px;" onclick="deleteCardType()">Delete This Card Type</button>
             </div>
             <div id="admin-add-sec" style="display:none;">
                 <input type="text" id="new-name" class="auth-input" placeholder="Card Name">
                 <input type="number" id="new-price" class="auth-input" placeholder="Price">
                 <input type="text" id="new-cat" class="auth-input" placeholder="Category">
-                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create Type</button>
+                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create Card</button>
             </div>
-            <button class="auth-btn" style="background:#333; margin-top:10px;" onclick="closeAdmin()">Close</button>
+            <button class="auth-btn" style="background:#333; margin-top:20px;" onclick="closeAdmin()">Close</button>
         </div>
     </div>
 
@@ -115,7 +120,7 @@
         <div class="grid" id="market-grid"></div>
         <div class="orders-section">
             <h4 style="color:#0070f3;">My Purchased Logs</h4>
-            <div id="orders-list" style="color:#888; font-size:13px; margin-top:5px;">No purchases yet.</div>
+            <div id="orders-list"></div>
             <button class="logout-btn" onclick="handleLogout()">Logout Account</button>
         </div>
     </div>
@@ -124,15 +129,14 @@
     let currentUser = null;
     let balance = 0, adminTimer, adminPIN = "1234", myOrders = [];
     let tempUserData = {}, generatedCode = "";
+    const SUPPORT_EMAIL = "subbylogssuport@gmail.com";
 
     const defaultItems = [
-        { id: 1, n: "Random Country FB (0-30 friend) 2023", p: 5240, c: "Facebook", s: 0, logs: [] },
-        { id: 2, n: "Random Country FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: [] }
+        { id: 1, n: "Random Country FB (0-30 friend) 2023", p: 5240, c: "Facebook", s: 0, logs: [] }
     ];
 
     let items = JSON.parse(localStorage.getItem('subby_inventory')) || defaultItems;
 
-    // --- SAVE CORE DATA ---
     function saveAll() {
         localStorage.setItem('subby_inventory', JSON.stringify(items));
         if (currentUser) {
@@ -145,6 +149,7 @@
         document.getElementById(id).style.display = 'flex';
     }
 
+    // Logic for Login/Reg/Forgot...
     function handleRegister() {
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-pass').value;
@@ -158,7 +163,7 @@
     function confirmVerify() {
         if(document.getElementById('verify-code').value === generatedCode) {
             localStorage.setItem(`user_${tempUserData.email}`, tempUserData.pass);
-            alert("Registered! Please login.");
+            alert("Success! Login now.");
             showGate('login-gate');
         } else { alert("Wrong Code!"); }
     }
@@ -166,15 +171,11 @@
     function handleLogin() {
         const email = document.getElementById('log-email').value;
         const pass = document.getElementById('log-pass').value;
-        const storedPass = localStorage.getItem(`user_${email}`);
-
-        if(storedPass === pass) {
+        if(localStorage.getItem(`user_${email}`) === pass) {
             currentUser = email;
-            // Load specific user data (Balance & Orders)
             const userData = JSON.parse(localStorage.getItem(`data_${email}`)) || { balance: 0, myOrders: [] };
             balance = userData.balance;
             myOrders = userData.myOrders;
-            
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
@@ -182,19 +183,15 @@
         } else { alert("Invalid Credentials!"); }
     }
 
-    function handleLogout() {
-        saveAll();
-        location.reload();
-    }
+    function handleLogout() { saveAll(); location.reload(); }
 
     function handleForgot() {
         const email = document.getElementById('forgot-email').value;
-        const exists = localStorage.getItem(`user_${email}`);
-        if(exists) {
-            alert("Code: " + Math.floor(1000 + Math.random()*9000));
+        if(localStorage.getItem(`user_${email}`)) {
+            alert("Reset Code: " + Math.floor(1000 + Math.random()*9000));
             const newP = prompt("New Password:");
-            if(newP) { localStorage.setItem(`user_${email}`, newP); alert("Success!"); showGate('login-gate'); }
-        } else { alert("Not found!"); }
+            if(newP) { localStorage.setItem(`user_${email}`, newP); showGate('login-gate'); }
+        } else { alert("User not found"); }
     }
 
     // --- ADMIN ---
@@ -211,7 +208,14 @@
     }
     function addNewCardType() {
         const n=document.getElementById('new-name').value, p=parseInt(document.getElementById('new-price').value), c=document.getElementById('new-cat').value;
-        if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); updateAdminSelect(); renderItems(items); setupCategories(); alert("Added!"); setAdminTab('edit'); }
+        if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); updateAdminSelect(); renderItems(items); setupCategories(); setAdminTab('edit'); }
+    }
+    function deleteCardType() {
+        if(confirm("Are you sure?")) {
+            const id = document.getElementById('restock-item').value;
+            items = items.filter(i => i.id != id);
+            saveAll(); updateAdminSelect(); renderItems(items); setupCategories();
+        }
     }
     function loadCurrentData() {
         const item = items.find(i => i.id == document.getElementById('restock-item').value);
@@ -223,7 +227,7 @@
         const logT = document.getElementById('log-input').value.trim();
         if(newP) item.p = parseInt(newP);
         if(logT) { const newL = logT.split('\n').filter(l => l.trim().length > 3); item.logs = [...item.logs, ...newL]; item.s = item.logs.length; document.getElementById('log-input').value = ""; }
-        saveAll(); renderItems(items); alert("Updated!");
+        saveAll(); renderItems(items); alert("Saved!");
     }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
@@ -232,7 +236,7 @@
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
                 <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px; font-weight:800;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span>
-                <h3 style="margin:5px 0;">${i.n}</h3>
+                <h3 style="margin:5px 0; font-size:16px;">${i.n}</h3>
                 <div class="price">₦${i.p.toLocaleString()}</div>
                 <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button>
             </div>`).join('');
@@ -245,12 +249,35 @@
         item.s = item.logs.length;
         balance -= item.p;
         document.getElementById('bal-val').innerText = balance.toLocaleString();
-        myOrders.unshift({ name: item.n, log: log });
+        myOrders.unshift({ name: item.n, log: log, id: Date.now() });
         saveAll(); updateOrdersUI(); renderItems(items);
     }
 
     function updateOrdersUI() {
-        document.getElementById('orders-list').innerHTML = myOrders.length ? myOrders.map(o => `<div class="order-item"><strong>${o.name}</strong><br>${o.log}</div>`).join('') : "No purchases yet.";
+        const list = document.getElementById('orders-list');
+        if(!myOrders.length) { list.innerHTML = "<p style='color:#555; font-size:12px;'>No logs yet.</p>"; return; }
+        list.innerHTML = myOrders.map((o) => `
+            <div class="order-item">
+                <strong style="font-size:13px; color:#0070f3;">${o.name}</strong><br>
+                <p style="font-size:11px; margin-top:8px; color:#ccc; word-break:break-all;">${o.log}</p>
+                <div class="action-btns">
+                    <button class="mini-btn copy-btn" onclick="copyLog('${o.log}', this)">COPY LOG</button>
+                    <button class="mini-btn report-btn" onclick="reportIssue('${o.name}', '${o.log}')">REPORT ISSUE</button>
+                </div>
+            </div>`).join('');
+    }
+
+    function copyLog(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+            btn.innerText = "COPIED!";
+            setTimeout(() => btn.innerText = "COPY LOG", 2000);
+        });
+    }
+
+    function reportIssue(name, log) {
+        const subject = encodeURIComponent(`Issue with ${name}`);
+        const body = encodeURIComponent(`Hi Admin, I have an issue with this log:\n\nProduct: ${name}\nLog Details: ${log}\n\nProblem: `);
+        window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
     }
 
     function setupCategories() {
@@ -271,11 +298,7 @@
                 key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
                 email: currentUser,
                 amount: amt * 100,
-                callback: () => {
-                    balance += parseInt(amt);
-                    document.getElementById('bal-val').innerText = balance.toLocaleString();
-                    saveAll();
-                }
+                callback: () => { balance += parseInt(amt); document.getElementById('bal-val').innerText = balance.toLocaleString(); saveAll(); }
             }).openIframe();
         }
     }
