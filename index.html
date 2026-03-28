@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V19 FULL STOCK</title>
+    <title>SUBBY MARKET | LIVE SUPPORT</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: #eee; min-height: 100vh; overflow-x: hidden; }
         
+        /* THE ONE ADDITION: LIVE SUPPORT NAV */
+        .support-nav {
+            padding: 10px 15px;
+            background: #111;
+            border-bottom: 1px dashed #333;
+            text-align: center;
+        }
+        .support-link {
+            font-size: 13px;
+            color: #0070f3;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         .easter-banner {
             background: linear-gradient(45deg, #ff00cc, #3333ff, #00d4ff, #ffcc00);
             background-size: 400% 400%;
@@ -107,6 +122,12 @@
     </div>
 
     <div id="main-app">
+        <div class="support-nav">
+            <a href="https://wa.me/2348104565349?text=Hello,%20I%20need%20help%20with%20my%20purchase!" target="_blank" class="support-link">
+                LIVE SUPPORT (Tap to chat on WhatsApp)
+            </a>
+        </div>
+
         <div class="navbar">
             <div class="brand" ontouchstart="startAdminTimer()" onmousedown="startAdminTimer()">SUBBY MARKET</div>
             <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer;">+</span></div>
@@ -130,8 +151,6 @@
 <script>
     let currentUser = null, balance = 0, myOrders = [];
     let generatedCode = "", tempUser = {};
-
-    // THE CORE FIX: All categories hard-coded
     let fullStock = [
         {id: 1, n: "FB (0-30 friend) 2023", p: 3500, c: "Facebook", s: 0, logs: []},
         {id: 2, n: "FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: []},
@@ -143,8 +162,6 @@
     ];
 
     let items = JSON.parse(localStorage.getItem('subby_inventory'));
-    
-    // If browser is empty or old, load the fullStock
     if (!items || items.length < 5) {
         items = fullStock;
         localStorage.setItem('subby_inventory', JSON.stringify(items));
