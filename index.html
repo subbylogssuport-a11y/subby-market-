@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V11 RECOVERY</title>
+    <title>SUBBY MARKET | V12 PRO</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        /* --- ALL PREVIOUS STYLES HELD --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 14px; }
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .gate-link { color: #888; font-size: 12px; margin-top: 12px; display: inline-block; cursor: pointer; }
         .code-display { background: #111; border: 1px dashed #0070f3; padding: 10px; border-radius: 10px; margin: 10px 0; color: #0070f3; font-weight: 800; font-size: 20px; }
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; }
         .admin-box { background:#16161a; padding:25px; border-radius:20px; max-width:400px; margin:20px auto; border:1px solid #0070f3; }
         #main-app { display: none; }
-        .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .brand { font-size: 20px; font-weight: 900; color: #0070f3; }
+        .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; font-weight: bold; }
-        .grid { padding: 15px; display: grid; gap: 15px; }
-        .card { background: #16161a; border: 1px solid #222; border-radius: 20px; padding: 22px; }
-        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; }
+        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; }
+        .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
-        .order-item { background: #111; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid #0070f3; }
-        .mini-btn { padding: 8px; border-radius: 8px; border: none; font-size: 10px; font-weight: bold; cursor: pointer; color: #fff; margin-top: 5px; }
+        .order-item { background: #111; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid #0070f3; position: relative; }
+        .action-btns { display: flex; gap: 8px; margin-top: 12px; }
+        .mini-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 10px; font-weight: bold; cursor: pointer; color: #fff; }
     </style>
 </head>
 <body>
@@ -36,7 +37,8 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div style="color:#888; font-size:12px; margin-top:10px; cursor:pointer;" onclick="showGate('reg-gate')">No account? <span style="color:#0070f3;">Create Account</span></div>
+            <div class="gate-link" onclick="showGate('reg-gate')">No account? <span style="color:#0070f3;">Create Account</span></div>
+            <div class="gate-link" onclick="showGate('forgot-gate')"><br>Forgot Password?</div>
         </div>
     </div>
 
@@ -49,8 +51,9 @@
             <div id="reg-code-box" style="display:none;">
                 <div class="code-display" id="display-reg-code"></div>
                 <button class="mini-btn" style="background:#0070f3; width:100%;" onclick="copyValue('display-reg-code')">Copy Code</button>
-                <div onclick="showGate('verify-gate')" style="color:#0070f3; font-weight:bold; margin-top:15px; cursor:pointer;">Next Step →</div>
+                <div class="gate-link" onclick="showGate('verify-gate')" style="color:#0070f3; font-weight:bold; margin-top:15px;">Next Step →</div>
             </div>
+            <div class="gate-link" onclick="showGate('login-gate')">Back to Login</div>
         </div>
     </div>
 
@@ -58,26 +61,36 @@
         <div class="auth-card">
             <h2 style="color:#0070f3; margin-bottom:10px;">VERIFY</h2>
             <input type="text" id="verify-code" class="auth-input" style="text-align:center; font-size:24px;" placeholder="Paste Code">
-            <button class="auth-btn" onclick="confirmVerify()">Register</button>
+            <button class="auth-btn" onclick="confirmVerify()">Register Now</button>
+        </div>
+    </div>
+
+    <div id="forgot-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3; margin-bottom:10px;">RESET PASS</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Enter Registered Email">
+            <button class="auth-btn" onclick="handleForgot()">Get Reset Code</button>
+            <div id="forgot-code-box" style="display:none;">
+                <div class="code-display" id="display-forgot-code"></div>
+                <button class="mini-btn" style="background:#0070f3; width:100%;" onclick="copyValue('display-forgot-code')">Copy Code</button>
+                <p style="font-size:10px; color:#888; margin-top:10px;">Copy this code and give it to the admin or use it to verify your identity.</p>
+            </div>
+            <div class="gate-link" onclick="showGate('login-gate')">Back to Login</div>
         </div>
     </div>
 
     <div id="admin-panel">
         <div class="admin-box">
-            <h3 style="color:#0070f3; margin-bottom:15px; text-align:center;">WAREHOUSE</h3>
+            <h3 style="color:#0070f3; text-align:center;">WAREHOUSE</h3>
             <div id="admin-edit-sec">
                 <select id="restock-item" class="auth-input" onchange="loadCurrentData()"></select>
                 <input type="number" id="edit-price" class="auth-input" placeholder="Price">
-                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Paste Logs (one per line)"></textarea>
+                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Paste Logs"></textarea>
                 <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
-                <button class="auth-btn" style="background:#ff4d4d; margin-top:10px;" onclick="deleteCardType()">Delete Card Type</button>
             </div>
-            
-            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-            <h4 style="color:#fff; font-size:12px; margin-bottom:10px;">DATA RECOVERY</h4>
-            <button class="auth-btn" style="background:#444;" onclick="exportData()">Copy All Site Data (Backup)</button>
-            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="importData()">Restore Data from Backup</button>
-            
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+            <button class="auth-btn" style="background:#444;" onclick="exportData()">Backup Data</button>
+            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="importData()">Restore Data</button>
             <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="closeAdmin()">Close</button>
         </div>
     </div>
@@ -85,14 +98,13 @@
     <div id="main-app">
         <div class="navbar">
             <div class="brand" onmousedown="startAdminTimer()" ontouchstart="startAdminTimer()">SUBBY MARKET</div>
-            <div class="bal-pill">₦<span id="bal-val">0</span> <span style="cursor:pointer;" onclick="fundWallet()">+</span></div>
+            <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer;">+</span></div>
         </div>
-        <div id="cat-bar" style="padding:15px; display:flex; gap:10px; overflow-x:auto;"></div>
         <div class="grid" id="market-grid"></div>
         <div class="orders-section">
-            <h4 style="color:#0070f3;">My Purchased Logs</h4>
+            <h4 style="color:#0070f3;">Purchased Logs</h4>
             <div id="orders-list"></div>
-            <button class="mini-btn" style="background:#333; width:100%; margin-top:10px;" onclick="handleLogout()">Logout</button>
+            <button class="mini-btn" style="background:#333; width:100%; margin-top:20px;" onclick="handleLogout()">Logout</button>
         </div>
     </div>
 
@@ -101,100 +113,103 @@
     let tempUserData = {}, generatedCode = "";
     const SUPPORT_EMAIL = "subbylogssuport@gmail.com";
 
-    const defaultItems = [];
-    let items = JSON.parse(localStorage.getItem('subby_inventory')) || defaultItems;
+    let items = JSON.parse(localStorage.getItem('subby_inventory')) || [];
 
     function saveAll() {
         localStorage.setItem('subby_inventory', JSON.stringify(items));
-        if (currentUser) {
-            localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
-        }
+        if (currentUser) localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
     }
 
-    // AUTH LOGIC
     function showGate(id) { document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
-    function handleRegister() {
-        const email = document.getElementById('reg-email').value.trim().toLowerCase();
-        const pass = document.getElementById('reg-pass').value.trim();
-        if(!email || !pass) return alert("Fill fields");
-        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-        tempUserData = { email, pass };
-        document.getElementById('display-reg-code').innerText = generatedCode;
-        document.getElementById('reg-code-box').style.display = 'block';
-    }
-    function confirmVerify() {
-        if(document.getElementById('verify-code').value.trim() === generatedCode) {
-            localStorage.setItem(`user_${tempUserData.email}`, tempUserData.pass);
-            alert("Done! Now login.");
-            location.reload();
-        } else { alert("Wrong!"); }
-    }
+
+    // LOGIN & FORGOT LOGIC
     function handleLogin() {
-        const email = document.getElementById('log-email').value.trim().toLowerCase();
-        const pass = document.getElementById('log-pass').value.trim();
-        if(localStorage.getItem(`user_${email}`) === pass) {
-            currentUser = email;
-            const userData = JSON.parse(localStorage.getItem(`data_${email}`)) || { balance: 0, myOrders: [] };
-            balance = userData.balance; myOrders = userData.myOrders;
+        const e = document.getElementById('log-email').value.trim().toLowerCase();
+        const p = document.getElementById('log-pass').value.trim();
+        if(localStorage.getItem(`user_${e}`) === p) {
+            currentUser = e;
+            const d = JSON.parse(localStorage.getItem(`data_${e}`)) || { balance: 0, myOrders: [] };
+            balance = d.balance; myOrders = d.myOrders;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            updateOrdersUI(); setupCategories(); renderItems(items);
-        } else { alert("Login failed!"); }
+            updateOrdersUI(); renderItems(items);
+        } else { alert("Invalid credentials!"); }
     }
 
-    // RECOVERY TOOLS
+    function handleForgot() {
+        const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+        if(localStorage.getItem(`user_${email}`)) {
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('display-forgot-code').innerText = generatedCode;
+            document.getElementById('forgot-code-box').style.display = 'block';
+            const newP = prompt("Enter your NEW password:");
+            if(newP) { localStorage.setItem(`user_${email}`, newP.trim()); alert("Password updated successfully!"); showGate('login-gate'); }
+        } else { alert("User not found!"); }
+    }
+
+    function handleRegister() {
+        const e = document.getElementById('reg-email').value.trim().toLowerCase();
+        const p = document.getElementById('reg-pass').value.trim();
+        if(!e || !p) return alert("Fill all fields");
+        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        tempUserData = { e, p };
+        document.getElementById('display-reg-code').innerText = generatedCode;
+        document.getElementById('reg-code-box').style.display = 'block';
+    }
+
+    function confirmVerify() {
+        if(document.getElementById('verify-code').value.trim() === generatedCode) {
+            localStorage.setItem(`user_${tempUserData.e}`, tempUserData.p);
+            alert("Registered! Please login.");
+            location.reload();
+        } else { alert("Wrong code!"); }
+    }
+
+    // BACKUP & RESTORE
     function exportData() {
-        const backup = { inventory: items, users: {} };
+        const b = { inv: items, users: {} };
         for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if(key.startsWith('user_') || key.startsWith('data_')) {
-                backup.users[key] = localStorage.getItem(key);
-            }
+            let k = localStorage.key(i);
+            if(k.startsWith('user_') || k.startsWith('data_')) b.users[k] = localStorage.getItem(k);
         }
-        const dataStr = JSON.stringify(backup);
-        navigator.clipboard.writeText(dataStr).then(() => alert("Backup Copied to Clipboard! Save it in your notes."));
+        navigator.clipboard.writeText(JSON.stringify(b)).then(() => alert("Backup Copied!"));
     }
 
     function importData() {
-        const data = prompt("Paste your Backup Data here:");
-        if(!data) return;
+        const d = prompt("Paste backup:");
+        if(!d) return;
         try {
-            const parsed = JSON.parse(data);
-            items = parsed.inventory;
-            for(let key in parsed.users) {
-                localStorage.setItem(key, parsed.users[key]);
-            }
-            saveAll();
-            alert("Data Restored! Refreshing...");
-            location.reload();
-        } catch(e) { alert("Invalid Backup Format!"); }
+            const p = JSON.parse(d); items = p.inv;
+            for(let k in p.users) localStorage.setItem(k, p.users[k]);
+            saveAll(); location.reload();
+        } catch(e) { alert("Error!"); }
     }
 
-    // MARKET LOGIC
+    // MARKET & ADMIN UI
     function startAdminTimer() { setTimeout(() => { if(prompt("PIN:") === "1234") document.getElementById('admin-panel').style.display='block'; updateAdminSelect(); }, 3000); }
     function updateAdminSelect() { document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join(''); }
+    function loadCurrentData() { const i = items.find(x => x.id == document.getElementById('restock-item').value); if(i) document.getElementById('edit-price').value = i.p; }
     function saveAdminChanges() {
-        const item = items.find(i => i.id == document.getElementById('restock-item').value);
-        const logT = document.getElementById('log-input').value.trim();
-        if(logT) { const newL = logT.split('\n').filter(l => l.trim().length > 3); item.logs = [...item.logs, ...newL]; item.s = item.logs.length; }
-        item.p = parseInt(document.getElementById('edit-price').value);
+        const i = items.find(x => x.id == document.getElementById('restock-item').value);
+        const l = document.getElementById('log-input').value.trim();
+        if(l) { i.logs = [...i.logs, ...l.split('\n').filter(x => x.length > 3)]; i.s = i.logs.length; }
+        i.p = parseInt(document.getElementById('edit-price').value);
         saveAll(); renderItems(items); alert("Saved!");
     }
     function renderItems(data) { document.getElementById('market-grid').innerHTML = data.map(i => `<div class="card"><span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span><h3 style="margin:5px 0;">${i.n}</h3><div style="font-size:24px; color:#0070f3; font-weight:900;">₦${i.p.toLocaleString()}</div><button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button></div>`).join(''); }
     function buyItem(id) {
-        const item = items.find(i => i.id == id);
-        if(balance < item.p) return alert("Low Balance!");
-        const log = item.logs.shift(); item.s = item.logs.length; balance -= item.p;
-        myOrders.unshift({ name: item.n, log: log });
-        saveAll(); updateOrdersUI(); renderItems(items);
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        const i = items.find(x => x.id == id);
+        if(balance < i.p) return alert("Low Balance!");
+        const log = i.logs.shift(); i.s = i.logs.length; balance -= i.p;
+        myOrders.unshift({ name: i.n, log: log }); saveAll();
+        updateOrdersUI(); renderItems(items); document.getElementById('bal-val').innerText = balance.toLocaleString();
     }
-    function updateOrdersUI() { document.getElementById('orders-list').innerHTML = myOrders.map((o) => `<div class="order-item"><strong>${o.name}</strong><br><p style="font-size:11px; color:#ccc;">${o.log}</p><button class="mini-btn" style="background:#0070f3;" onclick="navigator.clipboard.writeText('${o.log}').then(()=>alert('Copied!'))">COPY</button></div>`).join(''); }
-    function setupCategories() { const cats = ['All', ...new Set(items.map(i => i.c))]; document.getElementById('cat-bar').innerHTML = cats.map(c => `<div style="background:#16161a; padding:10px; border-radius:10px; font-size:12px; cursor:pointer;" onclick="renderItems(items)">${c}</div>`).join(''); }
+    function updateOrdersUI() { document.getElementById('orders-list').innerHTML = myOrders.map((o) => `<div class="order-item"><strong>${o.name}</strong><br><p style="font-size:11px; color:#ccc;">${o.log}</p><div class="action-btns"><button class="mini-btn" style="background:#0070f3;" onclick="navigator.clipboard.writeText('${o.log}').then(()=>alert('Copied!'))">COPY</button><button class="mini-btn" style="background:#444;" onclick="window.location.href='mailto:${SUPPORT_EMAIL}?subject=Issue&body=${o.log}'">REPORT</button></div></div>`).join(''); }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
     function handleLogout() { saveAll(); location.reload(); }
     function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert("Copied!")); }
+    function fundWallet() { const a = prompt("Amount (₦):"); if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); document.getElementById('bal-val').innerText = balance.toLocaleString(); saveAll(); } }).openIframe(); }
 </script>
 </body>
 </html>
