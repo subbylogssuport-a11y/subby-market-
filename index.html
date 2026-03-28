@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V12 PRO</title>
+    <title>SUBBY MARKET | V13 FINAL PRO</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
+        
+        /* AUTH GATES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 14px; }
         .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .gate-link { color: #888; font-size: 12px; margin-top: 12px; display: inline-block; cursor: pointer; }
-        .code-display { background: #111; border: 1px dashed #0070f3; padding: 10px; border-radius: 10px; margin: 10px 0; color: #0070f3; font-weight: 800; font-size: 20px; }
+        .code-display { background: #111; border: 1px dashed #0070f3; padding: 10px; border-radius: 10px; margin: 10px 0; color: #0070f3; font-weight: 800; font-size: 20px; letter-spacing: 2px; }
+
+        /* ADMIN PANEL */
         #admin-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 3000; padding: 20px; overflow-y: auto; }
         .admin-box { background:#16161a; padding:25px; border-radius:20px; max-width:400px; margin:20px auto; border:1px solid #0070f3; }
+
+        /* MAIN UI */
         #main-app { display: none; }
         .navbar { background: rgba(22, 22, 26, 0.85); backdrop-filter: blur(12px); padding: 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .brand { font-size: 20px; font-weight: 900; color: #0070f3; cursor: pointer; }
         .bal-pill { background: #111; border: 1px solid #0070f3; padding: 6px 14px; border-radius: 30px; font-weight: bold; }
+
+        .categories-nav { padding: 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+        .cat-btn { background: #16161a; color: #888; padding: 10px 18px; border-radius: 12px; border: 1px solid #222; white-space: nowrap; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
+
         .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
         .card { background: linear-gradient(145deg, #16161a, #0c0c0e); border: 1px solid #222; border-radius: 20px; padding: 22px; }
+        .price { font-size: 24px; font-weight: 900; color: #0070f3; margin: 10px 0; }
         .buy-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #0070f3; color: #fff; font-weight: 800; cursor: pointer; }
+        
         .orders-section { padding: 15px; background: #0a0a0a; margin: 20px 15px; border-radius: 15px; border: 1px dashed #333; }
-        .order-item { background: #111; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid #0070f3; position: relative; }
+        .order-item { background: #111; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid #0070f3; }
         .action-btns { display: flex; gap: 8px; margin-top: 12px; }
         .mini-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 10px; font-weight: bold; cursor: pointer; color: #fff; }
     </style>
@@ -73,7 +86,6 @@
             <div id="forgot-code-box" style="display:none;">
                 <div class="code-display" id="display-forgot-code"></div>
                 <button class="mini-btn" style="background:#0070f3; width:100%;" onclick="copyValue('display-forgot-code')">Copy Code</button>
-                <p style="font-size:10px; color:#888; margin-top:10px;">Copy this code and give it to the admin or use it to verify your identity.</p>
             </div>
             <div class="gate-link" onclick="showGate('login-gate')">Back to Login</div>
         </div>
@@ -81,15 +93,21 @@
 
     <div id="admin-panel">
         <div class="admin-box">
-            <h3 style="color:#0070f3; text-align:center;">WAREHOUSE</h3>
+            <h3 style="color:#0070f3; text-align:center; margin-bottom:15px;">WAREHOUSE</h3>
             <div id="admin-edit-sec">
                 <select id="restock-item" class="auth-input" onchange="loadCurrentData()"></select>
                 <input type="number" id="edit-price" class="auth-input" placeholder="Price">
-                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Paste Logs"></textarea>
+                <textarea id="log-input" class="auth-input" style="height:80px;" placeholder="Paste Logs (One per line)"></textarea>
                 <button class="auth-btn" onclick="saveAdminChanges()">Save Changes</button>
             </div>
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <button class="auth-btn" style="background:#444;" onclick="exportData()">Backup Data</button>
+            <div id="admin-add-sec" style="margin-top:15px;">
+                <input type="text" id="new-name" class="auth-input" placeholder="Card Name">
+                <input type="number" id="new-price" class="auth-input" placeholder="Price">
+                <input type="text" id="new-cat" class="auth-input" placeholder="Category">
+                <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Create New Card</button>
+            </div>
+            <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+            <button class="auth-btn" style="background:#444;" onclick="exportData()">Backup All Data</button>
             <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="importData()">Restore Data</button>
             <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="closeAdmin()">Close</button>
         </div>
@@ -100,11 +118,12 @@
             <div class="brand" onmousedown="startAdminTimer()" ontouchstart="startAdminTimer()">SUBBY MARKET</div>
             <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer;">+</span></div>
         </div>
+        <div class="categories-nav" id="cat-bar"></div>
         <div class="grid" id="market-grid"></div>
         <div class="orders-section">
-            <h4 style="color:#0070f3;">Purchased Logs</h4>
+            <h4 style="color:#0070f3;">My Purchased Logs</h4>
             <div id="orders-list"></div>
-            <button class="mini-btn" style="background:#333; width:100%; margin-top:20px;" onclick="handleLogout()">Logout</button>
+            <button class="mini-btn" style="background:#333; width:100%; margin-top:20px; padding:12px;" onclick="handleLogout()">Logout Account</button>
         </div>
     </div>
 
@@ -112,7 +131,6 @@
     let currentUser = null, balance = 0, myOrders = [];
     let tempUserData = {}, generatedCode = "";
     const SUPPORT_EMAIL = "subbylogssuport@gmail.com";
-
     let items = JSON.parse(localStorage.getItem('subby_inventory')) || [];
 
     function saveAll() {
@@ -122,7 +140,7 @@
 
     function showGate(id) { document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
 
-    // LOGIN & FORGOT LOGIC
+    // LOGIN / REG / FORGOT
     function handleLogin() {
         const e = document.getElementById('log-email').value.trim().toLowerCase();
         const p = document.getElementById('log-pass').value.trim();
@@ -133,19 +151,8 @@
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            updateOrdersUI(); renderItems(items);
-        } else { alert("Invalid credentials!"); }
-    }
-
-    function handleForgot() {
-        const email = document.getElementById('forgot-email').value.trim().toLowerCase();
-        if(localStorage.getItem(`user_${email}`)) {
-            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-            document.getElementById('display-forgot-code').innerText = generatedCode;
-            document.getElementById('forgot-code-box').style.display = 'block';
-            const newP = prompt("Enter your NEW password:");
-            if(newP) { localStorage.setItem(`user_${email}`, newP.trim()); alert("Password updated successfully!"); showGate('login-gate'); }
-        } else { alert("User not found!"); }
+            setupCategories(); renderItems(items); updateOrdersUI();
+        } else { alert("Login failed!"); }
     }
 
     function handleRegister() {
@@ -161,34 +168,69 @@
     function confirmVerify() {
         if(document.getElementById('verify-code').value.trim() === generatedCode) {
             localStorage.setItem(`user_${tempUserData.e}`, tempUserData.p);
-            alert("Registered! Please login.");
-            location.reload();
-        } else { alert("Wrong code!"); }
+            alert("Registration Complete!"); location.reload();
+        } else { alert("Wrong Code!"); }
     }
 
-    // BACKUP & RESTORE
-    function exportData() {
-        const b = { inv: items, users: {} };
-        for (let i = 0; i < localStorage.length; i++) {
-            let k = localStorage.key(i);
-            if(k.startsWith('user_') || k.startsWith('data_')) b.users[k] = localStorage.getItem(k);
-        }
-        navigator.clipboard.writeText(JSON.stringify(b)).then(() => alert("Backup Copied!"));
+    function handleForgot() {
+        const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+        if(localStorage.getItem(`user_${email}`)) {
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('display-forgot-code').innerText = generatedCode;
+            document.getElementById('forgot-code-box').style.display = 'block';
+            const newP = prompt("Enter NEW Password:");
+            if(newP) { localStorage.setItem(`user_${email}`, newP.trim()); alert("Password Updated!"); showGate('login-gate'); }
+        } else { alert("User not found!"); }
     }
 
-    function importData() {
-        const d = prompt("Paste backup:");
-        if(!d) return;
-        try {
-            const p = JSON.parse(d); items = p.inv;
-            for(let k in p.users) localStorage.setItem(k, p.users[k]);
-            saveAll(); location.reload();
-        } catch(e) { alert("Error!"); }
+    // CATEGORIES & MARKET
+    function setupCategories() {
+        const cats = ['All', ...new Set(items.map(i => i.c))];
+        document.getElementById('cat-bar').innerHTML = cats.map(c => `
+            <div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>
+        `).join('');
     }
 
-    // MARKET & ADMIN UI
+    function filterShop(c, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderItems(c === 'All' ? items : items.filter(i => i.c === c));
+    }
+
+    function renderItems(data) {
+        document.getElementById('market-grid').innerHTML = data.map(i => `
+            <div class="card">
+                <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px; font-weight:800;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span>
+                <h3 style="margin:5px 0;">${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
+                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button>
+            </div>`).join('');
+    }
+
+    function buyItem(id) {
+        const i = items.find(x => x.id == id);
+        if(balance < i.p) return alert("Low Balance!");
+        const log = i.logs.shift(); i.s = i.logs.length; balance -= i.p;
+        myOrders.unshift({ name: i.n, log: log }); saveAll();
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        renderItems(items); updateOrdersUI();
+    }
+
+    function updateOrdersUI() {
+        document.getElementById('orders-list').innerHTML = myOrders.map((o) => `
+            <div class="order-item" style="padding:15px; margin-top:10px;">
+                <strong style="font-size:13px; color:#0070f3;">${o.name}</strong><br>
+                <p style="font-size:11px; color:#ccc; margin:8px 0; word-break:break-all;">${o.log}</p>
+                <div class="action-btns">
+                    <button class="mini-btn" style="background:#0070f3;" onclick="copyValueText('${o.log}')">COPY LOG</button>
+                    <button class="mini-btn" style="background:#444;" onclick="window.location.href='mailto:${SUPPORT_EMAIL}?subject=Report&body=${o.log}'">REPORT</button>
+                </div>
+            </div>`).join('');
+    }
+
+    // ADMIN
     function startAdminTimer() { setTimeout(() => { if(prompt("PIN:") === "1234") document.getElementById('admin-panel').style.display='block'; updateAdminSelect(); }, 3000); }
-    function updateAdminSelect() { document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join(''); }
+    function updateAdminSelect() { document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join(''); loadCurrentData(); }
     function loadCurrentData() { const i = items.find(x => x.id == document.getElementById('restock-item').value); if(i) document.getElementById('edit-price').value = i.p; }
     function saveAdminChanges() {
         const i = items.find(x => x.id == document.getElementById('restock-item').value);
@@ -197,19 +239,33 @@
         i.p = parseInt(document.getElementById('edit-price').value);
         saveAll(); renderItems(items); alert("Saved!");
     }
-    function renderItems(data) { document.getElementById('market-grid').innerHTML = data.map(i => `<div class="card"><span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:11px;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span><h3 style="margin:5px 0;">${i.n}</h3><div style="font-size:24px; color:#0070f3; font-weight:900;">₦${i.p.toLocaleString()}</div><button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button></div>`).join(''); }
-    function buyItem(id) {
-        const i = items.find(x => x.id == id);
-        if(balance < i.p) return alert("Low Balance!");
-        const log = i.logs.shift(); i.s = i.logs.length; balance -= i.p;
-        myOrders.unshift({ name: i.n, log: log }); saveAll();
-        updateOrdersUI(); renderItems(items); document.getElementById('bal-val').innerText = balance.toLocaleString();
+    function addNewCardType() {
+        const n = document.getElementById('new-name').value, p = parseInt(document.getElementById('new-price').value), c = document.getElementById('new-cat').value;
+        if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); setupCategories(); renderItems(items); alert("Added!"); }
     }
-    function updateOrdersUI() { document.getElementById('orders-list').innerHTML = myOrders.map((o) => `<div class="order-item"><strong>${o.name}</strong><br><p style="font-size:11px; color:#ccc;">${o.log}</p><div class="action-btns"><button class="mini-btn" style="background:#0070f3;" onclick="navigator.clipboard.writeText('${o.log}').then(()=>alert('Copied!'))">COPY</button><button class="mini-btn" style="background:#444;" onclick="window.location.href='mailto:${SUPPORT_EMAIL}?subject=Issue&body=${o.log}'">REPORT</button></div></div>`).join(''); }
+
+    // BACKUP
+    function exportData() {
+        const b = { inv: items, users: {} };
+        for (let i = 0; i < localStorage.length; i++) {
+            let k = localStorage.key(i);
+            if(k.startsWith('user_') || k.startsWith('data_')) b.users[k] = localStorage.getItem(k);
+        }
+        navigator.clipboard.writeText(JSON.stringify(b)).then(() => alert("Backup Copied!"));
+    }
+    function importData() {
+        const d = prompt("Paste backup:");
+        if(d) { const p = JSON.parse(d); items = p.inv; for(let k in p.users) localStorage.setItem(k, p.users[k]); saveAll(); location.reload(); }
+    }
+
+    function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert("Copied!")); }
+    function copyValueText(t) { navigator.clipboard.writeText(t).then(()=>alert("Copied!")); }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
     function handleLogout() { saveAll(); location.reload(); }
-    function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert("Copied!")); }
-    function fundWallet() { const a = prompt("Amount (₦):"); if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); document.getElementById('bal-val').innerText = balance.toLocaleString(); saveAll(); } }).openIframe(); }
+    function fundWallet() {
+        const a = prompt("Amount (₦):");
+        if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); document.getElementById('bal-val').innerText = balance.toLocaleString(); saveAll(); } }).openIframe();
+    }
 </script>
 </body>
 </html>
