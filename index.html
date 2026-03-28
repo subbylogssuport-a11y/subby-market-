@@ -3,12 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V13 FINAL PRO</title>
+    <title>SUBBY MARKET | V14 EASTER</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: radial-gradient(circle at top, #1a1a2e, #000000); color: #eee; min-height: 100vh; }
         
+        /* EASTER BANNER DESIGN */
+        .easter-banner {
+            background: linear-gradient(45deg, #ff00cc, #3333ff, #00d4ff, #ffcc00);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite, pulse 2s infinite;
+            padding: 20px;
+            margin: 15px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(255, 0, 204, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .easter-text {
+            font-size: 26px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        .easter-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         /* AUTH GATES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
@@ -118,6 +156,12 @@
             <div class="brand" onmousedown="startAdminTimer()" ontouchstart="startAdminTimer()">SUBBY MARKET</div>
             <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer;">+</span></div>
         </div>
+
+        <div class="easter-banner">
+            <div class="easter-text">HAPPY EASTER</div>
+            <div class="easter-sub">Celebrating with incredible deals at Subby Market! 🐰🥚</div>
+        </div>
+
         <div class="categories-nav" id="cat-bar"></div>
         <div class="grid" id="market-grid"></div>
         <div class="orders-section">
@@ -255,7 +299,7 @@
     }
     function importData() {
         const d = prompt("Paste backup:");
-        if(d) { const p = JSON.parse(d); items = p.inv; for(let k in p.users) localStorage.setItem(k, p.users[k]); saveAll(); location.reload(); }
+        if(d) { try { const p = JSON.parse(d); items = p.inv; for(let k in p.users) localStorage.setItem(k, p.users[k]); saveAll(); location.reload(); } catch(e){alert("Error!");} }
     }
 
     function copyValue(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert("Copied!")); }
