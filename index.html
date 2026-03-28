@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V16 ULTIMATE</title>
+    <title>SUBBY MARKET | V17 FULL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -17,14 +17,16 @@
         }
         .easter-text { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: 2px; }
         .easter-sub { font-size: 10px; color: #fff; margin-top: 4px; }
-
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
+        /* AUTH GATES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #16161a; border: 1px solid #222; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
         .auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; margin-bottom: 10px; outline: none; font-size: 14px; }
         .auth-btn { width: 100%; padding: 12px; background: #0070f3; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .code-box { background: #111; border: 1px dashed #0070f3; padding: 10px; border-radius: 10px; margin: 10px 0; color: #0070f3; font-weight: 800; font-size: 22px; }
 
+        /* MAIN APP */
         #main-app { display: none; width: 100%; }
         .navbar { background: rgba(22, 22, 26, 0.95); padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
         .brand { font-size: 18px; font-weight: 900; color: #0070f3; }
@@ -34,7 +36,7 @@
         .cat-btn { background: #16161a; color: #888; padding: 8px 15px; border-radius: 10px; border: 1px solid #222; white-space: nowrap; font-size: 12px; font-weight: 600; }
         .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
 
-        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; min-height: 50px; }
+        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
         .card { background: #16161a; border: 1px solid #222; border-radius: 18px; padding: 18px; width: 100%; }
         .price { font-size: 22px; font-weight: 900; color: #0070f3; margin: 8px 0; }
         .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #0070f3; color: #fff; font-weight: 800; font-size: 14px; }
@@ -51,35 +53,61 @@
             <input type="email" id="log-email" class="auth-input" placeholder="Email">
             <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div style="color:#888; font-size:11px; margin-top:10px; cursor:pointer;" onclick="showGate('reg-gate')">Create Account</div>
+            <div style="color:#888; font-size:11px; margin-top:10px; cursor:pointer;" onclick="showGate('reg-gate')">No account? <span style="color:#0070f3;">Create Account</span></div>
+            <div style="color:#888; font-size:11px; margin-top:8px; cursor:pointer;" onclick="showGate('forgot-gate')">Forgot Password?</div>
         </div>
     </div>
 
     <div id="reg-gate" class="gate-container" style="display:none;">
         <div class="auth-card">
-            <h2 style="color:#0070f3;">REGISTER</h2>
-            <input type="email" id="reg-email" class="auth-input" placeholder="Email">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleRegister()">Register</button>
-            <div onclick="showGate('login-gate')" style="color:#888; font-size:11px; margin-top:10px;">Back</div>
+            <h2 style="color:#0070f3;">JOIN SUBBY</h2>
+            <input type="email" id="reg-email" class="auth-input" placeholder="Enter Email">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <button class="auth-btn" onclick="handleRegister()">Generate Gateway Code</button>
+            <div id="reg-code-area" style="display:none;">
+                <div class="code-box" id="display-reg-code"></div>
+                <button class="auth-btn" style="background:#333; font-size:10px;" onclick="copyVal('display-reg-code')">Copy Code</button>
+                <div onclick="showGate('verify-gate')" style="color:#0070f3; font-size:12px; margin-top:15px; font-weight:bold; cursor:pointer;">Next Step: Verify →</div>
+            </div>
+            <div onclick="showGate('login-gate')" style="color:#888; font-size:11px; margin-top:15px; cursor:pointer;">Back to Login</div>
         </div>
     </div>
 
-    <div id="admin-panel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:3000; padding:20px; overflow-y:auto;">
+    <div id="verify-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3;">VERIFY</h2>
+            <input type="text" id="verify-input" class="auth-input" style="text-align:center; font-size:20px;" placeholder="Paste Code Here">
+            <button class="auth-btn" onclick="confirmVerify()">Complete Registration</button>
+        </div>
+    </div>
+
+    <div id="forgot-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h2 style="color:#0070f3;">RESET PASS</h2>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="Enter Your Email">
+            <button class="auth-btn" onclick="handleForgot()">Get Reset Code</button>
+            <div id="forgot-code-area" style="display:none;">
+                <div class="code-box" id="display-forgot-code"></div>
+            </div>
+            <div onclick="showGate('login-gate')" style="color:#888; font-size:11px; margin-top:15px; cursor:pointer;">Back to Login</div>
+        </div>
+    </div>
+
+    <div id="admin-panel" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:3000; padding:20px; overflow-y:auto;">
         <div style="background:#16161a; padding:20px; border-radius:15px; border:1px solid #0070f3; max-width:400px; margin:auto;">
-            <h3 style="color:#0070f3;">ADMIN PANEL</h3>
+            <h3 style="color:#0070f3;">WAREHOUSE</h3>
             <select id="restock-item" class="auth-input"></select>
             <input type="number" id="edit-price" class="auth-input" placeholder="Price">
             <textarea id="log-input" class="auth-input" style="height:60px;" placeholder="Logs (one per line)"></textarea>
-            <button class="auth-btn" onclick="saveAdminChanges()">Update Item</button>
+            <button class="auth-btn" onclick="saveAdminChanges()">Save Update</button>
             <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <input type="text" id="new-name" class="auth-input" placeholder="Name (e.g. FB 2023)">
+            <input type="text" id="new-name" class="auth-input" placeholder="Card Name">
             <input type="number" id="new-price" class="auth-input" placeholder="Price">
-            <input type="text" id="new-cat" class="auth-input" placeholder="Category (e.g. Facebook)">
+            <input type="text" id="new-cat" class="auth-input" placeholder="Category">
             <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Add New Card</button>
-            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="exportData()">Backup</button>
+            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="exportData()">Backup Everything</button>
             <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="importData()">Restore Backup</button>
-            <button class="auth-btn" style="background:#222; margin-top:15px;" onclick="document.getElementById('admin-panel').style.display='none'">Close</button>
+            <button class="auth-btn" style="background:#222; margin-top:15px;" onclick="document.getElementById('admin-panel').style.display='none'">Close Admin</button>
         </div>
     </div>
 
@@ -91,7 +119,7 @@
 
         <div class="easter-banner">
             <div class="easter-text">HAPPY EASTER</div>
-            <div class="easter-sub">Celebrating with incredible deals! 🐰</div>
+            <div class="easter-sub">Premium deals live now! 🐰</div>
         </div>
 
         <div class="categories-nav" id="cat-bar"></div>
@@ -100,26 +128,23 @@
         <div class="orders-section">
             <h4 style="color:#0070f3; font-size:14px;">My Purchased Logs</h4>
             <div id="orders-list"></div>
-            <button class="auth-btn" style="background:#333; margin-top:15px;" onclick="location.reload()">Logout</button>
+            <button class="auth-btn" style="background:#333; margin-top:20px;" onclick="location.reload()">Logout</button>
         </div>
     </div>
 
 <script>
     let currentUser = null, balance = 0, myOrders = [];
     let items = JSON.parse(localStorage.getItem('subby_inventory')) || [];
+    let generatedCode = "", tempUser = {};
 
     function saveAll() {
         localStorage.setItem('subby_inventory', JSON.stringify(items));
-        if (currentUser) {
-            localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
-        }
+        if (currentUser) localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
     }
 
-    function showGate(id) { 
-        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); 
-        document.getElementById(id).style.display = 'flex'; 
-    }
+    function showGate(id) { document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
 
+    // AUTH LOGIC
     function handleLogin() {
         const e = document.getElementById('log-email').value.trim().toLowerCase();
         const p = document.getElementById('log-pass').value.trim();
@@ -131,15 +156,36 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             setupCategories(); renderItems(items); updateOrdersUI();
-        } else { alert("Login Error"); }
+        } else { alert("Wrong Login!"); }
     }
 
     function handleRegister() {
-        const e = document.getElementById('reg-email').value.trim().toLowerCase();
-        const p = document.getElementById('reg-pass').value.trim();
-        if(e && p) { localStorage.setItem(`user_${e}`, p); alert("Registered!"); showGate('login-gate'); }
+        const e = document.getElementById('reg-email').value.trim().toLowerCase(), p = document.getElementById('reg-pass').value.trim();
+        if(!e || !p) return alert("Fill all fields");
+        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        tempUser = { e, p };
+        document.getElementById('display-reg-code').innerText = generatedCode;
+        document.getElementById('reg-code-area').style.display = 'block';
     }
 
+    function confirmVerify() {
+        if(document.getElementById('verify-input').value.trim() === generatedCode) {
+            localStorage.setItem(`user_${tempUser.e}`, tempUser.p);
+            alert("Registered Successfully!"); location.reload();
+        } else { alert("Wrong Code!"); }
+    }
+
+    function handleForgot() {
+        const e = document.getElementById('forgot-email').value.trim().toLowerCase();
+        if(localStorage.getItem(`user_${e}`)) {
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('display-forgot-code').innerText = generatedCode;
+            document.getElementById('forgot-code-area').style.display = 'block';
+            let np = prompt("Set New Password:"); if(np) { localStorage.setItem(`user_${e}`, np.trim()); alert("Password Updated!"); showGate('login-gate'); }
+        } else { alert("Email not found!"); }
+    }
+
+    // SHOP LOGIC
     function setupCategories() {
         const cats = ['All', ...new Set(items.map(i => i.c))];
         document.getElementById('cat-bar').innerHTML = cats.map(c => `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`).join('');
@@ -153,10 +199,6 @@
 
     function renderItems(data) {
         const grid = document.getElementById('market-grid');
-        if (data.length === 0) {
-            grid.innerHTML = '<div style="text-align:center; color:#555; padding:40px;">No items in this category.</div>';
-            return;
-        }
         grid.innerHTML = data.map(i => `
             <div class="card">
                 <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:10px; font-weight:bold;">${i.s > 0 ? 'AVAILABLE: ' + i.s : 'SOLD OUT'}</span>
@@ -184,6 +226,7 @@
             </div>`).join('');
     }
 
+    // ADMIN
     function startAdminTimer() { setTimeout(() => { if(prompt("PIN")==="1234") { document.getElementById('admin-panel').style.display='block'; updateAdminSelect(); } }, 3000); }
     function updateAdminSelect() { document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join(''); }
     function saveAdminChanges() {
@@ -197,21 +240,10 @@
         const n = document.getElementById('new-name').value, p = parseInt(document.getElementById('new-price').value), c = document.getElementById('new-cat').value;
         if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); setupCategories(); renderItems(items); alert("Added!"); }
     }
-    function exportData() { navigator.clipboard.writeText(JSON.stringify({ inv: items, users: localStorage })).then(() => alert("Copied Backup Code!")); }
-    function importData() { 
-        const d = prompt("Paste Backup Code:"); 
-        if(d) { 
-            const p = JSON.parse(d); 
-            items = p.inv || [];
-            saveAll();
-            alert("Restore Successful!"); 
-            location.reload(); 
-        } 
-    }
-    function fundWallet() { 
-        const a = prompt("Amount to fund (₦):"); 
-        if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); saveAll(); location.reload(); } }).openIframe(); 
-    }
+    function exportData() { navigator.clipboard.writeText(JSON.stringify({ inv: items, users: localStorage })).then(() => alert("Backup Copied!")); }
+    function importData() { const d = prompt("Paste Backup:"); if(d) { const p = JSON.parse(d); items = p.inv || []; saveAll(); alert("Restored!"); location.reload(); } }
+    function fundWallet() { const a = prompt("Amount:"); if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); saveAll(); location.reload(); } }).openIframe(); }
+    function copyVal(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert("Copied!")); }
 </script>
 </body>
 </html>
