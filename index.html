@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V83 PLATINUM+</title>
+    <title>SUBBY LOGS | V84 SMART ADMIN</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -25,7 +25,6 @@
         .typing { font-size: 11px; color: var(--primary); margin-bottom: 10px; display: none; font-style: italic; }
         .msg-ai { background: #222; padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; border-left: 3px solid var(--primary); }
         .msg-user { background: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; text-align: right; margin-left: 20%; }
-        .support-link { color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: bold; }
         .logout-btn { background: none; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-left: 10px; }
     </style>
 </head>
@@ -62,15 +61,6 @@
     </div>
 </div>
 
-<div id="support-overlay" class="overlay" style="display:none; z-index:9500;">
-    <div class="card-ui">
-        <h2 style="color:var(--gold); margin-bottom:20px;">CONTACT SUPPORT</h2>
-        <button class="btn" style="background:var(--whatsapp)" onclick="window.open('https://wa.me/2347048141378')">WHATSAPP ADMIN</button>
-        <button class="btn" style="background:#fff; color:#000" onclick="window.open('mailto:subbylogssuport@gmail.com')">EMAIL SUPPORT</button>
-        <button class="btn" style="background:#222" onclick="document.getElementById('support-overlay').style.display='none'">BACK TO APP</button>
-    </div>
-</div>
-
 <div id="app" style="display:none">
     <div class="nav">
         <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
@@ -90,7 +80,7 @@
     <div style="position:fixed; bottom:0; width:100%; display:flex; background:#0a0b10; border-top:1px solid #222; padding:15px; justify-content:space-around; z-index:100;">
         <div onclick="switchTab('market')" id="tab-m" style="color:var(--primary); font-weight:bold; font-size:12px; cursor:pointer;">MARKET</div>
         <div onclick="switchTab('logs')" id="tab-l" style="color:#555; font-weight:bold; font-size:12px; cursor:pointer;">MY LOGS</div>
-        <div onclick="document.getElementById('support-overlay').style.display='flex'" style="color:var(--whatsapp); font-weight:bold; font-size:12px; cursor:pointer;">SUPPORT</div>
+        <div onclick="window.open('https://wa.me/2347048141378')" style="color:var(--whatsapp); font-weight:bold; font-size:12px; cursor:pointer;">SUPPORT</div>
     </div>
 </div>
 
@@ -128,7 +118,7 @@
     }
 
     async function handleAuth() {
-        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+        const e = document.getElementById('email').value.trim(), p = document.getElementById('pass').value;
         if(!e || !p) return alert("Fill all fields");
         try {
             if(isLogin) await auth.signInWithEmailAndPassword(e,p);
@@ -141,17 +131,13 @@
     }
 
     function forgotPass() {
-        const e = document.getElementById('email').value;
-        if(!e) return alert("Please type your email first!");
+        const e = document.getElementById('email').value.trim();
+        if(!e) return alert("Type your email first!");
         auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent!")).catch(err => alert(err.message));
     }
 
     function logout() {
-        if(confirm("Are you sure you want to log out?")) {
-            auth.signOut().then(() => {
-                location.reload(); // Refresh to ensure session is cleared
-            });
-        }
+        if(confirm("Logout?")) auth.signOut().then(() => location.reload());
     }
 
     auth.onAuthStateChanged(user => {
@@ -162,22 +148,13 @@
                 document.getElementById('bot-box').style.display='block';
                 sync();
             }, 500);
-        } else { 
-            document.getElementById('auth-gate').style.display='flex'; 
-            document.getElementById('app').style.display='none'; 
-            document.getElementById('bot-box').style.display='none';
-        }
+        } else { document.getElementById('auth-gate').style.display='flex'; document.getElementById('app').style.display='none'; }
     });
 
     function sync() {
         const uid = auth.currentUser.email.replace(/\./g,'_');
         db.ref('users/'+uid+'/bal').on('value', s => document.getElementById('bal').innerText = (s.val() || 0).toLocaleString());
         db.ref('market').on('value', s => { allItems = s.val() || {}; filterMarket(); });
-        db.ref('users/'+uid+'/myLogs').on('value', s => {
-            const logs = s.val(); let h = "";
-            for(let k in logs) h = `<div style="background:#000; border:1px solid var(--gold); padding:15px; border-radius:15px; margin-top:10px;"><p style="font-size:10px; color:var(--gold)">${logs[k].date}</p><p><b>${logs[k].name}</b></p><pre style="color:#0f0; font-size:11px; margin-top:5px; white-space:pre-wrap;">${logs[k].details}</pre></div>` + h;
-            document.getElementById('my-logs-list').innerHTML = h || "No logs yet.";
-        });
     }
 
     function filterMarket() {
@@ -186,65 +163,40 @@
         for(let k in allItems) {
             if(allItems[k].name.toLowerCase().includes(term)) {
                 const stock = allItems[k].data ? allItems[k].data.length : 0;
-                h += `<div class="log-item"><p style="color:#0f0; font-size:10px;">STOCK: ${stock}</p><h3>${allItems[k].name}</h3><h2 style="color:var(--primary)">₦${parseInt(allItems[k].price).toLocaleString()}</h2><div class="qty-box"><button class="qty-btn" onclick="adj('${k}', -1)">-</button><span id="qty-${k}">1</span><button class="qty-btn" onclick="adj('${k}', 1)">+</button></div><button class="btn" onclick="buy('${k}')">BUY NOW</button></div>`;
+                h += `<div class="log-item"><p style="color:#0f0; font-size:10px;">STOCK: ${stock}</p><h3>${allItems[k].name}</h3><h2 style="color:var(--primary)">₦${parseInt(allItems[k].price).toLocaleString()}</h2><button class="btn" onclick="buy('${k}')">BUY NOW</button></div>`;
             }
         }
-        document.getElementById('market-view').innerHTML = h;
-    }
-
-    function adj(k, v) {
-        const el = document.getElementById('qty-'+k);
-        let q = parseInt(el.innerText) + v;
-        if(q < 1) q = 1;
-        el.innerText = q;
+        document.getElementById('market-view').innerHTML = h || "<p style='text-align:center; padding:20px;'>No matches found.</p>";
     }
 
     async function buy(k) {
-        const qty = parseInt(document.getElementById('qty-'+k).innerText);
-        const item = allItems[k], uid = auth.currentUser.email.replace(/\./g,'_'), cost = item.price * qty;
-        if(!item.data || item.data.length < qty) return alert("Out of stock!");
+        const item = allItems[k], uid = auth.currentUser.email.replace(/\./g,'_');
+        if(!item.data || item.data.length < 1) return alert("Out of stock!");
         db.ref('users/'+uid+'/bal').once('value', async s => {
             const bal = s.val() || 0;
-            if(bal < cost) return alert("Low balance!");
-            if(confirm(`Buy for ₦${cost}?`)) {
-                const bought = item.data.splice(0, qty);
+            if(bal < item.price) return alert("Low balance!");
+            if(confirm(`Buy ${item.name} for ₦${item.price}?`)) {
+                const bought = item.data.shift();
                 await db.ref('market/'+k).update({ data: item.data });
-                await db.ref('users/'+uid).update({ bal: bal - cost });
-                await db.ref('users/'+uid+'/myLogs').push({ name: item.name, details: bought.join('\n---\n'), date: new Date().toLocaleString() });
+                await db.ref('users/'+uid).update({ bal: bal - item.price });
+                await db.ref('users/'+uid+'/myLogs').push({ name: item.name, details: bought, date: new Date().toLocaleString() });
                 alert("Success!");
             }
         });
     }
 
-    function askAI() {
-        const q = document.getElementById('bot-in').value, logs = document.getElementById('chat-logs'), typing = document.getElementById('typing-indicator');
-        if(!q) return;
-        logs.innerHTML += `<div class="msg-user">${q}</div>`;
-        document.getElementById('bot-in').value = "";
-        logs.scrollTop = logs.scrollHeight;
-        typing.style.display = "block";
-        setTimeout(() => {
-            typing.style.display = "none";
-            const low = q.toLowerCase();
-            let r = "Try asking for 'support' or 'how to top up'!";
-            if(low.includes("fund") || low.includes("top up")) {
-                r = "Opening payment gateway..."; setTimeout(() => pay(), 1000);
-            } else if(low.includes("support") || low.includes("admin")) {
-                r = `Click here: <span class="support-link" onclick="window.open('https://wa.me/2347048141378')">WhatsApp</span> or <span class="support-link" onclick="window.open('mailto:subbylogssuport@gmail.com')">Email</span>.`;
-            }
-            logs.innerHTML += `<div class="msg-ai">🤖 <b>AI:</b> ${r}</div>`;
-            logs.scrollTop = logs.scrollHeight;
-        }, 1500);
-    }
-
     function adminSendMoney() {
-        const emailInput = document.getElementById('adm-mail').value;
+        // SMART FIX: Clean up the email input automatically
+        let emailInput = document.getElementById('adm-mail').value.trim();
+        if(emailInput.endsWith('.')) emailInput = emailInput.slice(0, -1);
+        
         const amount = parseInt(document.getElementById('adm-amt').value);
         if(!emailInput || !amount) return alert("Fill all fields!");
+
         const userKey = emailInput.replace(/\./g,'_');
         db.ref('users/' + userKey).once('value', s => {
-            if(!s.exists()) return alert("User not found!");
-            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Sent!"));
+            if(!s.exists()) return alert("User " + emailInput + " not found! Check spelling.");
+            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Successfully sent ₦" + amount));
         });
     }
 
@@ -253,13 +205,6 @@
         if(!name || !price || raw.length === 0) return alert("Fill info!");
         db.ref('market').push({ name, price, data: raw });
         alert("Uploaded!");
-    }
-
-    function switchTab(t) {
-        document.getElementById('market-view').style.display = t==='market' ? 'block' : 'none';
-        document.getElementById('purchased-view').style.display = t==='logs' ? 'block' : 'none';
-        document.getElementById('tab-m').style.color = t==='market' ? 'var(--primary)' : '#555';
-        document.getElementById('tab-l').style.color = t==='logs' ? 'var(--primary)' : '#555';
     }
 
     function checkAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
