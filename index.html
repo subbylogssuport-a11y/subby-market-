@@ -3,115 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | OFFICIAL LAUNCH</title>
+    <title>SUBBY MARKET | V26 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #000; color: #eee; min-height: 100vh; }
+        body { background: #000; color: #eee; }
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-        .switch-link { color: #888; font-size: 12px; margin-top: 20px; cursor: pointer; display: block; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; text-align: center; font-size: 18px; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
         
-        #main-app { display: none; }
         .navbar { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .cat-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
+        .cat-pill { background: #111; border: 1px solid #333; padding: 8px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+        .cat-pill.active { background: #0070f3; border-color: #0070f3; color: #fff; }
+
         .grid { padding: 15px; display: grid; gap: 15px; }
-        .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 18px; position: relative; }
-        .price { font-size: 22px; font-weight: 900; color: #0070f3; margin: 10px 0; }
-        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; background: #0070f3; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+        .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 18px; }
+        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; background: #0070f3; color: #fff; border: none; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <audio id="anthem-player" loop><source src="no_long_talk.mp3" type="audio/mpeg"></audio>
+<audio id="anthem-player" loop><source src="no_long_talk.mp3" type="audio/mpeg"></audio>
 
-    <div id="login-gate" class="gate-container">
-        <div class="auth-card">
-            <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY LOGIN</h1>
-            <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
-            <p class="switch-link" onclick="showGate('reg-gate')">Don't have an account? <span style="color:#0070f3;">Sign Up</span></p>
-        </div>
+<div id="auth-gate" class="gate-container">
+    <div class="auth-card">
+        <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY MARKET</h1>
+        <input type="email" id="user-email" class="auth-input" placeholder="Email Address">
+        <input type="text" id="user-code" class="auth-input" placeholder="6-Digit Sync Code" maxlength="6">
+        <button class="auth-btn" onclick="handleAuth()">LOGIN / SIGN UP</button>
+        <p style="color:#888; font-size:12px; margin-top:15px; cursor:pointer;" onclick="recoverCode()">Forgot Sync Code?</p>
     </div>
+</div>
 
-    <div id="reg-gate" class="gate-container" style="display:none;">
-        <div class="auth-card">
-            <h1 style="color:#0070f3; margin-bottom:20px;">CREATE ACCOUNT</h1>
-            <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
-            <button class="auth-btn" onclick="handleRegister()">REGISTER NOW</button>
-            <p class="switch-link" onclick="showGate('login-gate')">Already have an account? <span style="color:#0070f3;">Login</span></p>
-        </div>
+<div id="main-app" style="display:none;">
+    <div class="navbar">
+        <div id="brand-name" style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
+        <div style="background:#000; border:1px solid #0070f3; padding:5px 15px; border-radius:20px; font-weight:bold;">₦<span id="bal-val">0</span></div>
     </div>
-
-    <div id="main-app">
-        <div class="navbar">
-            <div style="font-weight:900; color:#0070f3;" onmousedown="startAdminTimer()">SUBBY MARKET</div>
-            <div style="background:#000; border:1px solid #0070f3; padding:5px 15px; border-radius:20px; font-weight:bold;">₦<span id="bal-val">0</span></div>
-        </div>
-        <div class="grid" id="market-grid"></div>
-        <div style="text-align:center; padding:30px;">
-            <button class="auth-btn" style="background:#222; width:150px;" onclick="location.reload()">LOGOUT</button>
-        </div>
-    </div>
+    <div class="cat-bar" id="cat-list"></div>
+    <div class="grid" id="market-grid"></div>
+</div>
 
 <script>
-    // Your Warehouse Items
+    let currentUser = null, balance = 0, currentCat = "All";
+    
+    // FULL CATEGORIES LIST
     const items = [
-        {n: "UK Facebook 🇬🇧", p: 2500, s: 1},
-        {n: "Random FB Logs (Newly Created)", p: 1000, s: 2},
-        {n: "USA Facebook Newly Created", p: 1500, s: 2},
-        {n: "Instagram HD", p: 9000, s: 0},
-        {n: "Aged Twitter", p: 10000, s: 0}
+        {n: "UK Facebook 🇬🇧", p: 2500, c: "Facebook", s: 1},
+        {n: "Germany FB (0-50 friend)", p: 5760, c: "Facebook", s: 0},
+        {n: "Poland FB (0-50 friend)", p: 5760, c: "Facebook", s: 0},
+        {n: "USA FB Newly Created", p: 1500, c: "Facebook", s: 2},
+        {n: "Instagram HD", p: 9000, c: "Instagram", s: 0},
+        {n: "Instagram (Fresh)", p: 1500, c: "Instagram", s: 0},
+        {n: "Aged Twitter", p: 10000, c: "Twitter", s: 0},
+        {n: "Google Voice", p: 4500, c: "Texting App", s: 0},
+        {n: "TikTok Ads Manager", p: 5000, c: "TikTok", s: 0}
     ];
 
-    function showGate(id) {
-        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
-        document.getElementById(id).style.display = 'flex';
-    }
+    function handleAuth() {
+        const email = document.getElementById('user-email').value.trim().toLowerCase();
+        const code = document.getElementById('user-code').value.trim();
+        if(!email.includes('@')) return alert("Invalid Email");
 
-    function handleRegister() {
-        const email = document.getElementById('reg-email').value.trim().toLowerCase();
-        const pass = document.getElementById('reg-pass').value.trim();
-        if(!email.includes('@') || pass.length < 4) return alert("Valid email and password (min 4 chars) required!");
+        let savedCode = localStorage.getItem(`sync_${email}`);
         
-        localStorage.setItem(`user_pass_${email}`, pass);
-        localStorage.setItem(`user_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
-        alert("Registration Successful! Please login.");
-        showGate('login-gate');
-    }
-
-    function handleLogin() {
-        const email = document.getElementById('log-email').value.trim().toLowerCase();
-        const pass = document.getElementById('log-pass').value.trim();
-        const savedPass = localStorage.getItem(`user_pass_${email}`);
-
-        if(savedPass && savedPass === pass) {
-            const data = JSON.parse(localStorage.getItem(`user_data_${email}`));
-            document.getElementById('bal-val').innerText = data.balance.toLocaleString();
-            document.getElementById('anthem-player').play();
-            document.getElementById('login-gate').style.display = 'none';
+        if(!savedCode) {
+            // REGISTER
+            const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+            localStorage.setItem(`sync_${email}`, newCode);
+            localStorage.setItem(`data_${email}`, JSON.stringify({b: 0, o: []}));
+            alert(`ACCOUNT CREATED!\n\nYour 6-Digit Sync Code: ${newCode}\n\nCopy this! Use it to login on any phone or laptop.`);
+        } else if(code === savedCode) {
+            // LOGIN
+            currentUser = email;
+            const data = JSON.parse(localStorage.getItem(`data_${email}`));
+            balance = data.b;
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
+            document.getElementById('auth-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            renderMarket();
+            document.getElementById('anthem-player').play();
+            renderCats(); renderMarket();
         } else {
-            alert("Invalid Email or Password!");
+            alert("Wrong Code! Use 'Forgot Code' to recover it.");
         }
     }
 
-    function renderMarket() {
-        document.getElementById('market-grid').innerHTML = items.map(i => `
-            <div class="card">
-                <span style="font-size:10px; color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-weight:bold;">
-                    ${i.s > 0 ? 'IN STOCK' : 'OUT OF STOCK'} (${i.s})
-                </span>
-                <h3 style="margin:5px 0; font-size:16px;">${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn" ${i.s === 0 ? 'disabled style="background:#333;"' : ''}>BUY NOW</button>
-            </div>
-        `).join('');
+    function recoverCode() {
+        const email = prompt("Enter email:");
+        const code = localStorage.getItem(`sync_${email.toLowerCase()}`);
+        if(code) alert("Your Sync Code is: " + code);
+        else alert("Email not found.");
     }
+
+    function renderCats() {
+        const cats = ["All", ...new Set(items.map(i => i.c))];
+        document.getElementById('cat-list').innerHTML = cats.map(c => `<div class="cat-pill ${c===currentCat?'active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+    }
+
+    function setCat(c) { currentCat = c; renderCats(); renderMarket(); }
+
+    function renderMarket() {
+        const filtered = currentCat === "All" ? items : items.filter(i => i.c === currentCat);
+        document.getElementById('market-grid').innerHTML = filtered.map(i => `
+            <div class="card">
+                <p style="font-size:10px; color:${i.s>0?'#00ff00':'#ff4d4d'}; font-weight:bold;">${i.s>0?'IN STOCK':'OUT OF STOCK'} (${i.s})</p>
+                <h3 style="margin:5px 0;">${i.n}</h3>
+                <h2 style="color:#0070f3;">₦${i.p.toLocaleString()}</h2>
+                <button class="buy-btn" ${i.s===0?'disabled style="opacity:0.5;"':''}>BUY NOW</button>
+            </div>`).join('');
+    }
+
+    // ADMIN PANEL TRIGGER
+    let timer;
+    document.getElementById('brand-name').addEventListener('mousedown', () => {
+        timer = setTimeout(() => {
+            const pin = prompt("Admin PIN:");
+            if(pin === "1234") alert("Admin Panel Opening...");
+        }, 3000);
+    });
+    document.getElementById('brand-name').addEventListener('mouseup', () => clearTimeout(timer));
 </script>
 </body>
 </html>
