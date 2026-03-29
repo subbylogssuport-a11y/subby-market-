@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V26 FINAL</title>
+    <title>SUBBY MARKET | V28 OFFICIAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #000; color: #eee; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #eee; min-height: 100vh; }
+        
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; text-align: center; font-size: 18px; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
-        
-        .navbar { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .cat-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
-        .cat-pill { background: #111; border: 1px solid #333; padding: 8px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
-        .cat-pill.active { background: #0070f3; border-color: #0070f3; color: #fff; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-        .grid { padding: 15px; display: grid; gap: 15px; }
+        .navbar { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .bal-pill { background: #000; border: 1px solid #0070f3; padding: 6px 15px; border-radius: 20px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+        
+        .grid { padding: 15px; display: grid; gap: 15px; padding-bottom: 100px; }
         .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 18px; }
-        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; background: #0070f3; color: #fff; border: none; font-weight: bold; margin-top: 10px; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 1000; }
+        .nav-item { color: #888; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .nav-item.active { color: #0070f3; }
+        
+        #logs-view { display: none; padding: 20px; }
+        .log-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 15px; margin-bottom: 10px; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -30,100 +35,112 @@
 <div id="auth-gate" class="gate-container">
     <div class="auth-card">
         <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY MARKET</h1>
-        <input type="email" id="user-email" class="auth-input" placeholder="Email Address">
-        <input type="text" id="user-code" class="auth-input" placeholder="6-Digit Sync Code" maxlength="6">
+        <input type="email" id="u-email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="u-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleAuth()">LOGIN / SIGN UP</button>
-        <p style="color:#888; font-size:12px; margin-top:15px; cursor:pointer;" onclick="recoverCode()">Forgot Sync Code?</p>
+        <p style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="recoverPass()">Forgot Password?</p>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
-        <div id="brand-name" style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
-        <div style="background:#000; border:1px solid #0070f3; padding:5px 15px; border-radius:20px; font-weight:bold;">₦<span id="bal-val">0</span></div>
+        <div style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
+        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="color:#0070f3; cursor:pointer; font-size:20px;">+</span></div>
     </div>
-    <div class="cat-bar" id="cat-list"></div>
-    <div class="grid" id="market-grid"></div>
+    
+    <div id="market-view">
+        <div class="grid" id="market-grid"></div>
+    </div>
+
+    <div id="logs-view">
+        <h2 style="margin-bottom:20px;">My Purchased Logs</h2>
+        <div id="logs-list"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showTab('market')">MARKET</div>
+        <div class="nav-item" onclick="showTab('logs')">MY LOGS</div>
+        <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')">SUPPORT</div>
+    </div>
 </div>
 
 <script>
-    let currentUser = null, balance = 0, currentCat = "All";
-    
-    // FULL CATEGORIES LIST
+    let currentUser = null, balance = 0, myOrders = [];
+
     const items = [
-        {n: "UK Facebook 🇬🇧", p: 2500, c: "Facebook", s: 1},
-        {n: "Germany FB (0-50 friend)", p: 5760, c: "Facebook", s: 0},
-        {n: "Poland FB (0-50 friend)", p: 5760, c: "Facebook", s: 0},
-        {n: "USA FB Newly Created", p: 1500, c: "Facebook", s: 2},
-        {n: "Instagram HD", p: 9000, c: "Instagram", s: 0},
-        {n: "Instagram (Fresh)", p: 1500, c: "Instagram", s: 0},
-        {n: "Aged Twitter", p: 10000, c: "Twitter", s: 0},
-        {n: "Google Voice", p: 4500, c: "Texting App", s: 0},
-        {n: "TikTok Ads Manager", p: 5000, c: "TikTok", s: 0}
+        {id: 1, n: "UK Facebook 🇬🇧", p: 2500, s: 1, l: "ID: 61576259523010 / PASS: ififoiyd986"},
+        {id: 2, n: "USA FB Newly Created", p: 1500, s: 2, l: "ID: 61576654900158 / PASS: qudkgrsa12"},
+        {id: 3, n: "Instagram HD", p: 9000, s: 0}
     ];
 
     function handleAuth() {
-        const email = document.getElementById('user-email').value.trim().toLowerCase();
-        const code = document.getElementById('user-code').value.trim();
-        if(!email.includes('@')) return alert("Invalid Email");
+        const email = document.getElementById('u-email').value.trim().toLowerCase();
+        const pass = document.getElementById('u-pass').value.trim();
+        if(!email.includes('@')) return alert("Enter valid Email");
 
-        let savedCode = localStorage.getItem(`sync_${email}`);
-        
-        if(!savedCode) {
-            // REGISTER
-            const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-            localStorage.setItem(`sync_${email}`, newCode);
+        let savedPass = localStorage.getItem(`pass_${email}`);
+        if(!savedPass) {
+            localStorage.setItem(`pass_${email}`, pass);
             localStorage.setItem(`data_${email}`, JSON.stringify({b: 0, o: []}));
-            alert(`ACCOUNT CREATED!\n\nYour 6-Digit Sync Code: ${newCode}\n\nCopy this! Use it to login on any phone or laptop.`);
-        } else if(code === savedCode) {
-            // LOGIN
-            currentUser = email;
-            const data = JSON.parse(localStorage.getItem(`data_${email}`));
-            balance = data.b;
-            document.getElementById('bal-val').innerText = balance.toLocaleString();
-            document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('anthem-player').play();
-            renderCats(); renderMarket();
-        } else {
-            alert("Wrong Code! Use 'Forgot Code' to recover it.");
-        }
+            alert("Account Created!");
+        } else if(pass !== savedPass) { return alert("Wrong Password!"); }
+
+        currentUser = email;
+        const data = JSON.parse(localStorage.getItem(`data_${email}`));
+        balance = data.b; myOrders = data.o;
+        
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('anthem-player').play();
+        renderMarket(); renderLogs();
     }
 
-    function recoverCode() {
-        const email = prompt("Enter email:");
-        const code = localStorage.getItem(`sync_${email.toLowerCase()}`);
-        if(code) alert("Your Sync Code is: " + code);
+    function recoverPass() {
+        const email = prompt("Enter email to recover password:");
+        const pass = localStorage.getItem(`pass_${email.toLowerCase()}`);
+        if(pass) alert("Your Password is: " + pass);
         else alert("Email not found.");
     }
 
-    function renderCats() {
-        const cats = ["All", ...new Set(items.map(i => i.c))];
-        document.getElementById('cat-list').innerHTML = cats.map(c => `<div class="cat-pill ${c===currentCat?'active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+    function showTab(tab) {
+        document.getElementById('market-view').style.display = tab === 'market' ? 'block' : 'none';
+        document.getElementById('logs-view').style.display = tab === 'logs' ? 'block' : 'none';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
     }
 
-    function setCat(c) { currentCat = c; renderCats(); renderMarket(); }
-
     function renderMarket() {
-        const filtered = currentCat === "All" ? items : items.filter(i => i.c === currentCat);
-        document.getElementById('market-grid').innerHTML = filtered.map(i => `
+        document.getElementById('market-grid').innerHTML = items.map(i => `
             <div class="card">
-                <p style="font-size:10px; color:${i.s>0?'#00ff00':'#ff4d4d'}; font-weight:bold;">${i.s>0?'IN STOCK':'OUT OF STOCK'} (${i.s})</p>
-                <h3 style="margin:5px 0;">${i.n}</h3>
+                <p style="font-size:10px; color:${i.s>0?'#00ff00':'#ff4d4d'}; font-weight:bold;">${i.s>0?'IN STOCK':'OUT OF STOCK'}</p>
+                <h3>${i.n}</h3>
                 <h2 style="color:#0070f3;">₦${i.p.toLocaleString()}</h2>
-                <button class="buy-btn" ${i.s===0?'disabled style="opacity:0.5;"':''}>BUY NOW</button>
+                <button class="auth-btn" style="height:40px; margin-top:10px;" onclick="buyItem(${i.id})" ${i.s===0?'disabled':''}>BUY NOW</button>
             </div>`).join('');
     }
 
-    // ADMIN PANEL TRIGGER
-    let timer;
-    document.getElementById('brand-name').addEventListener('mousedown', () => {
-        timer = setTimeout(() => {
-            const pin = prompt("Admin PIN:");
-            if(pin === "1234") alert("Admin Panel Opening...");
-        }, 3000);
-    });
-    document.getElementById('brand-name').addEventListener('mouseup', () => clearTimeout(timer));
+    function renderLogs() {
+        document.getElementById('logs-list').innerHTML = myOrders.length ? 
+            myOrders.map(o => `<div class="log-box"><strong>${o.n}</strong><br>${o.l}</div>`).join('') : 
+            "<p style='color:#555;'>No purchases yet.</p>";
+    }
+
+    function buyItem(id) {
+        const item = items.find(i => i.id === id);
+        if(balance < item.p) return alert("Insufficient Balance! Top up first.");
+        balance -= item.p;
+        myOrders.push({n: item.n, l: item.l});
+        localStorage.setItem(`data_${currentUser}`, JSON.stringify({b: balance, o: myOrders}));
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        alert("Purchase Successful! Check 'MY LOGS'.");
+        renderLogs();
+    }
+
+    function fundWallet() {
+        const amt = prompt("Amount to fund (₦):");
+        if(amt) { balance += parseInt(amt); localStorage.setItem(`data_${currentUser}`, JSON.stringify({b: balance, o: myOrders})); document.getElementById('bal-val').innerText = balance.toLocaleString(); }
+    }
 </script>
 </body>
 </html>
