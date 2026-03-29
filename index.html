@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V62</title>
+    <title>SUBBY LOGS | V63 OFFICIAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* iA BOT ICON - FIXED LAYER */
+        /* iA BOT ICON */
         #ia-bubble { position: fixed; bottom: 90px; right: 20px; width: 65px; height: 65px; background: #000; border: 3px solid #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9999; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
         .icon-container { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #0070f3, #000); border-radius: 50%; pointer-events: none; }
 
@@ -78,11 +78,11 @@
 
 <div id="admin-panel" class="overlay">
     <h2 style="color:var(--primary); margin-bottom:20px;">Admin Controls</h2>
-    <input id="new-cat" class="auth-input" placeholder="Category (e.g. FACEBOOK)">
+    <input id="new-cat" class="auth-input" placeholder="Category">
     <input id="new-name" class="auth-input" placeholder="Package Name">
     <input id="new-price" class="auth-input" placeholder="Price ₦">
-    <textarea id="new-logs" class="auth-input" style="height:100px; text-align:left;" placeholder="Logs (user:pass - one per line)"></textarea>
-    <button class="auth-btn" onclick="addNewCard()">CONFIRM & UPLOAD</button>
+    <textarea id="new-logs" class="auth-input" style="height:100px; text-align:left;" placeholder="Logs"></textarea>
+    <button class="auth-btn" onclick="addNewCard()">UPLOAD TO THIS DEVICE</button>
     <hr style="margin:20px 0; border:0.5px solid #333;">
     <input id="adm-user" class="auth-input" placeholder="User Email">
     <input id="adm-amt" class="auth-input" placeholder="Amount ₦">
@@ -99,15 +99,30 @@
         { 
             id: 101, 
             c: "FACEBOOK", 
-            n: "Random Facebook [NEWLY CREATED]", 
+            n: "Random FB [NEWLY CREATED]", 
             p: 1000, 
-            data: ["user1:pass1", "user2:pass2"] 
+            data: [
+                "61577544315444/PASS: Qujalsj091 2Fa /Y6YWKGDMWP6PLDO2MYSROC5PS3MOATZK",
+                "luddie0@bootsship.com /PASS :qurojuk1p0 2FA /XCSD HABM PXAJ Z5LY 4IR7 TD7P ICFQ GTCH"
+            ] 
+        },
+        {
+            id: 102,
+            c: "FACEBOOK",
+            n: "USA FB [NEWLY CREATED]",
+            p: 1500,
+            data: ["ID 61576654900158 /PASS qudkgrsa12 /2FA 2RZI DZF7 WHN5 3D3V OPXD ULGZ ROH3 CYGE"]
+        },
+        {
+            id: 103,
+            c: "FACEBOOK",
+            n: "UK FB [NEWLY CREATED]",
+            p: 1500,
+            data: ["ID 61576259523010/PASSififoiyd986 / 2FA T6BO N5OL 7CWW 5G3E H34H 5TEZ FKYV X2J4"]
         }
     ];
 
-    // --- 2. LOCAL STOCK (UPLOADED VIA ADMIN) ---
     let localItems = JSON.parse(localStorage.getItem('subby_market_v2')) || [];
-    let allItems = [...globalStock, ...localItems];
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -119,7 +134,7 @@
         const p = document.getElementById('reg-pass').value;
         if(!e || !p) return alert("Fill all fields");
         localStorage.setItem(`subby_user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Success! Now login."); showGate('login-gate');
+        alert("Account Created!"); showGate('login-gate');
     }
 
     function handleLogin() {
@@ -132,17 +147,17 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             renderMarket();
-        } else alert("Invalid Login");
+        } else alert("Error");
     }
 
     function renderMarket() {
         const grid = document.getElementById('market-grid');
-        allItems = [...globalStock, ...localItems];
+        let all = [...globalStock, ...localItems];
         let h = "";
-        const cats = [...new Set(allItems.map(i => i.c))];
+        const cats = [...new Set(all.map(i => i.c))];
         cats.forEach(c => {
             h += `<div class="cat-header">${c}</div><div class="grid">`;
-            allItems.filter(i => i.c === c).forEach(i => {
+            all.filter(i => i.c === c).forEach(i => {
                 const s = i.data.length;
                 h += `<div class="card">
                     <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD OUT'}</span>
@@ -153,12 +168,13 @@
             });
             h += `</div>`;
         });
-        grid.innerHTML = h || `<div style="text-align:center; padding:100px 0;">No Stock Available</div>`;
+        grid.innerHTML = h;
     }
 
     function buyItem(id) {
-        let itm = allItems.find(x => x.id === id);
-        if(balance < itm.p) return alert("Insufficient balance. Contact support to fund.");
+        let all = [...globalStock, ...localItems];
+        let itm = all.find(x => x.id === id);
+        if(balance < itm.p) return alert("Insufficient Balance");
         const log = itm.data.shift();
         balance -= itm.p;
         let u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
@@ -166,7 +182,7 @@
         localStorage.setItem(`subby_user_${currentUser}`, JSON.stringify(u));
         localStorage.setItem('subby_market_v2', JSON.stringify(localItems));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
-        renderMarket(); alert("Purchase successful! View in MY LOGS.");
+        renderMarket(); alert("Success! Check MY LOGS.");
     }
 
     function addNewCard() {
@@ -174,35 +190,32 @@
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
-        if(!c || !n || !p || l.length === 0) return alert("Fill all fields correctly!");
         const newItem = { id: Date.now(), c: c, n: n, p: p, data: l };
         localItems.push(newItem);
         localStorage.setItem('subby_market_v2', JSON.stringify(localItems));
-        document.getElementById('new-logs').value = "";
-        alert("STOCK UPLOADED TO THIS DEVICE!");
-        renderMarket();
+        renderMarket(); alert("Uploaded locally!");
     }
 
     function openHistory() {
         const u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
         document.getElementById('history-overlay').style.display = 'block';
-        document.getElementById('history-list').innerHTML = u.history.length ? u.history.map(h => `
-            <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid var(--gold);">
-                <p style="font-size:10px; color:#666;">${h.d}</p>
+        document.getElementById('history-list').innerHTML = u.history.map(h => `
+            <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px;">
+                <p style="font-size:10px;">${h.d}</p>
                 <h4 style="color:var(--gold)">${h.n}</h4>
-                <code style="display:block; background:#000; padding:10px; margin-top:5px; border-radius:5px; word-break:break-all;">${h.log}</code>
-            </div>`).reverse().join('') : "<p style='text-align:center;'>No purchases yet.</p>";
+                <code style="word-break:break-all;">${h.log}</code>
+            </div>`).reverse().join('');
     }
 
-    function openAdmin() { if(prompt("ADMIN ACCESS PIN") === "1234567890") document.getElementById('admin-panel').style.display = 'block'; }
+    function openAdmin() { if(prompt("PIN") === "1234567890") document.getElementById('admin-panel').style.display = 'block'; }
     function admCredit() {
         const e = document.getElementById('adm-user').value.toLowerCase();
         const a = parseInt(document.getElementById('adm-amt').value);
         let u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("User credited successfully!"); }
-        else alert("User not found.");
+        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("Done"); }
     }
     function closeAllOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+    function toggleIA() { alert("iA Bot: Scanning for logs... System 100% active."); }
 </script>
 </body>
 </html>
