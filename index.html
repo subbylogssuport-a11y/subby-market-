@@ -3,95 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V33 FINAL</title>
+    <title>SUBBY MARKET | V38 OFFICIAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        :root { --primary: #0070f3; --bg: #000; --card: #111; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #eee; min-height: 100vh; }
-
-        .easter-banner { background: linear-gradient(90deg, #ff0080, #7928ca); color: white; text-align: center; padding: 12px; font-size: 13px; font-weight: 800; }
+        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
         /* AUTH GATES */
-        .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: var(--card); border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; text-align: center; outline: none; }
+        .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
         .auth-btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-        /* NAV & SEARCH */
-        .navbar { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .bal-pill { background: #000; border: 1px solid var(--primary); padding: 8px 18px; border-radius: 25px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
-        .search-bar { width: 92%; margin: 15px 4%; padding: 12px 20px; background: #111; border: 1px solid #222; border-radius: 12px; color: #fff; outline: none; }
+        /* WELCOME MODAL */
+        #welcome-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(10px); }
+        .modal-content { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 30px; text-align: center; max-width: 350px; }
 
-        /* MARKET GRID */
-        .grid { padding: 0 15px 100px 15px; display: grid; gap: 15px; }
+        /* MARKET UI */
+        .navbar { background: rgba(17,17,17,0.9); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 18px; border-radius: 25px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+        
+        .search-bar { width: 92%; margin: 15px auto; display: block; padding: 14px; background: #111; border: 1px solid #333; border-radius: 15px; color: #fff; outline: none; }
+
+        .grid { padding: 10px; display: grid; gap: 15px; padding-bottom: 100px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 20px; position: relative; }
-        .stock-tag { font-size: 11px; font-weight: 900; margin-bottom: 8px; display: block; }
-
-        /* LOGS VIEW */
-        #logs-view { display: none; padding: 20px 15px 100px 15px; }
-        .log-box { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 15px; margin-bottom: 12px; position: relative; }
-        .copy-btn { position: absolute; right: 10px; top: 10px; background: var(--primary); color: #fff; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
-
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 1000; }
-        .nav-item { color: #555; font-size: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; text-align: center; }
-        .nav-item.active { color: var(--primary); }
+        .stock-tag { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; }
+        
+        /* ADMIN PANEL (HIDDEN) */
+        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; }
     </style>
 </head>
 <body>
 
 <div id="login-gate" class="gate-container">
     <div class="auth-card">
-        <h1 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGIN</h1>
+        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGIN</h2>
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
-        <p style="color:#555; font-size:11px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New? <span style="color:var(--primary)">Create Account</span></p>
+        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New user? <span style="color:var(--primary);">Create Account</span></p>
+        <p style="color:#444; font-size:11px; margin-top:10px; cursor:pointer;" onclick="window.open('https://wa.me/2348104565349?text=I%20forgot%20my%20password')">Forgot Password?</p>
     </div>
 </div>
 
 <div id="reg-gate" class="gate-container" style="display:none;">
     <div class="auth-card">
-        <h1 style="color:var(--primary); margin-bottom:20px;">SIGN UP</h1>
+        <h2 style="color:var(--primary); margin-bottom:20px;">CREATE ACCOUNT</h2>
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
-        <button class="auth-btn" onclick="handleRegister()">CREATE ACCOUNT</button>
-        <p style="color:#555; font-size:11px; margin-top:15px; cursor:pointer;" onclick="showGate('login-gate')">Already have an account? <span style="color:var(--primary)">Login</span></p>
+        <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
+        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('login-gate')">Have account? <span style="color:var(--primary);">Login</span></p>
+    </div>
+</div>
+
+<div id="welcome-modal">
+    <div class="modal-content">
+        <h2 style="color:var(--gold); margin-bottom:10px;">Welcome Back!</h2>
+        <p id="user-greet" style="font-weight:bold; margin-bottom:15px;"></p>
+        <div style="border-top:1px solid #333; padding-top:15px; margin-bottom:20px;">
+            <p style="font-size:14px; color:#aaa;">Happy Easter! 🌸<br>Enjoy our premium logs update.</p>
+        </div>
+        <button class="auth-btn" style="background:var(--gold)" onclick="closeWelcome()">ENTER MARKET</button>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
-    <div class="easter-banner">🐰 HAPPY EASTER SUBBY MARKET LAUNCH 🐰</div>
     <div class="navbar">
-        <div style="font-weight:900; color:var(--primary); font-size: 18px;">SUBBY MARKET</div>
-        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWalletReal()" style="color:var(--primary); cursor:pointer; font-size:20px; font-weight:bold;">+</span></div>
+        <div id="site-logo" style="font-weight:900; color:var(--primary); cursor:pointer;">SUBBY MARKET</div>
+        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="color:var(--gold); cursor:pointer; font-weight:bold;">+</span></div>
     </div>
-
-    <div id="market-view">
-        <input type="text" id="market-search" class="search-bar" placeholder="🔍 Search for cards..." oninput="filterMarket()">
-        <div class="grid" id="market-grid"></div>
-    </div>
-
-    <div id="logs-view">
-        <h2 style="color:var(--primary); margin-bottom:20px;">My Purchased Logs</h2>
-        <div id="logs-list"></div>
-    </div>
+    
+    <input type="text" id="search" class="search-bar" placeholder="🔍 Search cards..." oninput="filterCards()">
+    <div class="grid" id="market-grid"></div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="btn-market" onclick="showTab('market')">MARKET</div>
-        <div class="nav-item" id="btn-logs" onclick="showTab('logs')">MY LOGS</div>
-        <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')">SUPPORT</div>
+        <div style="color:var(--primary); font-size:10px; font-weight:bold;">MARKET</div>
+        <div style="color:#555; font-size:10px; font-weight:bold;" onclick="alert('Logs stored in account!')">MY LOGS</div>
+        <div style="color:#555; font-size:10px; font-weight:bold;" onclick="window.open('https://wa.me/2348104565349')">SUPPORT</div>
     </div>
 </div>
 
-<script>
-    let currentUser = null, balance = 0, myOrders = [];
+<div id="admin-panel">
+    <h2 style="color:var(--gold);">👑 ADMIN OVERRIDE</h2>
+    <div id="admin-stock-list" style="margin:20px 0;"></div>
+    <input type="email" id="adm-user" class="auth-input" placeholder="User Email">
+    <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
+    <button class="auth-btn" onclick="admCredit()">ADD BALANCE</button>
+    <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="document.getElementById('admin-panel').style.display='none'">EXIT ADMIN</button>
+</div>
 
-    const items = [
-        {id: 1, n: "UK Facebook 🇬🇧", p: 2500, s: 15, log: "UK_LOG_XYZ / PASS: 123"},
-        {id: 2, n: "USA FB Newly Created", p: 1500, s: 8, log: "USA_LOG_ABC / PASS: 456"},
-        {id: 3, n: "Random FB Logs", p: 1000, s: 20, log: "RAND_LOG_789 / PASS: 000"}
+<script>
+    let currentUser = null;
+    let balance = 0;
+    let items = [
+        {id:1, n:"UK Facebook 🇬🇧", p:2500, s:15},
+        {id:2, n:"USA FB Fresh", p:1500, s:10},
+        {id:3, n:"Instagram HD", p:9000, s:0}
     ];
 
     function showGate(id) {
@@ -103,7 +113,9 @@
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-pass').value.trim();
         if(!email.includes('@')) return alert("Invalid Email");
-        localStorage.setItem(`user_${email}`, JSON.stringify({pass: pass, bal: 0, orders: []}));
+        if(localStorage.getItem(`user_${email}`)) return alert("This Email is already registered!");
+        
+        localStorage.setItem(`user_${email}`, JSON.stringify({pass: pass, bal: 0}));
         alert("Account Created! Please Login.");
         showGate('login-gate');
     }
@@ -116,94 +128,85 @@
         if(stored && stored.pass === pass) {
             currentUser = email;
             balance = stored.bal;
-            myOrders = stored.orders || [];
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
+            document.getElementById('user-greet').innerText = email;
+            document.getElementById('welcome-modal').style.display = 'flex';
             renderMarket(items);
-            renderLogs();
         } else {
-            alert("Wrong credentials!");
+            alert("Wrong login details!");
         }
     }
 
-    function showTab(tab) {
-        document.getElementById('market-view').style.display = tab === 'market' ? 'block' : 'none';
-        document.getElementById('logs-view').style.display = tab === 'logs' ? 'block' : 'none';
-        document.getElementById('btn-market').classList.toggle('active', tab === 'market');
-        document.getElementById('btn-logs').classList.toggle('active', tab === 'logs');
-    }
+    function closeWelcome() { document.getElementById('welcome-modal').style.display = 'none'; }
 
     function renderMarket(data) {
         document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
-                <span class="stock-tag" style="color:${i.s>0?'#00ff00':'#ff4d4d'}">• ${i.s} IN STOCK</span>
-                <h3 style="margin-bottom:8px;">${i.n}</h3>
-                <h2 style="color:var(--primary); margin-bottom:15px;">₦${i.p.toLocaleString()}</h2>
-                <button class="auth-btn" style="height:45px;" ${i.s===0?'disabled':''} onclick="buyItem(${i.id})">BUY NOW</button>
+                <span class="stock-tag" style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}">
+                    ${i.s > 0 ? 'IN STOCK ('+i.s+')' : 'OUT OF STOCK'}
+                </span>
+                <h3>${i.n}</h3>
+                <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
+                <button class="auth-btn" style="height:45px; font-size:12px;" ${i.s === 0 ? 'disabled style="background:#222"' : ''}>BUY NOW</button>
             </div>`).join('');
     }
 
-    function renderLogs() {
-        const list = document.getElementById('logs-list');
-        if(myOrders.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding:50px; color:#555;">You have not purchased any logs yet.</div>`;
-        } else {
-            list.innerHTML = myOrders.map(o => `
-                <div class="log-box">
-                    <button class="copy-btn" onclick="copyText('${o.data}')">COPY</button>
-                    <strong>${o.name}</strong><br>
-                    <span style="color:#00ff00; font-size:12px;">${o.data}</span>
-                </div>`).join('');
-        }
+    function filterCards() {
+        const q = document.getElementById('search').value.toLowerCase();
+        renderMarket(items.filter(i => i.n.toLowerCase().includes(q)));
     }
 
-    function buyItem(id) {
-        const item = items.find(i => i.id === id);
-        if(balance < item.p) return alert("Insufficient Balance!");
-        balance -= item.p;
-        item.s -= 1;
-        myOrders.unshift({name: item.n, data: item.log});
-        updateStorage();
-        renderMarket(items);
-        renderLogs();
-        alert("Purchase Successful! Check 'MY LOGS'.");
-    }
-
-    function updateStorage() {
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
-        let stored = JSON.parse(localStorage.getItem(`user_${currentUser}`));
-        stored.bal = balance;
-        stored.orders = myOrders;
-        localStorage.setItem(`user_${currentUser}`, JSON.stringify(stored));
-    }
-
-    function copyText(text) {
-        navigator.clipboard.writeText(text);
-        alert("Login Details Copied!");
-    }
-
-    function filterMarket() {
-        const query = document.getElementById('market-search').value.toLowerCase();
-        const filtered = items.filter(i => i.n.toLowerCase().includes(query));
-        renderMarket(filtered);
-    }
-
-    function fundWalletReal() {
-        const amt = prompt("Amount (₦):");
+    function fundWallet() {
+        const amt = prompt("Deposit Amount (₦):");
         if(!amt) return;
-        let handler = PaystackPop.setup({
+        PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: currentUser,
             amount: amt * 100,
             currency: 'NGN',
-            callback: function(res) {
+            callback: function() {
                 balance += parseInt(amt);
-                updateStorage();
-                alert("Deposit Successful!");
+                updateDB();
+                alert("Wallet Funded!");
             }
-        });
-        handler.openIframe();
+        }).openIframe();
+    }
+
+    function updateDB() {
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        let s = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+        s.bal = balance;
+        localStorage.setItem(`user_${currentUser}`, JSON.stringify(s));
+    }
+
+    // SECRET ADMIN LOGIC
+    let logoTap = 0;
+    document.getElementById('site-logo').addEventListener('mousedown', () => {
+        logoTap = setTimeout(() => {
+            const pw = prompt("Enter Admin Password:");
+            if(pw === '1234567890') {
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAdm();
+            }
+        }, 3000);
+    });
+    document.getElementById('site-logo').addEventListener('mouseup', () => clearTimeout(logoTap));
+
+    function loadAdm() {
+        document.getElementById('admin-stock-list').innerHTML = items.map(i => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>${i.n}</span>
+                <input type="number" value="${i.s}" onchange="items.find(x=>x.id==${i.id}).s=this.value;renderMarket(items)">
+            </div>`).join('');
+    }
+
+    function admCredit() {
+        const email = document.getElementById('adm-user').value.toLowerCase();
+        const amt = parseInt(document.getElementById('adm-amt').value);
+        let u = JSON.parse(localStorage.getItem(`user_${email}`));
+        if(u) { u.bal += amt; localStorage.setItem(`user_${email}`, JSON.stringify(u)); alert("Added!"); }
     }
 </script>
 </body>
