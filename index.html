@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V72 FINAL</title>
+    <title>SUBBY LOGS | OFFICIAL V72</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://js.paystack.co/v1/inline.js"></script>
+    
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* NAVBAR & UI */
+        /* NAVIGATION */
         .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
         .topup-btn { background: var(--gold); color: #000; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* BOT */
-        #ia-bubble { position: fixed; bottom: 80px; right: 20px; width: 65px; height: 65px; background: url('https://i.ibb.co/6R5qXhP/space-robot.jpg') center/cover; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; z-index: 9999; animation: pulse 2s infinite; }
+        /* SPACE ROBOT AI */
+        #ia-bubble { position: fixed; bottom: 85px; right: 20px; width: 65px; height: 65px; background: url('https://i.ibb.co/6R5qXhP/space-robot.jpg') center/cover; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; z-index: 9999; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); } }
-        #bot-chat { position: fixed; bottom: 160px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; }
+        #bot-chat { position: fixed; bottom: 165px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; box-shadow: 0 10px 40px #000; }
 
-        /* COMPONENTS */
+        /* UI ELEMENTS */
         .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
         .btn-main { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
         .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; text-align: center; outline: none; }
         
+        /* BOTTOM MENU */
         .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
         .tab-item { text-align: center; font-size: 10px; color: #555; cursor: pointer; }
         .tab-active { color: var(--primary); }
@@ -38,15 +40,15 @@
 
 <div id="ia-bubble" onclick="toggleBot()"></div>
 <div id="bot-chat">
-    <div id="bot-msg" style="font-size: 13px; line-height: 1.6;">🤖 <b>Subby AI:</b> Hello! Click <b>+</b> to fund via Paystack. Your logs will appear in <b>MY INVENTORY</b> after purchase.</div>
-    <button class="btn-main" style="margin-top:10px; padding:10px; font-size:11px;" onclick="window.open('https://wa.me/2348104565349')">WHATSAPP ADMIN</button>
+    <div id="bot-msg" style="font-size: 13px; line-height: 1.6;">🤖 <b>Subby AI:</b> Welcome! Click the <b style="color:var(--gold)">+</b> to fund your wallet. Bought logs appear in <b>HISTORY</b>.</div>
+    <button class="btn-main" style="margin-top:10px; padding:10px; font-size:11px; background:#25D366" onclick="window.open('https://wa.me/2348104565349')">WHATSAPP ADMIN</button>
 </div>
 
 <div id="login-gate" style="position:fixed; inset:0; background:#000; z-index:6000; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#111; border:1px solid var(--primary); padding:35px; border-radius:30px; width:100%; max-width:400px; text-align:center;">
         <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS</h2>
         <input type="email" id="u-email" class="auth-input" placeholder="Email Address">
-        <button class="btn-main" onclick="handleLogin()">ENTER</button>
+        <button class="btn-main" onclick="handleLogin()">ENTER MARKET</button>
     </div>
 </div>
 
@@ -62,33 +64,37 @@
 </div>
 
 <div id="history-view" class="overlay">
-    <h2 style="color:var(--gold); margin-bottom:20px;">My Inventory & History</h2>
+    <h2 style="color:var(--gold); margin-bottom:20px;">Purchase History</h2>
     <div id="history-content"></div>
-    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">CLOSE</button>
+    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">BACK TO MARKET</button>
 </div>
 
 <div id="admin-panel" class="overlay">
-    <h2 style="color:var(--primary)">Admin</h2>
-    <input id="adm-user" class="auth-input" placeholder="User Email">
-    <input id="adm-amt" class="auth-input" placeholder="Amount ₦">
-    <button class="btn-main" onclick="admCredit()">CREDIT USER</button>
-    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">EXIT</button>
+    <h2 style="color:var(--primary); margin-bottom:15px;">Admin Control</h2>
+    <input id="adm-user" class="auth-input" placeholder="Customer Email">
+    <input id="adm-amt" class="auth-input" placeholder="Amount to Add ₦">
+    <button class="btn-main" onclick="admCredit()">UPDATE BALANCE</button>
+    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">CLOSE</button>
 </div>
 
 <div class="tab-bar">
-    <div class="tab-item tab-active" onclick="showMarket()"><div>🛍️</div><div>MARKET</div></div>
-    <div class="tab-item" onclick="showHistory()"><div>📜</div><div>HISTORY</div></div>
+    <div id="tab-m" class="tab-item tab-active" onclick="showMarket()"><div>🛍️</div><div>MARKET</div></div>
+    <div id="tab-h" class="tab-item" onclick="showHistory()"><div>📜</div><div>HISTORY</div></div>
 </div>
 
 <script>
+    // FINAL FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyAcJGCC2g2Py6jphASOW8KtbiMMrPZR6aY",
         authDomain: "subbylogs.firebaseapp.com",
+        databaseURL: "https://subbylogs-default-rtdb.firebaseio.com",
         projectId: "subbylogs",
         storageBucket: "subbylogs.firebasestorage.app",
         messagingSenderId: "405053710429",
-        appId: "1:405053710429:web:592518cf9ee73e31666db4"
+        appId: "1:405053710429:web:592518cf9ee73e31666db4",
+        measurementId: "G-PJJ71V8SK4"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -97,13 +103,13 @@
 
     function handleLogin() {
         const e = document.getElementById('u-email').value.toLowerCase();
-        if(!e || !e.includes('@')) return alert("Enter valid email");
+        if(!e || !e.includes('@')) return alert("Please enter a valid email");
         currentUser = e.replace(/\./g, '_');
         document.getElementById('login-gate').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
         
         db.ref('users/' + currentUser).on('value', snap => {
-            const data = snap.val() || { bal: 0, history: [] };
+            const data = snap.val() || { bal: 0 };
             balance = data.bal;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             renderMarket();
@@ -112,21 +118,21 @@
 
     function renderMarket() {
         const items = [
-            { id: 'fb_new', n: "Random FB [NEW]", p: 1000, s: 12 },
-            { id: 'gv_usa', n: "Google Voice [USA]", p: 3500, s: 0 }
+            { id: 'fb_log', n: "Facebook Log [Old]", p: 1500, s: 8 },
+            { id: 'gv_log', n: "Google Voice [USA]", p: 4000, s: 5 }
         ];
         document.getElementById('market-view').innerHTML = items.map(i => `
             <div class="card">
-                <p style="font-size:10px; color:${i.s>0?'#0f0':'#f00'}">● ${i.s>0?i.s+' IN STOCK':'SOLD OUT'}</p>
+                <p style="font-size:10px; color:${i.s>0?'#0f0':'#f00'}">● ${i.s>0?i.s+' AVAILABLE':'OUT OF STOCK'}</p>
                 <h3>${i.n}</h3>
                 <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
-                <button class="btn-main" ${i.s==0?'style="background:#333" disabled':''} onclick="buyLog('${i.n}', ${i.p})">PURCHASE</button>
+                <button class="btn-main" ${i.s==0?'style="background:#333" disabled':''} onclick="buyLog('${i.n}', ${i.p})">BUY NOW</button>
             </div>
         `).join('');
     }
 
     function startPaystack() {
-        const amt = prompt("Amount to fund (₦):");
+        const amt = prompt("Enter amount to fund (₦):");
         if(!amt || isNaN(amt)) return;
         
         let handler = PaystackPop.setup({
@@ -136,34 +142,39 @@
             currency: "NGN",
             callback: function(res) {
                 const now = new Date().toLocaleString();
-                db.ref('users/' + currentUser + '/history').push({ type: 'Fund', amt: amt, date: now });
+                db.ref('users/' + currentUser + '/history').push({ type: 'Wallet Funding', amt: amt, date: now });
                 db.ref('users/' + currentUser).update({ bal: balance + parseInt(amt) });
-                alert("Wallet Funded!");
+                alert("Payment Received! Wallet Updated.");
             }
         });
         handler.openIframe();
     }
 
     function buyLog(name, price) {
-        if(balance < price) return alert("Low balance!");
+        if(balance < price) return alert("Insufficient Balance. Please top up!");
+        if(!confirm("Confirm purchase of " + name + "?")) return;
+        
         const now = new Date().toLocaleString();
         db.ref('users/' + currentUser + '/history').push({ type: 'Purchase', item: name, amt: price, date: now });
         db.ref('users/' + currentUser).update({ bal: balance - price });
-        alert("Success! Check History for your log.");
+        alert("Purchase successful! Find your details in History.");
     }
 
     function showHistory() {
         document.getElementById('history-view').style.display = 'block';
+        document.getElementById('tab-h').classList.add('tab-active');
+        document.getElementById('tab-m').classList.remove('tab-active');
+        
         db.ref('users/' + currentUser + '/history').once('value', snap => {
             const hist = snap.val();
             let h = "";
-            if(!hist) h = "<p style='text-align:center; opacity:0.5;'>No history found</p>";
+            if(!hist) h = "<p style='text-align:center; padding:50px; opacity:0.3;'>No transactions yet.</p>";
             else {
                 Object.values(hist).reverse().forEach(x => {
-                    h += `<div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid ${x.type=='Fund'?'#0f0':'var(--gold)'}">
-                        <p style="font-size:10px; color:#555">${x.date}</p>
-                        <p><b>${x.type}:</b> ${x.item || 'Wallet Top-up'}</p>
-                        <p style="color:var(--gold)">₦${parseInt(x.amt).toLocaleString()}</p>
+                    h += `<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid ${x.type=='Purchase'?'var(--primary)':'#0f0'}">
+                        <p style="font-size:10px; color:#666">${x.date}</p>
+                        <p><b>${x.type}:</b> ${x.item || 'Credit'}</p>
+                        <p style="color:var(--gold); font-weight:800;">₦${parseInt(x.amt).toLocaleString()}</p>
                     </div>`;
                 });
             }
@@ -171,13 +182,30 @@
         });
     }
 
-    function toggleBot() { 
-        const c = document.getElementById('bot-chat');
-        c.style.display = c.style.display === 'block' ? 'none' : 'block';
+    function showMarket() {
+        closeOverlays();
+        document.getElementById('tab-m').classList.add('tab-active');
+        document.getElementById('tab-h').classList.remove('tab-active');
     }
-    function openAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
+
+    function toggleBot() { 
+        const b = document.getElementById('bot-chat');
+        b.style.display = b.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openAdmin() { if(prompt("Enter Admin PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
     function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-    function showMarket() { closeOverlays(); }
+    
+    function admCredit() {
+        const u = document.getElementById('adm-user').value.toLowerCase().replace(/\./g, '_');
+        const a = parseInt(document.getElementById('adm-amt').value);
+        db.ref('users/' + u).once('value', snap => {
+            const curBal = snap.val() ? snap.val().bal : 0;
+            db.ref('users/' + u).update({ bal: curBal + a });
+            alert("Customer account updated!");
+            closeOverlays();
+        });
+    }
 </script>
 </body>
 </html>
