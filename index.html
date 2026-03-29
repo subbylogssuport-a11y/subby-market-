@@ -3,36 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | LIVE SUPPORT</title>
+    <title>SUBBY MARKET | OFFICIAL V21</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: #eee; min-height: 100vh; overflow-x: hidden; }
         
-        /* THE ONE ADDITION: LIVE SUPPORT NAV */
-        .support-nav {
-            padding: 10px 15px;
-            background: #111;
-            border-bottom: 1px dashed #333;
-            text-align: center;
-        }
-        .support-link {
-            font-size: 13px;
-            color: #0070f3;
-            font-weight: bold;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .easter-banner {
-            background: linear-gradient(45deg, #ff00cc, #3333ff, #00d4ff, #ffcc00);
-            background-size: 400% 400%;
-            animation: gradientShift 8s ease infinite;
-            padding: 15px; margin: 10px; border-radius: 15px; text-align: center;
-        }
-        .easter-text { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: 2px; }
-        .easter-sub { font-size: 10px; color: #fff; margin-top: 4px; }
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .support-nav { padding: 10px 15px; background: #111; border-bottom: 1px dashed #333; text-align: center; }
+        .support-link { font-size: 13px; color: #0070f3; font-weight: bold; text-decoration: none; }
 
         /* AUTH GATES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -53,7 +31,7 @@
         .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
         .card { background: #16161a; border: 1px solid #222; border-radius: 18px; padding: 18px; width: 100%; }
         .price { font-size: 22px; font-weight: 900; color: #0070f3; margin: 8px 0; }
-        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #0070f3; color: #fff; font-weight: 800; font-size: 14px; }
+        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #0070f3; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; }
         
         .orders-section { padding: 15px; background: #0a0a0a; margin: 15px; border-radius: 15px; border: 1px dashed #333; }
         .order-item { background: #111; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 3px solid #0070f3; }
@@ -65,163 +43,99 @@
         <div class="auth-card">
             <h2 style="color:#0070f3; margin-bottom:15px;">SUBBY LOGIN</h2>
             <input type="email" id="log-email" class="auth-input" placeholder="Email">
-            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
+            <input type="text" id="log-key" class="auth-input" placeholder="Recovery Key">
             <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div style="color:#888; font-size:11px; margin-top:10px; cursor:pointer;" onclick="showGate('reg-gate')">No account? <span style="color:#0070f3;">Create One</span></div>
-            <div style="color:#888; font-size:11px; margin-top:8px; cursor:pointer;" onclick="showGate('forgot-gate')">Forgot Password?</div>
+            <div style="color:#888; font-size:11px; margin-top:10px;" onclick="showGate('reg-gate')">New user? <span style="color:#0070f3;">Register here</span></div>
         </div>
     </div>
 
     <div id="reg-gate" class="gate-container" style="display:none;">
         <div class="auth-card">
-            <h2 style="color:#0070f3;">JOIN</h2>
+            <h2 style="color:#0070f3;">REGISTER</h2>
             <input type="email" id="reg-email" class="auth-input" placeholder="Email">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
-            <button class="auth-btn" onclick="handleRegister()">Get Code</button>
+            <button class="auth-btn" onclick="handleRegister()">Generate Account Key</button>
             <div id="reg-code-area" style="display:none; margin-top:10px;">
-                <div id="display-reg-code" style="color:#0070f3; font-weight:bold; font-size:20px;"></div>
-                <div onclick="showGate('verify-gate')" style="color:#0070f3; font-size:12px; margin-top:10px; cursor:pointer; font-weight:bold;">Next: Verify →</div>
+                <p style="font-size:10px; color:#888; margin-bottom:5px;">COPY THIS KEY & KEEP IT SAFE:</p>
+                <div id="display-reg-code" style="color:#0070f3; font-weight:bold; font-size:18px; background:#000; padding:10px; border-radius:5px;"></div>
+                <button class="auth-btn" style="margin-top:10px; background:#222;" onclick="showGate('login-gate')">Go to Login</button>
             </div>
-        </div>
-    </div>
-
-    <div id="verify-gate" class="gate-container" style="display:none;">
-        <div class="auth-card">
-            <h2 style="color:#0070f3;">VERIFY</h2>
-            <input type="text" id="verify-input" class="auth-input" style="text-align:center;" placeholder="Paste Code">
-            <button class="auth-btn" onclick="confirmVerify()">Complete</button>
-        </div>
-    </div>
-
-    <div id="forgot-gate" class="gate-container" style="display:none;">
-        <div class="auth-card">
-            <h2 style="color:#0070f3;">RESET</h2>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="Email">
-            <button class="auth-btn" onclick="handleForgot()">Get Code</button>
-            <div id="forgot-code-area" style="display:none; color:#0070f3; margin-top:10px;"></div>
-            <div onclick="showGate('login-gate')" style="color:#888; margin-top:15px; cursor:pointer;">Back</div>
-        </div>
-    </div>
-
-    <div id="admin-panel" style="display:none; position:fixed; inset:0; background:#000; z-index:3000; padding:20px; overflow-y:auto;">
-        <div style="background:#16161a; padding:20px; border-radius:15px; border:1px solid #0070f3; max-width:400px; margin:auto;">
-            <h3 style="color:#0070f3;">WAREHOUSE</h3>
-            <select id="restock-item" class="auth-input" onchange="loadAdminFields()"></select>
-            <input type="number" id="edit-price" class="auth-input" placeholder="Price">
-            <textarea id="log-input" class="auth-input" style="height:60px;" placeholder="Logs (one per line)"></textarea>
-            <button class="auth-btn" onclick="saveAdminChanges()">Update Item</button>
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <input type="text" id="new-name" class="auth-input" placeholder="Name">
-            <input type="number" id="new-price" class="auth-input" placeholder="Price">
-            <input type="text" id="new-cat" class="auth-input" placeholder="Category">
-            <button class="auth-btn" style="background:#00c853;" onclick="addNewCardType()">Add New</button>
-            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="exportData()">Backup</button>
-            <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="importData()">Restore</button>
-            <button class="auth-btn" style="background:#222; margin-top:15px;" onclick="document.getElementById('admin-panel').style.display='none'">Close</button>
         </div>
     </div>
 
     <div id="main-app">
         <div class="support-nav">
-            <a href="https://wa.me/2348104565349?text=Hello,%20I%20need%20help%20with%20my%20purchase!" target="_blank" class="support-link">
-                LIVE SUPPORT (Tap to chat on WhatsApp)
+            <a href="https://wa.me/2348104565349" target="_blank" class="support-link">
+                SUPPORT: +2348104565349
             </a>
         </div>
 
         <div class="navbar">
-            <div class="brand" ontouchstart="startAdminTimer()" onmousedown="startAdminTimer()">SUBBY MARKET</div>
-            <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer;">+</span></div>
-        </div>
-
-        <div class="easter-banner">
-            <div class="easter-text">HAPPY EASTER</div>
-            <div class="easter-sub">All categories updated and live! 🐰</div>
+            <div class="brand" onmousedown="startAdminTimer()">SUBBY MARKET</div>
+            <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer; color:#0070f3;">+</span></div>
         </div>
 
         <div class="categories-nav" id="cat-bar"></div>
         <div class="grid" id="market-grid"></div>
 
         <div class="orders-section">
-            <h4 style="color:#0070f3; font-size:14px;">Purchased Logs</h4>
+            <h4 style="color:#0070f3; font-size:14px;">My Purchases</h4>
             <div id="orders-list"></div>
-            <button class="auth-btn" style="background:#333; margin-top:15px;" onclick="location.reload()">Logout</button>
+            <button class="auth-btn" style="background:#333; margin-top:15px;" onclick="location.reload()">Switch Account</button>
         </div>
     </div>
 
 <script>
     let currentUser = null, balance = 0, myOrders = [];
-    let generatedCode = "", tempUser = {};
-    let fullStock = [
-        {id: 1, n: "FB (0-30 friend) 2023", p: 3500, c: "Facebook", s: 0, logs: []},
-        {id: 2, n: "FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: []},
-        {id: 3, n: "Instagram (Fresh)", p: 1500, c: "Instagram", s: 0, logs: []},
-        {id: 4, n: "Twitter / X (Verified)", p: 4500, c: "Twitter", s: 0, logs: []},
-        {id: 5, n: "TikTok Ads Manager", p: 5000, c: "TikTok", s: 0, logs: []},
-        {id: 6, n: "Netflix 1 Month (UHD)", p: 2500, c: "Netflix", s: 0, logs: []},
-        {id: 7, n: "Google Voice Account", p: 3500, c: "Google", s: 0, logs: []}
+    
+    // Default Items
+    let items = [
+        {id: 1, n: "FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: []},
+        {id: 2, n: "Instagram HD", p: 9000, c: "Instagram", s: 0, logs: []},
+        {id: 3, n: "Aged Twitter", p: 10000, c: "Twitter", s: 0, logs: []}
     ];
 
-    let items = JSON.parse(localStorage.getItem('subby_inventory'));
-    if (!items || items.length < 5) {
-        items = fullStock;
-        localStorage.setItem('subby_inventory', JSON.stringify(items));
+    function showGate(id) { 
+        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); 
+        document.getElementById(id).style.display = 'flex'; 
     }
 
-    function saveAll() {
-        localStorage.setItem('subby_inventory', JSON.stringify(items));
-        if (currentUser) localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
+    function handleRegister() {
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        if(!email.includes('@')) return alert("Enter valid email");
+        
+        // Generate a Sharp Recovery Key
+        const key = "SUBBY-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        
+        // Save user to "Global" local storage
+        localStorage.setItem(`user_key_${email}`, key);
+        localStorage.setItem(`data_${email}`, JSON.stringify({ balance: 0, myOrders: [] }));
+        
+        document.getElementById('display-reg-code').innerText = key;
+        document.getElementById('reg-code-area').style.display = 'block';
     }
-
-    function showGate(id) { document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
 
     function handleLogin() {
-        const e = document.getElementById('log-email').value.trim().toLowerCase();
-        const p = document.getElementById('log-pass').value.trim();
-        if(localStorage.getItem(`user_${e}`) === p) {
-            currentUser = e;
-            const d = JSON.parse(localStorage.getItem(`data_${e}`)) || { balance: 0, myOrders: [] };
-            balance = d.balance; myOrders = d.myOrders;
+        const email = document.getElementById('log-email').value.trim().toLowerCase();
+        const key = document.getElementById('log-key').value.trim();
+        
+        if(localStorage.getItem(`user_key_${email}`) === key) {
+            currentUser = email;
+            const userData = JSON.parse(localStorage.getItem(`data_${email}`));
+            balance = userData.balance;
+            myOrders = userData.myOrders;
+            
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             setupCategories(); renderItems(items); updateOrdersUI();
-        } else { alert("Login failed"); }
-    }
-
-    function handleRegister() {
-        const e = document.getElementById('reg-email').value.trim().toLowerCase(), p = document.getElementById('reg-pass').value.trim();
-        if(!e || !p) return;
-        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-        tempUser = { e, p };
-        document.getElementById('display-reg-code').innerText = generatedCode;
-        document.getElementById('reg-code-area').style.display = 'block';
-    }
-
-    function confirmVerify() {
-        if(document.getElementById('verify-input').value.trim() === generatedCode) {
-            localStorage.setItem(`user_${tempUser.e}`, tempUser.p);
-            alert("Success!"); location.reload();
-        }
-    }
-
-    function handleForgot() {
-        const e = document.getElementById('forgot-email').value.trim().toLowerCase();
-        if(localStorage.getItem(`user_${e}`)) {
-            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-            alert("Reset Code: " + generatedCode);
-            let np = prompt("New Password:"); if(np) { localStorage.setItem(`user_${e}`, np); showGate('login-gate'); }
+        } else {
+            alert("Error: Credentials do not match.");
         }
     }
 
     function setupCategories() {
         const cats = ['All', ...new Set(items.map(i => i.c))];
         document.getElementById('cat-bar').innerHTML = cats.map(c => `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`).join('');
-    }
-
-    function filterShop(c, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderItems(c === 'All' ? items : items.filter(i => i.c === c));
     }
 
     function renderItems(data) {
@@ -236,9 +150,13 @@
 
     function buyItem(id) {
         const i = items.find(x => x.id == id);
-        if(balance < i.p) return alert("Low Balance!");
+        if(balance < i.p) return alert("Insufficient Balance!");
         const log = i.logs.shift(); i.s = i.logs.length; balance -= i.p;
-        myOrders.unshift({ n: i.n, l: log }); saveAll();
+        myOrders.unshift({ n: i.n, l: log }); 
+        
+        // Save progress to account
+        localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
+        
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderItems(items); updateOrdersUI();
     }
@@ -247,31 +165,25 @@
         document.getElementById('orders-list').innerHTML = myOrders.map(o => `
             <div class="order-item">
                 <strong style="color:#0070f3;">${o.n}</strong>
-                <p style="font-size:10px; color:#aaa; margin:5px 0; word-break:break-all;">${o.l}</p>
-                <button class="auth-btn" style="padding:6px; font-size:10px;" onclick="navigator.clipboard.writeText('${o.l}').then(()=>alert('Copied'))">Copy</button>
+                <p style="font-size:11px; color:#aaa; margin:5px 0;">${o.l}</p>
             </div>`).join('');
     }
 
-    function startAdminTimer() { setTimeout(() => { if(prompt("PIN")==="1234") { document.getElementById('admin-panel').style.display='block'; updateAdminSelect(); } }, 3000); }
-    function updateAdminSelect() { document.getElementById('restock-item').innerHTML = items.map(i => `<option value="${i.id}">${i.n}</option>`).join(''); loadAdminFields(); }
-    function loadAdminFields() { 
-        const i = items.find(x => x.id == document.getElementById('restock-item').value);
-        if(i) document.getElementById('edit-price').value = i.p;
+    function fundWallet() {
+        const a = prompt("Amount to fund:");
+        if(a) {
+            PaystackPop.setup({
+                key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+                email: currentUser,
+                amount: a * 100,
+                callback: () => {
+                    balance += parseInt(a);
+                    localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
+                    location.reload();
+                }
+            }).openIframe();
+        }
     }
-    function saveAdminChanges() {
-        const i = items.find(x => x.id == document.getElementById('restock-item').value);
-        const l = document.getElementById('log-input').value.trim();
-        if(l) { i.logs = [...i.logs, ...l.split('\n').filter(x => x.length > 3)]; i.s = i.logs.length; }
-        i.p = parseInt(document.getElementById('edit-price').value);
-        saveAll(); renderItems(items); alert("Updated");
-    }
-    function addNewCardType() {
-        const n = document.getElementById('new-name').value, p = parseInt(document.getElementById('new-price').value), c = document.getElementById('new-cat').value;
-        if(n && p && c) { items.push({id:Date.now(), n, p, c, s:0, logs:[]}); saveAll(); setupCategories(); renderItems(items); alert("Added"); }
-    }
-    function exportData() { navigator.clipboard.writeText(JSON.stringify({ inv: items, users: localStorage })).then(() => alert("Backup Copied")); }
-    function importData() { const d = prompt("Paste Backup:"); if(d) { const p = JSON.parse(d); items = p.inv || []; saveAll(); location.reload(); } }
-    function fundWallet() { const a = prompt("Amount:"); if(a) PaystackPop.setup({ key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', email: currentUser, amount: a * 100, callback: () => { balance += parseInt(a); saveAll(); location.reload(); } }).openIframe(); }
 </script>
 </body>
 </html>
