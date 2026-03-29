@@ -3,67 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V69 AUTH & AI</title>
+    <title>SUBBY LOGS | V70 LIVE ADMIN</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: #eee; min-height: 100vh; }
-
-        /* AI ROBOT & CHAT */
-        #ia-bubble { 
-            position: fixed; bottom: 90px; right: 20px; width: 65px; height: 65px; 
-            background: #000 url('https://i.ibb.co/6R5qXhP/space-robot.jpg') no-repeat center center;
-            background-size: cover; border: 2px solid var(--primary); border-radius: 50%; 
-            cursor: pointer; z-index: 9999; animation: pulse 2s infinite; 
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); } }
-        
-        #bot-window { position: fixed; bottom: 170px; right: 20px; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; box-shadow: 0 10px 40px #000; }
-        .bot-header { color: var(--primary); font-weight: 900; margin-bottom: 10px; display: flex; justify-content: space-between; }
-
-        /* AUTH GATES */
         .gate { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid var(--primary); padding: 35px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; }
-        
-        /* UI ELEMENTS */
-        .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; sticky; top: 0; z-index: 1000; }
+        .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
         .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; text-align: center; outline: none; }
         .btn-main { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; }
+        .overlay { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; padding: 20px; overflow-y: auto; }
+        
+        /* BOT */
+        #ia-bubble { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: url('https://i.ibb.co/6R5qXhP/space-robot.jpg') center/cover; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; z-index: 1000; }
+        #bot-window { position: fixed; bottom: 90px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; z-index: 1001; }
     </style>
 </head>
 <body>
 
 <div id="ia-bubble" onclick="toggleBot()"></div>
 <div id="bot-window">
-    <div class="bot-header"><span>SUBBY AI</span><span onclick="toggleBot()" style="cursor:pointer">×</span></div>
-    <div id="bot-content" style="font-size: 13px; line-height: 1.6;">
-        🤖 <strong id="greet-name">Hello!</strong><br><br>
-        Welcome to Subby Logs. To <b>fund your account</b>, click the <span style="color:var(--gold)">+</span> button at the top.<br><br>
-        For any issues, click below to chat with the Admin.
-    </div>
-    <button class="btn-main" style="margin-top:15px; padding:10px; font-size:12px;" onclick="window.open('https://wa.me/2348104565349')">CONTACT ADMIN</button>
+    <p id="bot-text" style="font-size:13px;">🤖 <b>Subby AI:</b> Hello! To fund your wallet, click the <b>+</b> button. To buy, select a log below!</p>
 </div>
 
 <div id="login-gate" class="gate">
     <div class="auth-card">
-        <h2 style="color:var(--primary); margin-bottom:20px;">SIGN IN</h2>
+        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS</h2>
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-        <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
-        <p style="margin-top:15px; font-size:12px; color:#666" onclick="switchGate('reg-gate')">No account? <b>Register</b></p>
-    </div>
-</div>
-
-<div id="reg-gate" class="gate" style="display:none;">
-    <div class="auth-card">
-        <h2 style="color:var(--primary); margin-bottom:20px;">CREATE ACCOUNT</h2>
-        <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
-        <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
-        <button class="btn-main" onclick="handleAuth('reg')">SIGN UP</button>
-        <p style="margin-top:15px; font-size:12px; color:#666" onclick="switchGate('login-gate')">Have an account? <b>Login</b></p>
+        <button class="btn-main" onclick="handleAuth()">ACCESS MARKET</button>
     </div>
 </div>
 
@@ -76,6 +48,30 @@
         </div>
     </div>
     <div id="market" style="padding:15px; display:grid; gap:20px;"></div>
+</div>
+
+<div id="admin-panel" class="overlay">
+    <h2 style="color:var(--gold)">Admin Panel</h2>
+    <hr style="margin:15px 0; opacity:0.2;">
+    
+    <h3>Credit User</h3>
+    <input id="adm-u" class="auth-input" placeholder="User Email">
+    <input id="adm-a" class="auth-input" placeholder="Amount ₦">
+    <button class="btn-main" onclick="admCredit()">Credit Account</button>
+    
+    <hr style="margin:25px 0; opacity:0.2;">
+    
+    <h3>Upload New Log</h3>
+    <select id="log-cat" class="auth-input" style="background:#111">
+        <option value="FACEBOOK">FACEBOOK</option>
+        <option value="GOOGLE_VOICE">GOOGLE VOICE</option>
+    </select>
+    <input id="log-name" class="auth-input" placeholder="Item Name (e.g. USA FB)">
+    <input id="log-price" class="auth-input" placeholder="Price ₦">
+    <textarea id="log-data" class="auth-input" style="height:100px;" placeholder="Log Data (Email:Pass:2FA)"></textarea>
+    <button class="btn-main" style="background:green" onclick="uploadLog()">Post to Market</button>
+    
+    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeAdmin()">Close Admin</button>
 </div>
 
 <script>
@@ -93,64 +89,95 @@
     let currentUser = "";
     let balance = 0;
 
-    function switchGate(id) {
-        document.querySelectorAll('.gate').forEach(g => g.style.display = 'none');
-        document.getElementById(id).style.display = 'flex';
-    }
-
-    function toggleBot() {
-        const win = document.getElementById('bot-window');
-        win.style.display = win.style.display === 'block' ? 'none' : 'block';
-        if(currentUser) document.getElementById('greet-name').innerText = "Hello, " + currentUser.split('_')[0] + "!";
-    }
-
-    function handleAuth(type) {
-        const email = document.getElementById(type === 'login' ? 'log-email' : 'reg-email').value.toLowerCase();
-        const pass = document.getElementById(type === 'login' ? 'log-pass' : 'reg-pass').value;
-        if(!email || !pass) return alert("Fill all fields");
-        
-        const userId = email.replace(/\./g, '_');
-        db.ref('users/' + userId).once('value', snap => {
-            const user = snap.val();
-            if(type === 'reg') {
-                if(user) return alert("User exists");
-                db.ref('users/' + userId).set({ pass: pass, bal: 0, logs: [] });
-                alert("Account Created! Please Login."); switchGate('login-gate');
-            } else {
-                if(user && user.pass === pass) {
-                    currentUser = userId;
-                    startApp();
-                } else alert("Invalid credentials");
-            }
+    function handleAuth() {
+        const e = document.getElementById('log-email').value.toLowerCase();
+        const p = document.getElementById('log-pass').value;
+        if(!e || !p) return alert("Enter credentials");
+        currentUser = e.replace(/\./g, '_');
+        db.ref('users/' + currentUser).once('value', snap => {
+            const u = snap.val();
+            if(!u) db.ref('users/' + currentUser).set({ pass: p, bal: 0 });
+            else if(u.pass !== p) return alert("Wrong password");
+            
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            syncApp();
         });
     }
 
-    function startApp() {
-        document.querySelectorAll('.gate').forEach(g => g.style.display = 'none');
-        document.getElementById('main-app').style.display = 'block';
-        db.ref('users/' + currentUser).on('value', snap => {
-            balance = snap.val().bal || 0;
+    function syncApp() {
+        db.ref('users/' + currentUser + '/bal').on('value', snap => {
+            balance = snap.val() || 0;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
-            renderMarket();
+        });
+        db.ref('market').on('value', snap => {
+            const data = snap.val();
+            const marketDiv = document.getElementById('market');
+            marketDiv.innerHTML = "";
+            if(!data) return marketDiv.innerHTML = "<p>Market is empty</p>";
+            
+            Object.keys(data).forEach(id => {
+                const item = data[id];
+                marketDiv.innerHTML += `
+                    <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid #222;">
+                        <p style="font-size:10px; color:#0f0">● ${item.stock} IN STOCK</p>
+                        <h3>${item.name}</h3>
+                        <h2 style="color:var(--primary);">₦${parseInt(item.price).toLocaleString()}</h2>
+                        <button class="btn-main" onclick="buyItem('${id}', ${item.price})">PURCHASE</button>
+                    </div>`;
+            });
         });
     }
 
-    function renderMarket() {
-        const items = [
-            { n: "Random FB [NEW]", p: 1000, s: 5 },
-            { n: "Premium Google Voice", p: 3500, s: 0 }
-        ];
-        document.getElementById('market').innerHTML = items.map(i => `
-            <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid #222;">
-                <p style="font-size:10px; color:${i.s > 0 ? '#0f0' : '#f00'}">● ${i.s > 0 ? i.s + ' IN STOCK' : 'SOLD OUT'}</p>
-                <h3>${i.n}</h3>
-                <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
-                <button class="btn-main" ${i.s === 0 ? 'style="background:#333" disabled' : ''} onclick="alert('Contact admin to finalize')">${i.s === 0 ? 'OUT OF STOCK' : 'PURCHASE'}</button>
-            </div>
-        `).join('');
+    function uploadLog() {
+        const cat = document.getElementById('log-cat').value;
+        const name = document.getElementById('log-name').value;
+        const price = document.getElementById('log-price').value;
+        const data = document.getElementById('log-data').value;
+        
+        if(!name || !price || !data) return alert("Fill all fields");
+        const id = name.replace(/\s/g, '_').toLowerCase();
+        
+        db.ref('market/' + id).once('value', snap => {
+            const existing = snap.val() || { stock: 0, logs: [] };
+            db.ref('market/' + id).set({
+                name: name,
+                price: price,
+                stock: existing.stock + 1,
+                logs: [...existing.logs, data]
+            });
+            alert("Log uploaded to Market!");
+        });
     }
 
-    function openAdmin() { if(prompt("PIN") === "1710") alert("Admin Access Granted"); }
+    function buyItem(id, price) {
+        if(balance < price) return alert("Insufficient balance!");
+        db.ref('market/' + id).once('value', snap => {
+            const item = snap.val();
+            if(item.stock <= 0) return alert("Sold out!");
+            const myLog = item.logs.shift();
+            db.ref('market/' + id).update({ stock: item.stock - 1, logs: item.logs });
+            db.ref('users/' + currentUser).update({ bal: balance - price });
+            alert("SUCCESS! Your Log: " + myLog);
+        });
+    }
+
+    function admCredit() {
+        const u = document.getElementById('adm-u').value.toLowerCase().replace(/\./g, '_');
+        const a = parseInt(document.getElementById('adm-a').value);
+        db.ref('users/' + u).once('value', snap => {
+            const b = snap.val() ? snap.val().bal : 0;
+            db.ref('users/' + u).update({ bal: b + a });
+            alert("Credited!");
+        });
+    }
+
+    function openAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
+    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+    function toggleBot() { 
+        const b = document.getElementById('bot-window');
+        b.style.display = b.style.display === 'block' ? 'none' : 'block';
+    }
 </script>
 </body>
 </html>
