@@ -3,121 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V55 SHARP</title>
+    <title>SUBBY MARKET | V56 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
+        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: #161b22; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* SHARP AI UI */
-        #ai-bubble { position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), #00d2ff); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; z-index: 4000; box-shadow: 0 5px 20px rgba(0,112,243,0.5); border: 2px solid #fff; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,112,243,0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(0,112,243,0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,112,243,0); } }
-        
-        #ai-window { position: fixed; bottom: 155px; right: 20px; width: 320px; background: #111; border: 1px solid #333; border-radius: 25px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; box-shadow: 0 10px 50px rgba(0,0,0,0.9); }
-        .ai-header { background: var(--primary); padding: 18px; font-weight: 900; font-size: 15px; display: flex; justify-content: space-between; align-items: center; color: white; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        #ai-chat-box { height: 280px; padding: 18px; overflow-y: auto; font-size: 13.5px; display: flex; flex-direction: column; gap: 12px; background: #0a0a0a; scroll-behavior: smooth; }
-        .ai-msg { background: #1e1e1e; padding: 12px 16px; border-radius: 18px; align-self: flex-start; max-width: 85%; line-height: 1.6; border-bottom-left-radius: 4px; color: #fff; border: 1px solid #222; }
-        .user-msg { background: var(--primary); color: #fff; align-self: flex-end; border-radius: 18px; border-bottom-right-radius: 4px; border: none; }
-        .ai-input-area { display: flex; padding: 12px; background: #111; border-top: 1px solid #222; }
-        #ai-text { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 12px; outline: none; font-size: 14px; }
+        /* WISER AI UI */
+        #ai-bubble { position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #0070f3, #00d2ff); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 30px; z-index: 4000; box-shadow: 0 0 20px rgba(0,112,243,0.6); border: 2px solid #fff; cursor: pointer; }
+        #ai-window { position: fixed; bottom: 155px; right: 20px; width: 320px; background: #111; border: 1px solid #333; border-radius: 25px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; box-shadow: 0 10px 50px #000; }
+        .ai-header { background: var(--primary); padding: 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+        #ai-chat-box { height: 280px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0a0a0a; font-size: 13px; }
+        .ai-msg { background: #222; padding: 10px 14px; border-radius: 15px; align-self: flex-start; max-width: 85%; line-height: 1.5; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--primary); align-self: flex-end; border-radius: 15px; border-bottom-right-radius: 2px; }
 
-        /* UI COMPONENTS */
+        /* CORE UI */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #111; border: 1px solid var(--primary); padding: 40px 30px; border-radius: 35px; width: 100%; max-width: 400px; text-align: center; }
-        .auth-input { width: 100%; padding: 18px; background: #000; border: 1px solid #333; border-radius: 18px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; transition: 0.3s; }
-        .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0,112,243,0.3); }
-        .auth-btn { width: 100%; padding: 18px; background: var(--primary); color: #fff; border: none; border-radius: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .auth-card { background: #111; border: 1px solid var(--primary); padding: 35px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
+        .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; }
 
         .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
-        #site-logo { font-weight: 950; color: var(--primary); font-size: 22px; letter-spacing: -1.5px; }
-        .bal-pill { background: #161b22; border: 1px solid var(--gold); padding: 12px 22px; border-radius: 35px; font-weight: 900; color: var(--gold); }
+        #site-logo { font-weight: 900; color: var(--primary); font-size: 20px; }
+        .bal-pill { background: #161b22; border: 1px solid var(--gold); padding: 10px 20px; border-radius: 30px; font-weight: 900; color: var(--gold); }
         
         .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
-        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 20px; padding-bottom: 120px; }
-        .card { background: #161b22; border: 1px solid #333; border-radius: 30px; padding: 30px; transition: 0.3s; }
-        .cat-header { padding: 15px 25px; font-size: 11px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 3px; }
+        .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
+        .card { background: var(--card); border: 1px solid #333; border-radius: 25px; padding: 25px; }
+        .cat-header { padding: 10px 20px; font-size: 12px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 18px; z-index: 2000; }
-        .nav-item { text-align: center; cursor: pointer; color: #666; font-size: 10px; font-weight: 900; }
-        .nav-active { color: var(--primary); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
+        .nav-item { text-align: center; cursor: pointer; color: #666; font-size: 10px; font-weight: 800; }
+        .active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-<div id="ai-bubble" onclick="toggleAI()">🚀</div>
+<div id="ai-bubble" onclick="toggleAI()">👤</div>
 <div id="ai-window">
-    <div class="ai-header"><span>SUBBY MARKET AI</span> <span onclick="toggleAI()" style="cursor:pointer; font-size: 22px;">×</span></div>
+    <div class="ai-header"><span>SUBBY AGENT</span> <span onclick="toggleAI()" style="cursor:pointer;">×</span></div>
     <div id="ai-chat-box"></div>
-    <div class="ai-input-area">
-        <input type="text" id="ai-text" placeholder="Ask about logs or funding...">
-        <button onclick="aiAsk()" style="background:var(--primary); border:none; color:#fff; width:45px; height:45px; margin-left:10px; border-radius:12px;">➤</button>
+    <div class="ai-input-area" style="display:flex; padding:10px; background:#111;">
+        <input type="text" id="ai-text" style="flex:1; background:#000; border:1px solid #333; color:#fff; padding:8px; border-radius:8px;" placeholder="Message AI...">
+        <button onclick="aiAsk()" style="background:var(--primary); color:#fff; border:none; padding:0 12px; margin-left:5px; border-radius:8px;">➤</button>
     </div>
 </div>
 
 <div id="login-gate" class="gate-container">
     <div class="auth-card">
-        <h2 style="color:#fff; margin-bottom:10px;">WELCOME BACK</h2>
-        <p style="color:#555; margin-bottom:25px; font-size:13px;">Login to your dashboard</p>
+        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGIN</h2>
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleLogin()">SECURE LOGIN</button>
-        <p style="color:#777; font-size:12px; margin-top:20px;">No account? <span onclick="showGate('reg-gate')" style="color:var(--primary); font-weight:900; cursor:pointer;">Register</span></p>
+        <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
+        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">New User? Register</p>
     </div>
 </div>
 
 <div id="reg-gate" class="gate-container" style="display:none;">
     <div class="auth-card">
-        <h2 style="color:#fff; margin-bottom:10px;">JOIN US</h2>
-        <p style="color:#555; margin-bottom:25px; font-size:13px;">Create an account in 10 seconds</p>
+        <h2 style="color:var(--primary); margin-bottom:20px;">JOIN US</h2>
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleRegister()">CREATE ACCOUNT</button>
-        <p style="color:#777; font-size:12px; margin-top:20px;">Already a member? <span onclick="showGate('login-gate')" style="color:var(--primary); font-weight:900; cursor:pointer;">Login</span></p>
+        <p onclick="showGate('login-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">Back to Login</p>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
         <div id="site-logo" ondblclick="openAdmin()">SUBBY MARKET</div>
-        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="margin-left:10px; cursor:pointer; color:#fff;">+</span></div>
+        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer; margin-left:5px;">+</span></div>
     </div>
     <div id="market-grid"></div>
     <div class="bottom-nav">
-        <div class="nav-item nav-active" onclick="closeAllOverlays()">
-            <div style="font-size:24px;">🏢</div><div>MARKET</div>
-        </div>
-        <div class="nav-item" onclick="openHistory()">
-            <div style="font-size:24px;">📁</div><div>MY LOGS</div>
-        </div>
-        <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')">
-            <div style="font-size:24px;">☎️</div><div>SUPPORT</div>
-        </div>
+        <div class="nav-item active" onclick="closeAllOverlays()"><div>🛍️</div><div>MARKET</div></div>
+        <div class="nav-item" onclick="openHistory()"><div>📂</div><div>MY LOGS</div></div>
+        <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')"><div>💬</div><div>SUPPORT</div></div>
     </div>
 </div>
 
 <div id="history-overlay" class="overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <h2 style="color:var(--gold);">Purchased Logs</h2>
-        <button style="background:none; border:none; color:#fff; font-size:35px;" onclick="closeAllOverlays()">×</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color:var(--gold);">My Inventory</h2>
+        <button style="background:none; border:none; color:#fff; font-size:30px;" onclick="closeAllOverlays()">×</button>
     </div>
     <div id="history-list"></div>
 </div>
 
 <div id="admin-panel" class="overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <h2 style="color:var(--primary);">Admin Controls</h2>
-        <button style="background:none; border:none; color:#fff; font-size:35px;" onclick="closeAllOverlays()">×</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color:var(--primary);">Admin Panel</h2>
+        <button style="background:none; border:none; color:#fff; font-size:30px;" onclick="closeAllOverlays()">×</button>
     </div>
-    <div style="background:#111; padding:25px; border-radius:25px; margin-bottom:25px; border:1px solid #333;">
-        <h3 style="margin-bottom:20px; font-size:14px; color:var(--primary);">UPLOAD NEW STOCK</h3>
+    
+    <div style="background:#111; padding:20px; border-radius:20px; margin-bottom:20px; border:1px solid #333;">
+        <h3 style="margin-bottom:15px; color:var(--primary); font-size:14px;">UPLOAD LOGS</h3>
         <input id="new-cat" class="auth-input" placeholder="Category (e.g. FACEBOOK)">
-        <input id="new-name" class="auth-input" placeholder="Package Name">
+        <input id="new-name" class="auth-input" placeholder="Name (e.g. 5k Followers)">
         <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
-        <textarea id="new-logs" class="auth-input" style="height:120px; padding:15px;" placeholder="Logs (user:pass - one per line)"></textarea>
-        <button class="auth-btn" onclick="addNewCard()">CONFIRM & UPLOAD</button>
+        <textarea id="new-logs" class="auth-input" style="height:100px; text-align:left;" placeholder="Log details (one per line)"></textarea>
+        <button class="auth-btn" onclick="addNewCard()">CONFIRM UPLOAD</button>
     </div>
-    <div id="admin-list-container"></div>
+
+    <div style="background:#111; padding:20px; border-radius:20px; border:1px solid var(--gold);">
+        <h3 style="margin-bottom:15px; color:var(--gold); font-size:14px;">CREDIT USER</h3>
+        <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email">
+        <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
+        <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
+    </div>
+    
+    <div id="admin-list-container" style="margin-top:20px;"></div>
 </div>
 
 <script>
@@ -125,37 +121,40 @@
     let balance = 0;
     let items = JSON.parse(localStorage.getItem('market_items')) || [];
 
-    // FIXED UPLOAD ENGINE
+    // AGGRESSIVE UPLOAD ENGINE
     function addNewCard() {
-        const c = document.getElementById('new-cat').value.trim();
+        const c = document.getElementById('new-cat').value.trim().toUpperCase();
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
-        const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
+        const lText = document.getElementById('new-logs').value.trim();
+        const l = lText.split('\n').filter(x => x.trim() !== "");
         
-        if(!c || !n || !p || l.length === 0) return alert("All fields must be filled!");
+        if(!c || !n || !p || l.length === 0) return alert("Fill everything!");
         
-        items.push({id: Date.now(), c:c.toUpperCase(), n:n, p:p, data:l});
+        const newItem = { id: Date.now(), c: c, n: n, p: p, data: l };
+        items.push(newItem);
+        
+        // FORCE SAVE AND SYNC
         localStorage.setItem('market_items', JSON.stringify(items));
         
-        // CLEAR FORM
         document.getElementById('new-cat').value = '';
         document.getElementById('new-name').value = '';
         document.getElementById('new-price').value = '';
         document.getElementById('new-logs').value = '';
         
-        renderMarket(); 
+        renderMarket();
         loadAdminList();
-        alert("STOCK UPLOADED SUCCESSFULLY!");
+        alert("UPLOADED! The market has been updated.");
     }
 
-    // SHARP AI LOGIC
+    // WISER AI LOGIC
     function toggleAI() {
         const win = document.getElementById('ai-window');
         win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         if(win.style.display === 'flex' && document.getElementById('ai-chat-box').innerHTML === "") {
             const h = new Date().getHours();
             let g = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-            addAIMsg(`${g}, **${currentUser}**! How can I assist you with your logs today?`);
+            addAIMsg(`${g}, **${currentUser}**. I'm your Subby Market assistant. How can I help you today?`);
         }
     }
 
@@ -167,30 +166,27 @@
 
     function aiAsk() {
         const input = document.getElementById('ai-text');
-        const box = document.getElementById('ai-chat-box');
         const val = input.value.toLowerCase().trim();
         if(!val) return;
-        box.innerHTML += `<div class="ai-msg user-msg">${input.value}</div>`;
+        document.getElementById('ai-chat-box').innerHTML += `<div class="ai-msg user-msg">${input.value}</div>`;
         input.value = "";
 
         setTimeout(() => {
-            if(val.includes("thank") || val.includes("ok")) {
-                addAIMsg("You are very welcome! Thanks for choosing **Subby Market** for your high-quality logs. Anything else?");
-            } else if(val.includes("how are you")) {
-                addAIMsg("I'm doing great, **" + currentUser + "**! Just here to make your experience on Subby Market the best. What can I help you find?");
-            } else if(val.includes("contact") || val.includes("admin")) {
-                addAIMsg("The boss is available! You can contact the **Admin** on WhatsApp at **+2348104565349** or use the Support button.");
-            } else if(val.includes("log") || val.includes("upload")) {
-                addAIMsg("We have the best logs in the market! If you've purchased one, just check the **MY LOGS** tab at the bottom.");
+            if(val.includes("thank")) {
+                addAIMsg("You're welcome! We value your business here at **Subby Market**. Let me know if you need more logs.");
+            } else if(val.includes("how are you") || val.includes("how far")) {
+                addAIMsg("I'm sharp and ready to serve! How are you doing today, **" + currentUser + "**?");
+            } else if(val.includes("admin") || val.includes("contact")) {
+                addAIMsg("You can reach the CEO on WhatsApp at **+2348104565349**. He's always ready to help.");
             } else if(val.includes("fund") || val.includes("deposit")) {
-                addAIMsg("To fund your wallet, click the **+** button next to your balance. We use Paystack for instant funding.");
+                addAIMsg("Easy! Just click the **+** icon next to your balance to fund via Paystack Transfer or Card.");
             } else {
-                addAIMsg("I'm here to help with your account, logs, and funding. Let me know what you need!");
+                addAIMsg("I'm here for you! I can help with log locations, wallet funding, or connecting you with the Admin.");
             }
-        }, 600);
+        }, 700);
     }
 
-    // SITE CORE
+    // SYSTEM CORE
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
         document.getElementById(id).style.display = 'flex';
@@ -199,9 +195,9 @@
     function handleRegister() {
         const e = document.getElementById('reg-email').value.trim().toLowerCase();
         const p = document.getElementById('reg-pass').value;
-        if(!e || !p) return alert("Fill all fields!");
+        if(!e || !p) return alert("Fill all fields");
         localStorage.setItem(`user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Success! Now Login."); showGate('login-gate');
+        alert("Success! Please Login."); showGate('login-gate');
     }
 
     function handleLogin() {
@@ -215,42 +211,42 @@
             document.getElementById('main-app').style.display = 'block';
             document.getElementById('ai-bubble').style.display = 'flex';
             renderMarket();
-        } else alert("Error: Check your details!");
+        } else alert("Wrong email or password!");
     }
 
     function renderMarket() {
         const grid = document.getElementById('market-grid');
         const cats = [...new Set(items.map(i => i.c))];
-        let h = "";
+        let html = "";
         cats.forEach(c => {
-            h += `<div class="cat-header">${c}</div><div class="grid">`;
+            html += `<div class="cat-header">${c}</div><div class="grid">`;
             items.filter(i => i.c === c).forEach(i => {
-                const s = i.data.length;
-                h += `<div class="card">
-                    <span style="font-size:10px; font-weight:900; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' STOCK LEFT':'OUT OF STOCK'}</span>
-                    <h3 style="margin:10px 0; color:#fff;">${i.n}</h3>
-                    <h2 style="color:var(--primary); margin-bottom:20px;">₦${i.p.toLocaleString()}</h2>
-                    <button class="auth-btn" ${s==0?'disabled style="background:#222"':''} onclick="buyItem(${i.id})">BUY LOG</button>
+                const stock = i.data.length;
+                html += `<div class="card">
+                    <span style="font-size:10px; font-weight:900; color:${stock>0?'#0f0':'#f00'}">● ${stock>0?stock+' IN STOCK':'SOLD OUT'}</span>
+                    <h3 style="margin:10px 0;">${i.n}</h3>
+                    <h2 style="color:var(--primary); margin-bottom:15px;">₦${i.p.toLocaleString()}</h2>
+                    <button class="auth-btn" ${stock==0?'disabled style="background:#222"':''} onclick="buyItem(${i.id})">BUY NOW</button>
                 </div>`;
             });
-            h += `</div>`;
+            html += `</div>`;
         });
-        grid.innerHTML = h || `<div style="text-align:center; padding:100px 20px; color:#444;"><h3>No logs uploaded yet.</h3></div>`;
+        grid.innerHTML = html || `<div style="text-align:center; padding:100px 20px;"><h3>Market is Empty</h3></div>`;
     }
 
     function buyItem(id) {
         let itm = items.find(x => x.id === id);
-        if(balance < itm.p) return alert("Insufficient funds!");
-        const log = itm.data.shift();
+        if(balance < itm.p) return alert("Insufficient Balance!");
+        const purchasedLog = itm.data.shift();
         balance -= itm.p;
         let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
         u.bal = balance;
-        u.history.push({n: itm.n, log: log, d: new Date().toLocaleString()});
+        u.history.push({n: itm.n, log: purchasedLog, d: new Date().toLocaleString()});
         localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
         localStorage.setItem('market_items', JSON.stringify(items));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderMarket();
-        alert("Log purchased! Check 'MY LOGS'.");
+        alert("Purchase successful! View in 'MY LOGS'.");
     }
 
     function openHistory() {
@@ -259,14 +255,14 @@
         document.getElementById('history-overlay').style.display = 'block';
         list.innerHTML = u.history.length ? u.history.map(h => `
             <div style="background:#111; padding:20px; border-radius:20px; margin-bottom:15px; border:1px solid #333;">
-                <p style="font-size:10px; color:#666;">${h.d}</p>
+                <p style="font-size:10px; color:#555;">${h.d}</p>
                 <h4 style="color:var(--gold); margin:5px 0;">${h.n}</h4>
-                <div style="background:#000; padding:12px; border-radius:10px; font-size:12px; border:1px solid #222; overflow-x:auto;">${h.log}</div>
-            </div>`).reverse().join('') : `<div style="text-align:center; padding-top:50px;">No logs yet.</div>`;
+                <div style="background:#000; padding:12px; border-radius:10px; font-size:12px; border:1px dashed #444;">${h.log}</div>
+            </div>`).reverse().join('') : `<p style="text-align:center; margin-top:50px;">No history.</p>`;
     }
 
     function openAdmin() {
-        if(prompt("ADMIN PIN:") === '1234567890') {
+        if(prompt("PASS:") === '1234567890') {
             document.getElementById('admin-panel').style.display = 'block';
             loadAdminList();
         }
@@ -274,23 +270,33 @@
 
     function loadAdminList() {
         document.getElementById('admin-list-container').innerHTML = items.map(i => `
-            <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:12px; border:1px solid #222;">
-                <p style="font-weight:bold;">${i.n} (₦${i.p}) - ${i.data.length} left</p>
-                <button onclick="deleteCard(${i.id})" style="background:#ff4444; color:#fff; border:none; padding:8px; border-radius:8px; margin-top:10px; font-size:10px; font-weight:900;">DELETE</button>
+            <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #333;">
+                <p><b>${i.n}</b> (₦${i.p}) - ${i.data.length} Left</p>
+                <button onclick="deleteCard(${i.id})" style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:5px; margin-top:10px; font-size:10px;">DELETE</button>
             </div>`).join('');
     }
 
     function deleteCard(id) {
-        if(confirm("Delete?")) {
-            items = items.filter(x => x.id !== id);
-            localStorage.setItem('market_items', JSON.stringify(items));
-            loadAdminList(); renderMarket();
-        }
+        items = items.filter(x => x.id !== id);
+        localStorage.setItem('market_items', JSON.stringify(items));
+        loadAdminList(); renderMarket();
+    }
+
+    function admCredit() {
+        const e = document.getElementById('adm-user').value.toLowerCase().trim();
+        const a = parseInt(document.getElementById('adm-amt').value);
+        let u = JSON.parse(localStorage.getItem(`user_${e}`));
+        if(u) {
+            u.bal += a;
+            localStorage.setItem(`user_${e}`, JSON.stringify(u));
+            alert("Credited Successful!");
+            document.getElementById('adm-amt').value = "";
+        } else alert("User not found!");
     }
 
     function fundWallet() {
-        const a = prompt("Amount to deposit (₦):");
-        if(!a || isNaN(a)) return;
+        const a = prompt("Amount ₦:");
+        if(!a) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: currentUser, amount: a * 100, currency: 'NGN',
@@ -299,7 +305,7 @@
                 let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
                 u.bal = balance; localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
                 document.getElementById('bal-val').innerText = balance.toLocaleString();
-                alert("WALLET UPDATED!");
+                alert("Funded!");
             }
         }).openIframe();
     }
