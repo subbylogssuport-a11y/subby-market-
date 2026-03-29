@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V80 ELITE</title>
+    <title>SUBBY LOGS | V81 ELITE FIXED</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -37,7 +37,6 @@
         <input type="password" id="pass" placeholder="Password">
         <button class="btn" onclick="handleAuth()" id="abtn">SIGN IN</button>
         <p onclick="toggleAuth()" style="color:var(--gold); font-size:12px; margin-top:15px; cursor:pointer;">New? Create Account</p>
-        <p onclick="forgotPass()" style="color:#666; font-size:11px; margin-top:10px; cursor:pointer;">Forgot Password?</p>
     </div>
 </div>
 
@@ -46,7 +45,7 @@
         <h2 style="color:var(--gold)">ADMIN PANEL</h2>
         <div style="border: 1px solid #333; padding: 10px; border-radius: 15px; margin-bottom: 15px;">
             <p style="font-size: 12px; color: var(--primary);">SEND MONEY TO USER</p>
-            <input id="adm-mail" placeholder="User Gmail">
+            <input id="adm-mail" placeholder="User Gmail (with dots)">
             <input id="adm-amt" placeholder="Amount ₦" type="number">
             <button class="btn" onclick="adminSendMoney()">CONFIRM TRANSFER</button>
         </div>
@@ -97,11 +96,11 @@
         <div id="chat-logs"></div>
         <div id="typing-indicator" class="typing">Subby AI is typing...</div>
         <div style="display:flex; gap:5px; flex-direction:column;">
-            <input type="text" id="bot-in" placeholder="Ask about wallet or support..." style="height:35px; margin:0; font-size:12px;">
+            <input type="text" id="bot-in" placeholder="Ask something..." style="height:35px; margin:0; font-size:12px;">
             <button class="btn" style="padding:8px; margin:0; font-size:12px;" onclick="askAI()">SEND</button>
         </div>
     </div>
-    <div onclick="toggleBot()" style="width:55px; height:55px; background:#111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border:2px solid var(--primary); border-radius:50%; box-shadow:0 0 15px rgba(0,112,243,0.4);"></div>
+    <div onclick="toggleBot()" style="width:55px; height:55px; background:#111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border:2px solid var(--primary); border-radius:50%; box-shadow:0 0 15px rgba(0,112,243,0.4); cursor:pointer;"></div>
 </div>
 
 <script>
@@ -136,12 +135,6 @@
         } catch(err) { alert(err.message); }
     }
 
-    function forgotPass() {
-        const e = document.getElementById('email').value;
-        if(!e) return alert("Enter email first");
-        auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent!"));
-    }
-
     auth.onAuthStateChanged(user => {
         if(user) {
             document.getElementById('auth-gate').style.display='none';
@@ -158,7 +151,7 @@
         db.ref('users/'+uid+'/myLogs').on('value', s => {
             const logs = s.val(); let h = "";
             for(let k in logs) h = `<div style="background:#000; border:1px solid var(--gold); padding:15px; border-radius:15px; margin-top:10px;"><p style="font-size:10px; color:var(--gold)">${logs[k].date}</p><p><b>${logs[k].name}</b></p><pre style="color:#0f0; font-size:11px; margin-top:5px; white-space:pre-wrap;">${logs[k].details}</pre></div>` + h;
-            document.getElementById('my-logs-list').innerHTML = h || "No logs purchased.";
+            document.getElementById('my-logs-list').innerHTML = h || "No logs yet.";
         });
         const name = auth.currentUser.email.split('@')[0];
         document.getElementById('chat-logs').innerHTML = `<div class="msg-ai">🤖 Hello ${name}! How can I help you? I can help you fund your wallet or contact support.</div>`;
@@ -189,13 +182,13 @@
         if(!item.data || item.data.length < qty) return alert("Out of stock!");
         db.ref('users/'+uid+'/bal').once('value', async s => {
             const bal = s.val() || 0;
-            if(bal < cost) return alert("Low balance! Top up your account.");
-            if(confirm(`Buy ${qty} for ₦${cost}?`)) {
+            if(bal < cost) return alert("Low balance!");
+            if(confirm(`Buy for ₦${cost}?`)) {
                 const bought = item.data.splice(0, qty);
                 await db.ref('market/'+k).update({ data: item.data });
                 await db.ref('users/'+uid).update({ bal: bal - cost });
                 await db.ref('users/'+uid+'/myLogs').push({ name: item.name, details: bought.join('\n---\n'), date: new Date().toLocaleString() });
-                alert("Bought! Check MY LOGS.");
+                alert("Success!");
             }
         });
     }
@@ -207,33 +200,29 @@
         document.getElementById('bot-in').value = "";
         logs.scrollTop = logs.scrollHeight;
         typing.style.display = "block";
-        
         setTimeout(() => {
             typing.style.display = "none";
             const low = q.toLowerCase();
-            let r = "I'm not sure about that. Try asking to 'top up' or 'contact support'!";
-            
-            if(low.includes("fund") || low.includes("top up") || low.includes("add money") || low.includes("recharge")) {
-                r = "Sure! I'm opening the payment gateway for you right now...";
-                setTimeout(() => pay(), 1000); // Smart action: Opens Payment
-            } else if(low.includes("support") || low.includes("whatsapp") || low.includes("admin") || low.includes("message")) {
+            let r = "I'm not sure. Try asking to 'top up' or 'contact support'!";
+            if(low.includes("fund") || low.includes("top up") || low.includes("money")) {
+                r = "Opening payment gateway..."; setTimeout(() => pay(), 1000);
+            } else if(low.includes("support") || low.includes("whatsapp") || low.includes("admin")) {
                 r = `Click here: <span class="support-link" onclick="window.open('https://wa.me/2347048141378')">WhatsApp Admin</span> or <span class="support-link" onclick="window.open('mailto:subbylogssuport@gmail.com')">Email Me</span>.`;
-            } else if(low.includes("how are you")) {
-                r = "I'm functioning perfectly and ready to help you trade logs!";
             }
-            
             logs.innerHTML += `<div class="msg-ai">🤖 <b>AI:</b> ${r}</div>`;
             logs.scrollTop = logs.scrollHeight;
         }, 1500);
     }
 
     function adminSendMoney() {
-        const email = document.getElementById('adm-mail').value, amount = parseInt(document.getElementById('adm-amt').value);
-        if(!email || !amount) return alert("Fill all info");
-        const key = email.replace(/\./g,'_');
-        db.ref('users/'+key).once('value', s => {
-            if(!s.exists()) return alert("User not found!");
-            db.ref('users/'+key).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Money Sent!"));
+        const emailInput = document.getElementById('adm-mail').value;
+        const amount = parseInt(document.getElementById('adm-amt').value);
+        if(!emailInput || !amount) return alert("Fill all fields!");
+        // The fix: converting dots to underscores so database finds the user
+        const userKey = emailInput.replace(/\./g,'_');
+        db.ref('users/' + userKey).once('value', s => {
+            if(!s.exists()) return alert("User " + emailInput + " not found!");
+            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Sent ₦" + amount + " to " + emailInput));
         });
     }
 
