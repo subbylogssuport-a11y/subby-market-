@@ -1,3 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUBBY LOGS | V62</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
+
+        /* iA BOT ICON - FIXED LAYER */
+        #ia-bubble { position: fixed; bottom: 90px; right: 20px; width: 65px; height: 65px; background: #000; border: 3px solid #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9999; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .icon-container { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #0070f3, #000); border-radius: 50%; pointer-events: none; }
+
+        /* APP UI */
+        .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: #111; border: 1px solid var(--primary); padding: 40px 30px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; text-align: center; }
+        .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        #site-logo { font-weight: 900; color: var(--primary); font-size: 20px; }
+        .bal-pill { background: #000; border: 1px solid var(--gold); padding: 10px 20px; border-radius: 30px; font-weight: 900; color: var(--gold); }
+        .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
+        .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
+        .cat-header { padding: 10px 20px; font-size: 12px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
+        .nav-item { text-align: center; cursor: pointer; color: #666; font-size: 10px; font-weight: 800; }
+        .active { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div id="ia-bubble" onclick="toggleIA()">
+    <div class="icon-container">🤖</div>
+</div>
+
+<div id="login-gate" class="gate-container">
+    <div class="auth-card">
+        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS</h2>
+        <input type="email" id="log-email" class="auth-input" placeholder="Email">
+        <input type="password" id="log-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn" onclick="handleLogin()">LOGIN</button>
+        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">Create Account</p>
+    </div>
+</div>
+
+<div id="reg-gate" class="gate-container" style="display:none;">
+    <div class="auth-card">
+        <h2 style="color:var(--primary); margin-bottom:20px;">REGISTER</h2>
+        <input type="email" id="reg-email" class="auth-input" placeholder="Email">
+        <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
+        <p onclick="showGate('login-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">Back to Login</p>
+    </div>
+</div>
+
+<div id="main-app" style="display:none;">
+    <div class="navbar">
+        <div id="site-logo" ondblclick="openAdmin()">SUBBY LOGS</div>
+        <div class="bal-pill">₦<span id="bal-val">0</span></div>
+    </div>
+    <div id="market-grid"></div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="closeAllOverlays()"><div>🛍️</div><div>MARKET</div></div>
+        <div class="nav-item" onclick="openHistory()"><div>📦</div><div>MY LOGS</div></div>
+        <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')"><div>💬</div><div>SUPPORT</div></div>
+    </div>
+</div>
+
+<div id="history-overlay" class="overlay">
+    <h2 style="color:var(--gold); margin-bottom:20px;">My Inventory</h2>
+    <div id="history-list"></div>
+    <button class="auth-btn" style="background:#222; margin-top:10px;" onclick="closeAllOverlays()">BACK</button>
+</div>
+
+<div id="admin-panel" class="overlay">
+    <h2 style="color:var(--primary); margin-bottom:20px;">Admin Controls</h2>
+    <input id="new-cat" class="auth-input" placeholder="Category (e.g. FACEBOOK)">
+    <input id="new-name" class="auth-input" placeholder="Package Name">
+    <input id="new-price" class="auth-input" placeholder="Price ₦">
+    <textarea id="new-logs" class="auth-input" style="height:100px; text-align:left;" placeholder="Logs (user:pass - one per line)"></textarea>
+    <button class="auth-btn" onclick="addNewCard()">CONFIRM & UPLOAD</button>
+    <hr style="margin:20px 0; border:0.5px solid #333;">
+    <input id="adm-user" class="auth-input" placeholder="User Email">
+    <input id="adm-amt" class="auth-input" placeholder="Amount ₦">
+    <button class="auth-btn" onclick="admCredit()">CREDIT USER</button>
+    <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="closeAllOverlays()">EXIT</button>
+</div>
+
 <script>
     let currentUser = null;
     let balance = 0;
@@ -13,69 +105,104 @@
         }
     ];
 
-    // --- 2. LOCAL STOCK (ONLY YOU SEE WHAT YOU UPLOAD VIA ADMIN) ---
+    // --- 2. LOCAL STOCK (UPLOADED VIA ADMIN) ---
     let localItems = JSON.parse(localStorage.getItem('subby_market_v2')) || [];
-    
-    // Combine both for the display
     let allItems = [...globalStock, ...localItems];
 
-    // ... (Keep toggleIA and handleLogin functions) ...
+    function showGate(id) {
+        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function handleRegister() {
+        const e = document.getElementById('reg-email').value.toLowerCase();
+        const p = document.getElementById('reg-pass').value;
+        if(!e || !p) return alert("Fill all fields");
+        localStorage.setItem(`subby_user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
+        alert("Success! Now login."); showGate('login-gate');
+    }
+
+    function handleLogin() {
+        const e = document.getElementById('log-email').value.toLowerCase();
+        const p = document.getElementById('log-pass').value;
+        const u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
+        if(u && u.pass === p) {
+            currentUser = e; balance = u.bal;
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            renderMarket();
+        } else alert("Invalid Login");
+    }
 
     function renderMarket() {
         const grid = document.getElementById('market-grid');
-        allItems = [...globalStock, ...localItems]; // Refresh the list
+        allItems = [...globalStock, ...localItems];
         let h = "";
         const cats = [...new Set(allItems.map(i => i.c))];
-        
         cats.forEach(c => {
             h += `<div class="cat-header">${c}</div><div class="grid">`;
             allItems.filter(i => i.c === c).forEach(i => {
                 const s = i.data.length;
                 h += `<div class="card">
-                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD'}</span>
+                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD OUT'}</span>
                     <h3>${i.n}</h3>
                     <h2 style="color:var(--primary);">₦${i.p.toLocaleString()}</h2>
-                    <button class="auth-btn" ${s==0?'disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
+                    <button class="auth-btn" ${s==0?'style="background:#333" disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
                 </div>`;
             });
             h += `</div>`;
         });
-        grid.innerHTML = h || `<div style="text-align:center; padding:100px 0;">No Stock</div>`;
+        grid.innerHTML = h || `<div style="text-align:center; padding:100px 0;">No Stock Available</div>`;
     }
 
-    // ADMIN PANEL RESTORED
+    function buyItem(id) {
+        let itm = allItems.find(x => x.id === id);
+        if(balance < itm.p) return alert("Insufficient balance. Contact support to fund.");
+        const log = itm.data.shift();
+        balance -= itm.p;
+        let u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
+        u.bal = balance; u.history.push({n: itm.n, log: log, d: new Date().toLocaleString()});
+        localStorage.setItem(`subby_user_${currentUser}`, JSON.stringify(u));
+        localStorage.setItem('subby_market_v2', JSON.stringify(localItems));
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        renderMarket(); alert("Purchase successful! View in MY LOGS.");
+    }
+
     function addNewCard() {
         const c = document.getElementById('new-cat').value.trim().toUpperCase();
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
-        
-        if(!c || !n || !p || l.length === 0) return alert("Fill all fields!");
-
+        if(!c || !n || !p || l.length === 0) return alert("Fill all fields correctly!");
         const newItem = { id: Date.now(), c: c, n: n, p: p, data: l };
         localItems.push(newItem);
         localStorage.setItem('subby_market_v2', JSON.stringify(localItems));
-        
         document.getElementById('new-logs').value = "";
-        alert("UPLOADED TO YOUR DEVICE!");
+        alert("STOCK UPLOADED TO THIS DEVICE!");
         renderMarket();
-        loadAdminList();
     }
 
-    function deleteCard(id) {
-        localItems = localItems.filter(x => x.id !== id);
-        localStorage.setItem('subby_market_v2', JSON.stringify(localItems));
-        renderMarket();
-        loadAdminList();
+    function openHistory() {
+        const u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
+        document.getElementById('history-overlay').style.display = 'block';
+        document.getElementById('history-list').innerHTML = u.history.length ? u.history.map(h => `
+            <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid var(--gold);">
+                <p style="font-size:10px; color:#666;">${h.d}</p>
+                <h4 style="color:var(--gold)">${h.n}</h4>
+                <code style="display:block; background:#000; padding:10px; margin-top:5px; border-radius:5px; word-break:break-all;">${h.log}</code>
+            </div>`).reverse().join('') : "<p style='text-align:center;'>No purchases yet.</p>";
     }
-    
-    function loadAdminList() {
-        const container = document.getElementById('admin-list-container');
-        container.innerHTML = localItems.map(i => `
-            <div style="padding:10px; background:#111; margin-bottom:5px; border-radius:10px; display:flex; justify-content:space-between;">
-                <span>${i.n} (${i.data.length})</span>
-                <button onclick="deleteCard(${i.id})" style="color:red; background:none; border:none;">X</button>
-            </div>
-        `).join('');
+
+    function openAdmin() { if(prompt("ADMIN ACCESS PIN") === "1234567890") document.getElementById('admin-panel').style.display = 'block'; }
+    function admCredit() {
+        const e = document.getElementById('adm-user').value.toLowerCase();
+        const a = parseInt(document.getElementById('adm-amt').value);
+        let u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
+        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("User credited successfully!"); }
+        else alert("User not found.");
     }
+    function closeAllOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
 </script>
+</body>
+</html>
