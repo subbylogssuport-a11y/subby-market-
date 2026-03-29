@@ -3,56 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V71 AI & PAYSTACK</title>
+    <title>SUBBY LOGS | V72 FINAL</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #eee; min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
+
+        /* NAVBAR & UI */
         .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
         .topup-btn { background: var(--gold); color: #000; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
-        /* INTERACTIVE AI BOT */
-        #ia-bubble { position: fixed; bottom: 20px; right: 20px; width: 65px; height: 65px; background: url('https://i.ibb.co/6R5qXhP/space-robot.jpg') center/cover; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; z-index: 9999; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); } }
-        #bot-chat { position: fixed; bottom: 100px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; box-shadow: 0 10px 40px #000; }
-        .bot-btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; margin-top: 10px; cursor: pointer; font-size: 12px; }
 
-        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; text-align: center; outline: none; }
+        /* BOT */
+        #ia-bubble { position: fixed; bottom: 80px; right: 20px; width: 65px; height: 65px; background: url('https://i.ibb.co/6R5qXhP/space-robot.jpg') center/cover; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; z-index: 9999; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); } }
+        #bot-chat { position: fixed; bottom: 160px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; }
+
+        /* COMPONENTS */
+        .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
         .btn-main { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; }
-        .gate { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; text-align: center; outline: none; }
+        
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
+        .tab-item { text-align: center; font-size: 10px; color: #555; cursor: pointer; }
+        .tab-active { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div id="ia-bubble" onclick="toggleBot()"></div>
 <div id="bot-chat">
-    <div id="bot-msg" style="font-size: 13px; line-height: 1.6;">🤖 <b>Subby AI:</b> Hello! I'm your assistant. How can I help you today?</div>
-    <button class="bot-btn" onclick="botReply('fund')">How to fund my account?</button>
-    <button class="bot-btn" onclick="botReply('buy')">How to buy logs?</button>
-    <button class="bot-btn" style="background:#25D366" onclick="window.open('https://wa.me/2348104565349')">Chat with Admin</button>
+    <div id="bot-msg" style="font-size: 13px; line-height: 1.6;">🤖 <b>Subby AI:</b> Hello! Click <b>+</b> to fund via Paystack. Your logs will appear in <b>MY INVENTORY</b> after purchase.</div>
+    <button class="btn-main" style="margin-top:10px; padding:10px; font-size:11px;" onclick="window.open('https://wa.me/2348104565349')">WHATSAPP ADMIN</button>
 </div>
 
-<div id="login-gate" class="gate">
+<div id="login-gate" style="position:fixed; inset:0; background:#000; z-index:6000; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#111; border:1px solid var(--primary); padding:35px; border-radius:30px; width:100%; max-width:400px; text-align:center;">
         <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS</h2>
-        <input type="email" id="user-email" class="auth-input" placeholder="Email Address">
-        <button class="btn-main" onclick="handleLogin()">ENTER MARKET</button>
+        <input type="email" id="u-email" class="auth-input" placeholder="Email Address">
+        <button class="btn-main" onclick="handleLogin()">ENTER</button>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
-        <div style="font-weight:900; color:var(--primary);">SUBBY LOGS</div>
+        <div style="font-weight:900; color:var(--primary);" ondblclick="openAdmin()">SUBBY LOGS</div>
         <div style="display:flex; align-items:center; gap:10px;">
             <div class="bal-pill">₦<span id="bal-val">0</span></div>
-            <button class="topup-btn" onclick="payWithPaystack()">+</button>
+            <button class="topup-btn" onclick="startPaystack()">+</button>
         </div>
     </div>
-    <div id="market" style="padding:15px;"></div>
+    <div id="market-view" class="grid"></div>
+</div>
+
+<div id="history-view" class="overlay">
+    <h2 style="color:var(--gold); margin-bottom:20px;">My Inventory & History</h2>
+    <div id="history-content"></div>
+    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">CLOSE</button>
+</div>
+
+<div id="admin-panel" class="overlay">
+    <h2 style="color:var(--primary)">Admin</h2>
+    <input id="adm-user" class="auth-input" placeholder="User Email">
+    <input id="adm-amt" class="auth-input" placeholder="Amount ₦">
+    <button class="btn-main" onclick="admCredit()">CREDIT USER</button>
+    <button class="btn-main" style="background:#222; margin-top:20px;" onclick="closeOverlays()">EXIT</button>
+</div>
+
+<div class="tab-bar">
+    <div class="tab-item tab-active" onclick="showMarket()"><div>🛍️</div><div>MARKET</div></div>
+    <div class="tab-item" onclick="showHistory()"><div>📜</div><div>HISTORY</div></div>
 </div>
 
 <script>
@@ -71,44 +96,88 @@
     let balance = 0;
 
     function handleLogin() {
-        const e = document.getElementById('user-email').value.toLowerCase();
+        const e = document.getElementById('u-email').value.toLowerCase();
         if(!e || !e.includes('@')) return alert("Enter valid email");
         currentUser = e.replace(/\./g, '_');
         document.getElementById('login-gate').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
+        
         db.ref('users/' + currentUser).on('value', snap => {
-            balance = snap.val() ? snap.val().bal : 0;
+            const data = snap.val() || { bal: 0, history: [] };
+            balance = data.bal;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
+            renderMarket();
         });
     }
 
-    function toggleBot() {
-        const chat = document.getElementById('bot-chat');
-        chat.style.display = chat.style.display === 'block' ? 'none' : 'block';
+    function renderMarket() {
+        const items = [
+            { id: 'fb_new', n: "Random FB [NEW]", p: 1000, s: 12 },
+            { id: 'gv_usa', n: "Google Voice [USA]", p: 3500, s: 0 }
+        ];
+        document.getElementById('market-view').innerHTML = items.map(i => `
+            <div class="card">
+                <p style="font-size:10px; color:${i.s>0?'#0f0':'#f00'}">● ${i.s>0?i.s+' IN STOCK':'SOLD OUT'}</p>
+                <h3>${i.n}</h3>
+                <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
+                <button class="btn-main" ${i.s==0?'style="background:#333" disabled':''} onclick="buyLog('${i.n}', ${i.p})">PURCHASE</button>
+            </div>
+        `).join('');
     }
 
-    function botReply(type) {
-        const msg = document.getElementById('bot-msg');
-        if(type === 'fund') msg.innerHTML = "🤖 <b>Subby AI:</b> To fund your account, click the <b style='color:var(--gold)'>+</b> button at the top and pay via Paystack.";
-        if(type === 'buy') msg.innerHTML = "🤖 <b>Subby AI:</b> Select a log you like and click <b>PURCHASE</b>. Your logs will appear in your history.";
-    }
-
-    function payWithPaystack() {
-        const amount = prompt("Enter amount to fund (₦):");
-        if(!amount || isNaN(amount)) return;
+    function startPaystack() {
+        const amt = prompt("Amount to fund (₦):");
+        if(!amt || isNaN(amt)) return;
         
         let handler = PaystackPop.setup({
-            key: 'pk_live_YOUR_KEY_HERE', // Replace with your Public Key
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: currentUser.replace('_', '.'),
-            amount: amount * 100,
+            amount: amt * 100,
             currency: "NGN",
-            callback: function(response) {
-                db.ref('users/' + currentUser).update({ bal: balance + parseInt(amount) });
-                alert("Payment successful! Wallet updated.");
+            callback: function(res) {
+                const now = new Date().toLocaleString();
+                db.ref('users/' + currentUser + '/history').push({ type: 'Fund', amt: amt, date: now });
+                db.ref('users/' + currentUser).update({ bal: balance + parseInt(amt) });
+                alert("Wallet Funded!");
             }
         });
         handler.openIframe();
     }
+
+    function buyLog(name, price) {
+        if(balance < price) return alert("Low balance!");
+        const now = new Date().toLocaleString();
+        db.ref('users/' + currentUser + '/history').push({ type: 'Purchase', item: name, amt: price, date: now });
+        db.ref('users/' + currentUser).update({ bal: balance - price });
+        alert("Success! Check History for your log.");
+    }
+
+    function showHistory() {
+        document.getElementById('history-view').style.display = 'block';
+        db.ref('users/' + currentUser + '/history').once('value', snap => {
+            const hist = snap.val();
+            let h = "";
+            if(!hist) h = "<p style='text-align:center; opacity:0.5;'>No history found</p>";
+            else {
+                Object.values(hist).reverse().forEach(x => {
+                    h += `<div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid ${x.type=='Fund'?'#0f0':'var(--gold)'}">
+                        <p style="font-size:10px; color:#555">${x.date}</p>
+                        <p><b>${x.type}:</b> ${x.item || 'Wallet Top-up'}</p>
+                        <p style="color:var(--gold)">₦${parseInt(x.amt).toLocaleString()}</p>
+                    </div>`;
+                });
+            }
+            document.getElementById('history-content').innerHTML = h;
+        });
+    }
+
+    function toggleBot() { 
+        const c = document.getElementById('bot-chat');
+        c.style.display = c.style.display === 'block' ? 'none' : 'block';
+    }
+    function openAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
+    function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+    function showMarket() { closeOverlays(); }
 </script>
 </body>
 </html>
