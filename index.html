@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V40 OFFICIAL</title>
+    <title>SUBBY MARKET | V43 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -16,8 +16,8 @@
         .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
         .auth-btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-        /* WELCOME MODAL */
-        #welcome-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(10px); }
+        /* MODALS (WELCOME & SUCCESS) */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(10px); }
         .modal-content { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 30px; text-align: center; max-width: 350px; }
 
         /* MARKET UI */
@@ -25,13 +25,13 @@
         #site-logo { font-weight: 900; color: var(--primary); font-size: 18px; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 18px; border-radius: 25px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
         
-        .cat-header { padding: 15px 20px; font-size: 14px; color: var(--gold); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+        .cat-header { padding: 15px 20px; font-size: 14px; color: var(--gold); font-weight: bold; text-transform: uppercase; margin-top: 10px; }
         .grid { padding: 10px; display: grid; gap: 15px; padding-bottom: 100px; }
-        .card { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 20px; position: relative; }
-        .stock-tag { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 20px; }
         
-        /* ADMIN PANEL (HIDDEN) */
+        /* ADMIN PANEL */
         #admin-panel { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
+        .adm-item { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; }
     </style>
@@ -44,7 +44,7 @@
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
-        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New user? <span style="color:var(--primary);">Create Account</span></p>
+        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New user? Create Account</p>
     </div>
 </div>
 
@@ -54,27 +54,24 @@
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
         <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
-        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('login-gate')">Have account? <span style="color:var(--primary);">Login</span></p>
+        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('login-gate')">Have account? Login</p>
     </div>
 </div>
 
-<div id="welcome-modal">
-    <div class="modal-content">
-        <h2 style="color:var(--gold); margin-bottom:10px;">Welcome Back!</h2>
-        <p id="user-greet" style="font-weight:bold; margin-bottom:15px; color:#fff;"></p>
-        <p style="font-size:14px; color:#aaa; margin-bottom:20px;">Happy Easter! 🌸<br>Enjoy our premium logs update.</p>
-        <button class="auth-btn" style="background:var(--gold)" onclick="closeWelcome()">ENTER MARKET</button>
+<div id="success-modal" class="modal">
+    <div class="modal-content" style="border-color: #00ff00;">
+        <h2 style="color:#00ff00; margin-bottom:10px;">Order Successful! ✅</h2>
+        <p id="success-msg" style="font-size:14px; color:#eee; margin-bottom:20px; line-height:1.5;"></p>
+        <button class="auth-btn" onclick="document.getElementById('success-modal').style.display='none'">GREAT, THANKS!</button>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
         <div id="site-logo" ondblclick="openAdmin()">SUBBY MARKET</div>
-        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="color:var(--gold); cursor:pointer; font-weight:bold;">+</span></div>
+        <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="color:var(--gold); cursor:pointer;">+</span></div>
     </div>
-    
     <div id="market-grid"></div>
-
     <div class="bottom-nav">
         <div style="color:var(--primary); font-size:10px; font-weight:bold;">MARKET</div>
         <div style="color:#555; font-size:10px; font-weight:bold;" onclick="checkMyHistory()">MY LOGS</div>
@@ -83,31 +80,26 @@
 </div>
 
 <div id="admin-panel">
-    <h2 style="color:var(--gold);">👑 ADMIN COMMAND</h2>
-    <div id="admin-stock-list" style="margin:20px 0; background:#111; padding:10px; border-radius:15px;"></div>
-    
-    <input type="email" id="adm-user" class="auth-input" placeholder="Target User Email">
-    <input type="number" id="adm-amt" class="auth-input" placeholder="Amount (₦)">
-    <button class="auth-btn" onclick="admCredit()">ADD BALANCE</button>
-    <button class="auth-btn" style="background:#222; margin-top:30px;" onclick="document.getElementById('admin-panel').style.display='none'">EXIT ADMIN</button>
+    <h2 style="color:var(--gold); margin-bottom:20px;">👑 SUPREME ADMIN</h2>
+    <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px;">
+        <h4 style="margin-bottom:10px;">ADD NEW LOG CARD</h4>
+        <input id="new-cat" class="auth-input" placeholder="Category (TikTok, FB, Twitter)">
+        <input id="new-name" class="auth-input" placeholder="Item Name">
+        <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
+        <button class="auth-btn" onclick="addNewCard()">+ ADD TO MARKET</button>
+    </div>
+    <div id="admin-list-container"></div>
+    <h4 style="margin:20px 0 10px;">CREDIT USER</h4>
+    <input type="email" id="adm-user" class="auth-input" placeholder="User Email">
+    <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
+    <button class="auth-btn" onclick="admCredit()">GIVE BALANCE</button>
+    <button class="auth-btn" style="background:#222; margin-top:40px;" onclick="document.getElementById('admin-panel').style.display='none'">EXIT ADMIN</button>
 </div>
 
 <script>
     let currentUser = null;
     let balance = 0;
-    
-    // ORGANIZED CATEGORIES
-    let marketData = {
-        "Facebook Section": [
-            {id:1, n:"UK Facebook 🇬🇧", p:2500, s:0},
-            {id:2, n:"USA FB Fresh", p:1500, s:0},
-            {id:3, n:"Germany Aged FB", p:5000, s:0}
-        ],
-        "Instagram Section": [
-            {id:4, n:"Instagram HD Logs", p:9000, s:0},
-            {id:5, n:"IG Followers Bot", p:500, s:0}
-        ]
-    };
+    let items = JSON.parse(localStorage.getItem('market_items')) || [];
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -115,111 +107,136 @@
     }
 
     function handleRegister() {
-        const email = document.getElementById('reg-email').value.trim().toLowerCase();
-        const pass = document.getElementById('reg-pass').value.trim();
-        if(!email.includes('@')) return alert("Invalid Email!");
-        if(localStorage.getItem(`user_${email}`)) return alert("Email already exists!");
-        localStorage.setItem(`user_${email}`, JSON.stringify({pass: pass, bal: 0, history: []}));
+        const e = document.getElementById('reg-email').value.toLowerCase();
+        const p = document.getElementById('reg-pass').value;
+        if(!e || !p) return alert("Fill all fields");
+        if(localStorage.getItem(`user_${e}`)) return alert("Email exists!");
+        localStorage.setItem(`user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
         alert("Account Created! Login now.");
         showGate('login-gate');
     }
 
     function handleLogin() {
-        const email = document.getElementById('log-email').value.trim().toLowerCase();
-        const pass = document.getElementById('log-pass').value.trim();
-        const stored = JSON.parse(localStorage.getItem(`user_${email}`));
-
-        if(stored && stored.pass === pass) {
-            currentUser = email;
-            balance = stored.bal;
+        const e = document.getElementById('log-email').value.toLowerCase();
+        const p = document.getElementById('log-pass').value;
+        const u = JSON.parse(localStorage.getItem(`user_${e}`));
+        if(u && u.pass === p) {
+            currentUser = e; balance = u.bal;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            document.getElementById('user-greet').innerText = email;
-            document.getElementById('welcome-modal').style.display = 'flex';
             renderMarket();
-        } else {
-            alert("Wrong login details!");
-        }
+        } else alert("Wrong details!");
     }
 
-    function closeWelcome() { document.getElementById('welcome-modal').style.display = 'none'; }
-
     function renderMarket() {
+        const categories = [...new Set(items.map(i => i.c))];
         let html = "";
-        for (const cat in marketData) {
-            html += `<div class="cat-header">${cat}</div><div class="grid">`;
-            marketData[cat].forEach(i => {
-                html += `
-                <div class="card">
-                    <span class="stock-tag" style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}">
-                        ● ${i.s > 0 ? 'IN STOCK ('+i.s+')' : 'OUT OF STOCK'}
-                    </span>
+        if(!items.length) html = "<p style='text-align:center; padding:50px; color:#444;'>Market is empty. Admin, please add items!</p>";
+        categories.forEach(c => {
+            html += `<div class="cat-header">${c} Section</div><div class="grid">`;
+            items.filter(i => i.c === c).forEach(i => {
+                html += `<div class="card">
+                    <span style="font-size:11px; color:${i.s>0?'#00ff00':'#ff4d4d'}">● ${i.s>0?'IN STOCK ('+i.s+')':'OUT OF STOCK'}</span>
                     <h3>${i.n}</h3>
-                    <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
-                    <button class="auth-btn" style="height:45px; font-size:12px;" ${i.s == 0 ? 'disabled style="background:#222"' : ''}>BUY NOW</button>
+                    <h2 style="color:var(--primary); margin:8px 0;">₦${i.p.toLocaleString()}</h2>
+                    <button class="auth-btn" style="height:40px;" ${i.s==0?'disabled style="background:#222"':''} onclick="buyItem(${i.id}, '${i.n}', ${i.p})">BUY NOW</button>
                 </div>`;
             });
             html += `</div>`;
-        }
+        });
         document.getElementById('market-grid').innerHTML = html;
+        localStorage.setItem('market_items', JSON.stringify(items));
     }
 
-    // ADMIN TRIGGER (Double Click/Tap logo)
+    function buyItem(id, name, price) {
+        if(balance < price) return alert("Insufficient balance! Please fund your wallet.");
+        balance -= price;
+        let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+        u.bal = balance;
+        u.history.push({item: name, cost: price, date: new Date().toLocaleString()});
+        localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
+        
+        // Update stock
+        let item = items.find(x => x.id === id);
+        item.s -= 1;
+        
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        renderMarket();
+
+        // SHOW THE FRIENDLY MESSAGE
+        document.getElementById('success-msg').innerHTML = `Dear <b>${currentUser}</b>,<br><br>Thank you for your purchase of <b>${name}</b>. Your order was processed successfully!<br><br>Please check the <b>'MY LOGS'</b> section to view your details. We appreciate your business!`;
+        document.getElementById('success-modal').style.display = 'flex';
+    }
+
+    function checkMyHistory() {
+        const u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+        if(!u.history.length) return alert("You haven't purchased anything yet!");
+        alert("PURCHASE HISTORY:\n\n" + u.history.map(h => `${h.date}: ${h.item}`).join('\n'));
+    }
+
     function openAdmin() {
-        const p = prompt("ADMIN PASSWORD:");
-        if(p === '1234567890') {
-            document.getElementById('admin-panel').style.display='block';
-            loadAdm();
+        if(prompt("ADMIN PASS:") === '1234567890') {
+            document.getElementById('admin-panel').style.display = 'block';
+            loadAdminList();
         }
     }
 
-    function loadAdm() {
-        let admHtml = "";
-        for (const cat in marketData) {
-            marketData[cat].forEach(i => {
-                admHtml += `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #222; padding:5px;">
-                    <span style="font-size:12px;">${i.n}</span>
-                    <input type="number" value="${i.s}" onchange="updateStock(${i.id}, this.value)" style="width:50px; background:#000; color:#fff; border:1px solid #444;">
-                </div>`;
-            });
-        }
-        document.getElementById('admin-stock-list').innerHTML = admHtml;
+    function loadAdminList() {
+        document.getElementById('admin-list-container').innerHTML = items.map(i => `
+            <div class="adm-item">
+                <p style="font-size:10px; color:var(--gold)">${i.c}</p>
+                <input style="background:none; border:none; color:#fff; font-weight:bold; font-size:16px; width:100%;" value="${i.n}" onchange="updateItem(${i.id}, 'n', this.value)">
+                <div style="display:flex; gap:10px; margin-top:10px; font-size:12px;">
+                    <div>Price: <input type="number" value="${i.p}" onchange="updateItem(${i.id}, 'p', this.value)" style="width:70px; background:#000; color:#fff; border:1px solid #333;"></div>
+                    <div>Stock: <input type="number" value="${i.s}" onchange="updateItem(${i.id}, 's', this.value)" style="width:50px; background:#000; color:#fff; border:1px solid #333;"></div>
+                </div>
+                <button onclick="deleteCard(${i.id})" style="background:red; color:#fff; border:none; padding:5px 10px; border-radius:5px; margin-top:10px; font-size:10px;">DELETE CARD</button>
+            </div>`).join('');
     }
 
-    function updateStock(id, val) {
-        for (const cat in marketData) {
-            let item = marketData[cat].find(x => x.id == id);
-            if(item) { item.s = parseInt(val); renderMarket(); break; }
-        }
+    function updateItem(id, key, val) {
+        let item = items.find(x => x.id == id);
+        item[key] = (key === 'n') ? val : parseInt(val);
+        renderMarket();
+    }
+
+    function addNewCard() {
+        const c = document.getElementById('new-cat').value.trim();
+        const n = document.getElementById('new-name').value.trim();
+        const p = parseInt(document.getElementById('new-price').value);
+        if(!c || !n || !p) return alert("Fill all fields!");
+        items.push({id: Date.now(), c: c, n: n, p: p, s: 0});
+        document.getElementById('new-name').value = ''; document.getElementById('new-price').value = '';
+        renderMarket(); loadAdminList();
+    }
+
+    function deleteCard(id) {
+        if(confirm("Delete this?")) { items = items.filter(x => x.id !== id); renderMarket(); loadAdminList(); }
     }
 
     function admCredit() {
-        const email = document.getElementById('adm-user').value.toLowerCase();
-        const amt = parseInt(document.getElementById('adm-amt').value);
-        let u = JSON.parse(localStorage.getItem(`user_${email}`));
-        if(u) { u.bal += amt; localStorage.setItem(`user_${email}`, JSON.stringify(u)); alert("Credited!"); }
-        else { alert("User not found!"); }
+        const e = document.getElementById('adm-user').value.toLowerCase();
+        const a = parseInt(document.getElementById('adm-amt').value);
+        let u = JSON.parse(localStorage.getItem(`user_${e}`));
+        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Credited!"); }
+        else alert("Gmail not found!");
     }
 
     function fundWallet() {
-        const amt = prompt("Amount to deposit? (₦)");
-        if(!amt) return;
+        const a = prompt("Amount to Deposit (₦):");
+        if(!a || isNaN(a)) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: currentUser,
-            amount: amt * 100,
-            currency: 'NGN',
-            callback: function() {
-                balance += parseInt(amt);
-                let s = JSON.parse(localStorage.getItem(`user_${currentUser}`));
-                s.bal = balance;
-                localStorage.setItem(`user_${currentUser}`, JSON.stringify(s));
-                document.getElementById('bal-val').innerText = balance.toLocaleString();
-                alert("Success!");
-            }
+            email: currentUser, amount: a * 100, currency: 'NGN',
+            callback: () => { balance += parseInt(a); updateLocalUser(); alert("Deposit Success!"); }
         }).openIframe();
+    }
+
+    function updateLocalUser() {
+        document.getElementById('bal-val').innerText = balance.toLocaleString();
+        let u = JSON.parse(localStorage.getItem(`user_${currentUser}`)); u.bal = balance;
+        localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
     }
 </script>
 </body>
