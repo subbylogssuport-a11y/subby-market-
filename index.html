@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V52 STABLE</title>
+    <title>SUBBY MARKET | V53 AI POWERED</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
+
+        /* AI CHAT STYLES */
+        #ai-bubble { position: fixed; bottom: 85px; right: 20px; width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 4000; box-shadow: 0 0 15px var(--primary); border: 2px solid #fff; }
+        #ai-window { position: fixed; bottom: 145px; right: 20px; width: 280px; background: #111; border: 1px solid #333; border-radius: 20px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .ai-header { background: var(--primary); padding: 12px; font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; }
+        #ai-chat-box { height: 200px; padding: 10px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+        .ai-msg { background: #222; padding: 8px 12px; border-radius: 12px; align-self: flex-start; max-width: 85%; line-height: 1.4; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--gold); color: #000; align-self: flex-end; border-radius: 12px; border-bottom-right-radius: 2px; }
+        .ai-input-area { display: flex; padding: 8px; border-top: 1px solid #222; }
+        #ai-text { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 5px; outline: none; font-size: 12px; }
 
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
@@ -34,6 +44,16 @@
     </style>
 </head>
 <body>
+
+<div id="ai-bubble" onclick="toggleAI()">🤖</div>
+<div id="ai-window">
+    <div class="ai-header"><span>SUBBY AI HELPER</span> <span onclick="toggleAI()" style="cursor:pointer;">×</span></div>
+    <div id="ai-chat-box"></div>
+    <div class="ai-input-area">
+        <input type="text" id="ai-text" placeholder="Ask something...">
+        <button onclick="aiAsk()" style="background:var(--primary); border:none; color:#fff; padding:0 8px; margin-left:5px; border-radius:5px;">➤</button>
+    </div>
+</div>
 
 <div id="login-gate" class="gate-container">
     <div class="auth-card">
@@ -87,7 +107,6 @@
         <h2 style="color:var(--primary);">Supreme Admin</h2>
         <button style="background:none; border:none; color:#fff; font-size:24px;" onclick="closeAllOverlays()">×</button>
     </div>
-
     <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
         <h4 style="margin-bottom:10px;">ADD NEW LOG CARD</h4>
         <input id="new-cat" class="auth-input" placeholder="Category (TikTok, FB)">
@@ -96,14 +115,12 @@
         <textarea id="new-logs" class="auth-input" style="height:80px; text-align:left;" placeholder="user:pass (One per line)"></textarea>
         <button class="auth-btn" style="background:var(--primary); margin-bottom: 10px;" onclick="addNewCard()">CONFIRM & UPLOAD</button>
     </div>
-
     <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid var(--gold);">
         <h4 style="color:var(--gold); margin-bottom:10px;">CREDIT USER WALLET</h4>
         <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email">
         <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
         <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
     </div>
-
     <button class="auth-btn" style="background:#222; margin-bottom:20px;" onclick="closeAllOverlays()">EXIT ADMIN</button>
     <div id="admin-list-container"></div>
 </div>
@@ -112,6 +129,42 @@
     let currentUser = null;
     let balance = 0;
     let items = JSON.parse(localStorage.getItem('market_items')) || [];
+
+    // AI LOGIC
+    function toggleAI() {
+        const win = document.getElementById('ai-window');
+        win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+        if(win.style.display === 'flex' && document.getElementById('ai-chat-box').innerHTML === "") {
+            addAIMsg("Hello! I am Subby AI. How can I help you boss?");
+        }
+    }
+
+    function addAIMsg(txt) {
+        const box = document.getElementById('ai-chat-box');
+        box.innerHTML += `<div class="ai-msg">${txt}</div>`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function aiAsk() {
+        const input = document.getElementById('ai-text');
+        const box = document.getElementById('ai-chat-box');
+        const val = input.value.toLowerCase();
+        if(!val) return;
+        box.innerHTML += `<div class="ai-msg user-msg">${input.value}</div>`;
+        input.value = "";
+
+        setTimeout(() => {
+            if(val.includes("fund") || val.includes("money") || val.includes("pay")) {
+                addAIMsg("To fund your wallet, click the '+' sign near your balance or contact Admin on WhatsApp.");
+            } else if(val.includes("log") || val.includes("buy")) {
+                addAIMsg("Once you buy a log, click 'MY LOGS' at the bottom to see your account credentials.");
+            } else if(val.includes("scam") || val.includes("real")) {
+                addAIMsg("Subby Market is 100% legit. Any log you buy is delivered instantly to your dashboard.");
+            } else {
+                addAIMsg("I'm not sure about that. Please contact our human support for more details!");
+            }
+        }, 600);
+    }
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -135,6 +188,7 @@
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
+            document.getElementById('ai-bubble').style.display = 'flex'; // Show AI
             renderMarket();
         } else alert("Invalid Login!");
     }
@@ -209,19 +263,15 @@
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
         if(!c || !n || !p || l.length === 0) return alert("Error!");
-        
         items.push({id: Date.now(), c:c, n:n, p:p, data:l});
         localStorage.setItem('market_items', JSON.stringify(items));
-        
-        // CLEAR BOXES
         document.getElementById('new-cat').value = '';
         document.getElementById('new-name').value = '';
         document.getElementById('new-price').value = '';
         document.getElementById('new-logs').value = '';
-        
         loadAdminList();
-        renderMarket(); // FORCE THE MAIN SITE TO SHOW THE NEW ITEM
-        alert("Market Updated Successfully!");
+        renderMarket();
+        alert("Market Updated!");
     }
 
     function deleteCard(id) {
