@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V74 SECURE</title>
+    <title>SUBBY LOGS | ADMIN V75</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -11,68 +11,77 @@
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: #eee; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background: var(--bg); color: #eee; min-height: 100vh; }
         
-        /* AUTH GATE */
-        .auth-gate { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #111; border: 1px solid var(--primary); padding: 35px; border-radius: 25px; width: 100%; max-width: 380px; box-shadow: 0 10px 50px rgba(0,112,243,0.2); text-align: center; }
-        input { width: 100%; padding: 16px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; text-align: center; outline: none; }
-        input:focus { border-color: var(--primary); }
-        .btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 15px; }
-        .link { color: var(--gold); font-size: 12px; cursor: pointer; margin-top: 15px; display: inline-block; }
+        /* AUTH & OVERLAYS */
+        .overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card-ui { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; }
+        input, select { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        
+        /* APP UI */
+        #app { display: none; }
+        .nav { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; sticky: top; background: var(--bg); }
+        .market-grid { padding: 20px; display: grid; gap: 15px; }
+        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; position: relative; }
 
-        /* MAIN APP */
-        #app { display: none; width: 100%; }
-        .nav { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: #0a0b10; position: sticky; top: 0; }
-        .bal-pill { border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; color: var(--gold); font-weight: 900; }
-
-        /* SMART AI BOT */
-        #bot-container { position: fixed; bottom: 25px; right: 20px; z-index: 1000; display: none; }
-        #ia-bubble { width: 60px; height: 60px; background: #111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; box-shadow: 0 5px 20px #000; }
-        #bot-chat { position: absolute; bottom: 75px; right: 0; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; box-shadow: 0 10px 40px #000; }
-        .bot-input { width: 100%; padding: 10px; background: #000; border: 1px solid #222; color: #fff; border-radius: 10px; margin-top: 10px; font-size: 12px; }
+        /* WISE AI BOT */
+        #bot-box { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none; }
+        #bot-bubble { width: 60px; height: 60px; background: #111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; }
+        #bot-window { position: absolute; bottom: 75px; right: 0; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; box-shadow: 0 10px 40px #000; }
     </style>
 </head>
 <body>
 
-<div id="auth-gate" class="auth-gate">
-    <div class="auth-card">
-        <h2 id="title" style="color:var(--primary); margin-bottom:15px; letter-spacing: 2px;">SUBBY LOGS</h2>
-        <p id="sub-title" style="font-size: 12px; color: #666; margin-bottom: 20px;">Please login to access your wallet</p>
+<div id="auth-gate" class="overlay">
+    <div class="card-ui">
+        <h2 id="atitle" style="color:var(--primary); margin-bottom:15px;">LOGIN</h2>
         <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="pass" placeholder="Password">
-        <button class="btn" onclick="handleAuth()" id="btn-txt">SIGN IN</button>
-        <div>
-            <span class="link" onclick="toggleAuth()" id="toggle-txt">New here? Create Account</span><br>
-            <span class="link" onclick="resetPass()">Forgot Password?</span>
+        <button class="btn" onclick="handleAuth()" id="abtn">SIGN IN</button>
+        <p class="link" onclick="toggleAuth()" style="color:var(--gold); font-size:12px; margin-top:15px; cursor:pointer;" id="atog">New? Create Account</p>
+    </div>
+</div>
+
+<div id="admin-gate" class="overlay" style="display:none; z-index:10000;">
+    <div class="card-ui" style="max-width:450px;">
+        <h2 style="color:var(--gold)">ADMIN PANEL</h2>
+        <div style="margin-top:20px;">
+            <p style="font-size:12px; color:var(--primary)">SEND MONEY TO USER</p>
+            <input id="adm-mail" placeholder="User Email">
+            <input id="adm-amt" placeholder="Amount ₦">
+            <button class="btn" onclick="adminSendMoney()">SEND MONEY</button>
         </div>
+        <hr style="margin:20px 0; opacity:0.1">
+        <div>
+            <p style="font-size:12px; color:var(--primary)">UPLOAD NEW LOG/CARD</p>
+            <input id="log-name" placeholder="Item Name (e.g. FB OLD)">
+            <input id="log-price" placeholder="Price ₦">
+            <button class="btn" style="background:var(--gold); color:#000" onclick="adminUploadLog()">UPLOAD TO MARKET</button>
+        </div>
+        <button class="btn" style="background:#222; margin-top:20px;" onclick="closeAdmin()">CLOSE PANEL</button>
     </div>
 </div>
 
 <div id="app">
     <div class="nav">
-        <b style="color:var(--primary); font-size: 18px;">SUBBY LOGS</b>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="bal-pill">₦<span id="bal">0</span></div>
-            <button onclick="logout()" style="color:#ff4d4d; background:none; border:none; font-weight:bold;">Exit</button>
+        <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="color:var(--gold); font-weight:900;">₦<span id="bal">0</span></div>
+            <button onclick="pay()" style="width:30px; height:30px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
+            <button onclick="firebase.auth().signOut()" style="color:red; background:none; border:none; font-size:10px;">Exit</button>
         </div>
     </div>
-    <div style="padding: 30px; text-align: center;">
-        <h3 style="color: var(--gold);">Welcome Back!</h3>
-        <p style="color: #666; margin-top: 10px;">Market is currently being updated...</p>
-        <button class="btn" style="width: auto; padding: 15px 40px; margin-top: 30px;" onclick="pay()">TOP UP WALLET ₦</button>
-    </div>
+    <div id="market" class="market-grid"></div>
 </div>
 
-<div id="bot-container">
-    <div id="bot-chat">
-        <div id="bot-msg" style="font-size: 13px; line-height: 1.5; color: #ccc;">
-            🤖 <b>Subby AI:</b> I am your personal assistant. I can help you with wallet issues or log queries. Type your question below.
-        </div>
-        <input type="text" class="bot-input" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') askAI(this.value)">
-        <button class="btn" style="padding: 10px; font-size: 12px; background: #25D366;" onclick="window.open('https://wa.me/2348104565349')">WHATSAPP ADMIN</button>
+<div id="bot-box">
+    <div id="bot-window">
+        <div id="bot-msg" style="font-size:12px; color:#ccc;">🤖 <b>Subby AI:</b> How can I help you today? I know about balances, market updates, and funding.</div>
+        <input type="text" placeholder="Ask me..." style="height:40px; font-size:12px;" onkeypress="if(event.key==='Enter') wiseAI(this.value)">
+        <button class="btn" style="padding:10px; font-size:11px; background:#25D366" onclick="window.open('https://wa.me/2348104565349')">WHATSAPP ADMIN</button>
     </div>
-    <div id="ia-bubble" onclick="toggleBot()"></div>
+    <div id="bot-bubble" onclick="toggleBot()"></div>
 </div>
 
 <script>
@@ -90,71 +99,119 @@
     const db = firebase.database();
     let isLogin = true;
 
+    // AUTH LOGIC
     function toggleAuth() {
         isLogin = !isLogin;
-        document.getElementById('title').innerText = isLogin ? "LOGIN" : "REGISTER";
-        document.getElementById('btn-txt').innerText = isLogin ? "SIGN IN" : "SIGN UP";
-        document.getElementById('toggle-txt').innerText = isLogin ? "New here? Create Account" : "Have an account? Sign In";
+        document.getElementById('atitle').innerText = isLogin ? "LOGIN" : "REGISTER";
+        document.getElementById('abtn').innerText = isLogin ? "SIGN IN" : "SIGN UP";
+        document.getElementById('atog').innerText = isLogin ? "New? Create Account" : "Have an account? Login";
     }
 
     async function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-        if(!e || !p) return alert("Fields cannot be empty");
         try { isLogin ? await auth.signInWithEmailAndPassword(e,p) : await auth.createUserWithEmailAndPassword(e,p); }
         catch(err) { alert(err.message); }
     }
 
     auth.onAuthStateChanged(user => {
         if(user) {
-            document.getElementById('auth-gate').style.display='none';
-            document.getElementById('app').style.display='block';
-            document.getElementById('bot-container').style.display='block'; // AI appears now
-            const id = user.email.replace(/\./g,'_');
-            db.ref('users/'+id).on('value',s=>{
-                document.getElementById('bal').innerText = (s.val()?.bal || 0).toLocaleString();
-            });
+            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('bot-box').style.display = 'block';
+            syncData();
         } else {
-            document.getElementById('auth-gate').style.display='flex';
-            document.getElementById('app').style.display='none';
-            document.getElementById('bot-container').style.display='none'; // AI hides on logout
+            document.getElementById('auth-gate').style.display = 'flex';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('bot-box').style.display = 'none';
         }
     });
 
-    function resetPass() {
-        const e = document.getElementById('email').value;
-        if(!e) return alert("Enter email first");
-        auth.sendPasswordResetEmail(e).then(()=>alert("Reset link sent to your inbox!"));
+    // DATA SYNC
+    function syncData() {
+        const id = auth.currentUser.email.replace(/\./g,'_');
+        db.ref('users/'+id).on('value', s => {
+            document.getElementById('bal').innerText = (s.val()?.bal || 0).toLocaleString();
+        });
+        db.ref('market').on('value', s => {
+            const logs = s.val();
+            let h = "";
+            for(let k in logs) {
+                h += `<div class="log-item">
+                    <p style="font-size:10px; color:#0f0">● AVAILABLE</p>
+                    <h3 style="margin:5px 0">${logs[k].name}</h3>
+                    <h2 style="color:var(--primary)">₦${parseInt(logs[k].price).toLocaleString()}</h2>
+                    <button class="btn" onclick="buyLog('${k}', ${logs[k].price})">BUY NOW</button>
+                    ${auth.currentUser.email === 'admin@subbylogs.com' ? `<button onclick="deleteLog('${k}')" style="background:red; border:none; color:white; padding:5px; border-radius:5px; margin-top:10px; font-size:10px; width:100%">DELETE CARD</button>` : ''}
+                </div>`;
+            }
+            document.getElementById('market').innerHTML = h || "<p style='text-align:center; opacity:0.5'>Market is empty.</p>";
+        });
     }
 
-    function toggleBot() { 
-        const c = document.getElementById('bot-chat');
-        c.style.display = c.style.display === 'block' ? 'none' : 'block';
+    // ADMIN ACTIONS
+    function checkAdmin() { if(prompt("Enter PIN") === "1710") document.getElementById('admin-gate').style.display = 'flex'; }
+    function closeAdmin() { document.getElementById('admin-gate').style.display = 'none'; }
+
+    function adminSendMoney() {
+        const mail = document.getElementById('adm-mail').value.replace(/\./g,'_');
+        const amt = parseInt(document.getElementById('adm-amt').value);
+        db.ref('users/'+mail).once('value', s => {
+            const cur = s.val()?.bal || 0;
+            db.ref('users/'+mail).update({ bal: cur + amt });
+            alert("Sent ₦" + amt + " to " + mail);
+        });
     }
 
-    function askAI(val) {
-        const msg = document.getElementById('bot-msg');
-        if(val.toLowerCase().includes("balance")) msg.innerHTML = "🤖 <b>Subby AI:</b> Your balance is shown in the top right. ₦1,000 = $1 approx.";
-        else if(val.toLowerCase().includes("buy")) msg.innerHTML = "🤖 <b>Subby AI:</b> Once you fund your wallet, items will appear in the market for instant purchase.";
-        else msg.innerHTML = "🤖 <b>Subby AI:</b> Interesting question! For specific account issues, please use the WhatsApp button below.";
+    function adminUploadLog() {
+        const name = document.getElementById('log-name').value;
+        const price = document.getElementById('log-price').value;
+        db.ref('market').push({ name, price });
+        alert("Log Uploaded!");
+    }
+
+    function deleteLog(key) { if(confirm("Delete this card?")) db.ref('market/'+key).remove(); }
+
+    // USER ACTIONS
+    function buyLog(key, price) {
+        const id = auth.currentUser.email.replace(/\./g,'_');
+        db.ref('users/'+id).once('value', s => {
+            const bal = s.val()?.bal || 0;
+            if(bal < price) return alert("Insufficient Balance!");
+            db.ref('users/'+id).update({ bal: bal - price });
+            alert("Purchase successful! Contact Admin for details.");
+        });
     }
 
     function pay() {
+        const amt = prompt("Amount to fund (₦):");
+        if(!amt) return;
         let handler = PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: auth.currentUser.email,
-            amount: 200000, // 2000 Naira example
-            callback: function(res) {
+            amount: amt * 100,
+            callback: function() {
                 const id = auth.currentUser.email.replace(/\./g,'_');
-                db.ref('users/'+id).once('value',s=>{
-                    db.ref('users/'+id).update({ bal: (s.val()?.bal || 0) + 2000 });
-                    alert("Wallet Funded Successfully!");
+                db.ref('users/'+id).once('value', s => {
+                    db.ref('users/'+id).update({ bal: (s.val()?.bal || 0) + parseInt(amt) });
                 });
             }
         });
         handler.openIframe();
     }
 
-    function logout() { auth.signOut(); }
+    // WISE AI
+    function toggleBot() { 
+        const w = document.getElementById('bot-window');
+        w.style.display = w.style.display === 'block' ? 'none' : 'block';
+    }
+    function wiseAI(q) {
+        const m = document.getElementById('bot-msg');
+        q = q.toLowerCase();
+        if(q.includes("balance")) m.innerHTML = "🤖 <b>Subby AI:</b> Your balance is updated instantly after every payment or purchase.";
+        else if(q.includes("admin")) m.innerHTML = "🤖 <b>Subby AI:</b> You can reach the Admin on WhatsApp for faster logs and troubleshooting.";
+        else if(q.includes("price")) m.innerHTML = "🤖 <b>Subby AI:</b> Market prices are set in Naira (₦). Check the market grid for the latest cards.";
+        else m.innerHTML = "🤖 <b>Subby AI:</b> I'm still learning, but I can tell you that the market is updated daily!";
+    }
 </script>
 </body>
 </html>
