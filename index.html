@@ -3,64 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V58 GLOBAL</title>
+    <title>SUBBY LOGS | V42 ROCKET-BOT</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: #161b22; }
+        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* ROBOTIC AI UI */
-        #ai-bubble { position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #0070f3, #00d2ff); border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 4000; box-shadow: 0 0 20px rgba(0,112,243,0.6); border: 2px solid #fff; cursor: pointer; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-        
-        #ai-window { position: fixed; bottom: 155px; right: 20px; width: 320px; background: #111; border: 1px solid #333; border-radius: 25px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; box-shadow: 0 10px 50px #000; border-bottom: 3px solid var(--primary); }
-        .ai-header { background: var(--primary); padding: 15px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 14px; }
-        #ai-chat-box { height: 280px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0a0a0a; font-size: 13px; }
-        .ai-msg { background: #1e1e1e; padding: 10px 14px; border-radius: 15px; align-self: flex-start; max-width: 85%; line-height: 1.5; border-bottom-left-radius: 2px; color: #fff; border: 1px solid #222; }
-        .user-msg { background: var(--primary); align-self: flex-end; border-radius: 15px; border-bottom-right-radius: 2px; border: none; }
+        /* iA BOT ICON (ROCKET & ROBOT STYLES) */
+        #ia-bubble { position: fixed; bottom: 80px; right: 20px; width: 65px; height: 65px; background: #000; border: 3px solid #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 4000; box-shadow: 0 0 15px rgba(255,255,255,0.2); animation: rocketPulse 2s infinite; overflow: hidden; }
+        @keyframes rocketPulse { 0% { box-shadow: 0 0 15px rgba(255,255,255,0.2); } 50% { box-shadow: 0 0 25px rgba(212,175,55,0.5); } 100% { box-shadow: 0 0 15px rgba(255,255,255,0.2); } }
 
-        /* SYSTEM UI */
+        /* Icon Container with SVG */
+        .icon-container { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #0070f3, #000); border-radius: 50%; padding: 5px; }
+
+        /* UPDATED CHAT WINDOW */
+        #ia-window { position: fixed; bottom: 155px; right: 20px; width: 320px; background: #111; border: 1px solid #333; border-radius: 20px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .ia-header { background: #000; padding: 15px; font-weight: 900; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gold); }
+        #ia-chat-box { height: 260px; padding: 15px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 10px; background: #0d0d0d; }
+        .ia-msg { background: #1a1a1a; padding: 10px 14px; border-radius: 15px; align-self: flex-start; max-width: 85%; line-height: 1.5; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--primary); align-self: flex-end; border-radius: 15px; border-bottom-right-radius: 2px; border: none; }
+        .ia-input-area { display: flex; padding: 10px; background: #000; border-top: 1px solid #222; }
+        #ia-text { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 10px; outline: none; font-size: 13px; }
+
+        /* CORE APP STYLES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #111; border: 1px solid var(--primary); padding: 35px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; }
-        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
-        .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .auth-card { background: #111; border: 1px solid var(--primary); padding: 40px 30px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; text-align: center; }
+        .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
         .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         #site-logo { font-weight: 900; color: var(--primary); font-size: 20px; }
-        .bal-pill { background: #161b22; border: 1px solid var(--gold); padding: 10px 20px; border-radius: 30px; font-weight: 900; color: var(--gold); }
+        .bal-pill { background: #000; border: 1px solid var(--gold); padding: 10px 20px; border-radius: 30px; font-weight: 900; color: var(--gold); }
         
         .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
         .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
-        .card { background: var(--card); border: 1px solid #333; border-radius: 25px; padding: 25px; }
-        .cat-header { padding: 10px 20px; font-size: 11px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
+        .cat-header { padding: 10px 20px; font-size: 12px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
-        .nav-item { text-align: center; cursor: pointer; color: #555; font-size: 10px; font-weight: 800; }
+        .nav-item { text-align: center; cursor: pointer; color: #666; font-size: 10px; font-weight: 800; }
         .active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-<div id="ai-bubble" onclick="toggleAI()">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" width="18" height="10" rx="2" ry="2" y="3"></rect><path d="M12 8V8"></path><line x1="8" y1="13" x2="8" y2="13"></line><line x1="16" y1="13" x2="16" y2="13"></line><path d="M7 16v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1"></path></svg>
+<div id="ia-bubble" onclick="toggleIA()">
+    <div class="icon-container">
+        <svg width="35" height="35" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M48 24C48 37.2548 37.2548 48 24 48C10.7452 48 0 37.2548 0 24C0 10.7452 10.7452 0 24 0C37.2548 0 48 10.7452 48 24Z" fill="white" fill-opacity="0.1"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C9.79086 2 8 3.79086 8 6V12C8 14.2091 9.79086 16 12 16H20C22.2091 16 24 14.2091 24 12V6C24 3.79086 22.2091 2 20 2H12ZM14 6H10V10H14V6ZM22 6H18V10H22V6ZM24 20H8V26C8 28.2091 9.79086 30 12 30H20C22.2091 30 24 28.2091 24 26V20Z" fill="white"/>
+            <path d="M24 16L30 10V22L24 16Z" fill="#ff4444"/>
+            <path d="M16 30H24V32C24 34.2091 22.2091 36 20 36H12C9.79086 36 8 34.2091 8 32V30H16Z" fill="#ff4444"/>
+            <circle cx="16" cy="38" r="3" fill="#ffcc00"/>
+        </svg>
+    </div>
 </div>
-<div id="ai-window">
-    <div class="ai-header"><span>CORE-BOT v2.0 ACTIVE</span> <span onclick="toggleAI()" style="cursor:pointer;">×</span></div>
-    <div id="ai-chat-box"></div>
-    <div class="ai-input-area" style="display:flex; padding:10px; background:#111;">
-        <input type="text" id="ai-text" style="flex:1; background:#000; border:1px solid #333; color:#fff; padding:10px; border-radius:10px; outline:none;" placeholder="Scanning logs...">
-        <button onclick="aiAsk()" style="background:var(--primary); color:#fff; border:none; padding:0 15px; margin-left:8px; border-radius:10px;">➤</button>
+<div id="ia-window">
+    <div class="ia-header"><span>iA SYSTEMS ACTIVE</span> <span onclick="toggleIA()" style="cursor:pointer; font-size:20px;">×</span></div>
+    <div id="ia-chat-box"></div>
+    <div class="ia-input-area">
+        <input type="text" id="ia-text" placeholder="Scanning mainframe...">
+        <button onclick="iaAsk()" style="background:var(--primary); color:#fff; border:none; padding:0 12px; margin-left:8px; border-radius:10px;">➤</button>
     </div>
 </div>
 
 <div id="login-gate" class="gate-container">
     <div class="auth-card">
-        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY AUTH</h2>
+        <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS LOGIN</h2>
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleLogin()">LOG IN</button>
-        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">New? Create Account</p>
+        <button class="auth-btn" onclick="handleLogin()">ACCESS MARKET</button>
+        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">New? Register Account</p>
     </div>
 </div>
 
@@ -69,14 +83,14 @@
         <h2 style="color:var(--primary); margin-bottom:20px;">REGISTER</h2>
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
+        <button class="auth-btn" onclick="handleRegister()">CREATE ACCOUNT</button>
         <p onclick="showGate('login-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">Back to Login</p>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
-        <div id="site-logo" ondblclick="openAdmin()">SUBBY MARKET</div>
+        <div id="site-logo" ondblclick="openAdmin()">SUBBY LOGS</div>
         <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer; margin-left:5px;">+</span></div>
     </div>
     <div id="market-grid"></div>
@@ -88,80 +102,69 @@
 </div>
 
 <div id="history-overlay" class="overlay">
-    <h2 style="color:var(--gold); margin-bottom:20px;">Inventory</h2>
+    <h2 style="color:var(--gold); margin-bottom:20px;">Purchase Inventory</h2>
     <div id="history-list"></div>
     <button class="auth-btn" style="margin-top:20px; background:#222;" onclick="closeAllOverlays()">BACK</button>
 </div>
 
 <div id="admin-panel" class="overlay">
-    <h2 style="color:var(--primary); margin-bottom:20px;">Admin Panel</h2>
-    <p style="color:#555; margin-bottom:20px; font-size:12px;">Wallet Management only.</p>
-    <div style="margin-top:20px;">
+    <h2 style="color:var(--primary); margin-bottom:20px;">Admin Controls</h2>
+    <input id="new-cat" class="auth-input" placeholder="Category (e.g. FACEBOOK)">
+    <input id="new-name" class="auth-input" placeholder="Name (e.g. 5k Followers)">
+    <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
+    <textarea id="new-logs" class="auth-input" style="height:100px; text-align:left;" placeholder="Logs (user:pass - one per line)"></textarea>
+    <button class="auth-btn" onclick="addNewCard()">CONFIRM & UPLOAD TO MARKET</button>
+    
+    <div style="margin-top:25px; border-top:1px solid #333; padding-top:20px;">
         <input type="email" id="adm-user" class="auth-input" placeholder="User Email">
         <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
         <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
     </div>
+    
+    <div id="admin-list-container" style="margin-top:20px;"></div>
     <button class="auth-btn" style="margin-top:20px; background:#222;" onclick="closeAllOverlays()">EXIT</button>
 </div>
 
 <script>
     let currentUser = null;
     let balance = 0;
+    let items = JSON.parse(localStorage.getItem('subby_market_v2')) || [];
 
-    // --- GLOBAL STOCK: EVERYONE SEES THESE LOGS ---
-    // TO ADD MORE LOGS: Simply add new items to this list below.
-    let items = [
-        { 
-            id: 1, 
-            c: "FACEBOOK", 
-            n: "USA HIGH QUALITY LOGS", 
-            p: 4500, 
-            data: ["subby_user1:pass001", "subby_user2:pass002", "subby_user3:pass003"] 
-        },
-        { 
-            id: 2, 
-            c: "TIKTOK", 
-            n: "USA MONETIZED LOGS", 
-            p: 8000, 
-            data: ["tiktok_king:safe77", "viral_logs:pass88"] 
-        }
-    ];
-
-    // AI BRAIN
+    // UPDATED iA BOT LOGIC
     function toggleAI() {
-        const win = document.getElementById('ai-window');
+        const win = document.getElementById('ia-window');
         win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        if(win.style.display === 'flex' && document.getElementById('ai-chat-box').innerHTML === "") {
-            addAIMsg(`Mainframe Active. Good day, **${currentUser}**. All systems are optimized for your launch. How can I assist?`);
+        if(win.style.display === 'flex' && document.getElementById('ia-chat-box').innerHTML === "") {
+            addAIMsg(`Hello, **${currentUser}**. All systems are optimized for your session. How can iA Bot help you?`);
         }
     }
 
     function addAIMsg(txt) {
-        const box = document.getElementById('ai-chat-box');
-        box.innerHTML += `<div class="ai-msg">${txt}</div>`;
+        const box = document.getElementById('ia-chat-box');
+        box.innerHTML += `<div class="ia-msg">${txt}</div>`;
         box.scrollTop = box.scrollHeight;
     }
 
-    function aiAsk() {
-        const input = document.getElementById('ai-text');
+    function iaAsk() {
+        const input = document.getElementById('ia-text');
         const val = input.value.toLowerCase().trim();
         if(!val) return;
-        document.getElementById('ai-chat-box').innerHTML += `<div class="ai-msg user-msg">${input.value}</div>`;
+        document.getElementById('ia-chat-box').innerHTML += `<div class="ia-msg user-msg">${input.value}</div>`;
         input.value = "";
         setTimeout(() => {
             if(val.includes("thank") || val.includes("ok")) {
-                addAIMsg("Affirmative. Subby Market efficiency is at 100%. Happy trading!");
-            } else if(val.includes("how are you")) {
-                addAIMsg("My robotic processors are running cool and fast. Ready to help you secure those logs!");
-            } else if(val.includes("admin")) {
-                addAIMsg("Link to Creator: **WhatsApp +2348104565349**.");
+                addAIMsg("Affirmative. Efficiency is my primary directive.");
+            } else if(val.includes("fund") || val.includes("money")) {
+                addAIMsg("To fund your wallet, access the **[ + ]** icon at the top of the dashboard for instant deposit.");
+            } else if(val.includes("buy") || val.includes("how to")) {
+                addAIMsg("Simply select the item in the market grid and click 'PURCHASE'. Credentials move instantly to **MY LOGS**.");
             } else {
-                addAIMsg("Scanning database... I can assist with funding, log access, or support.");
+                addAIMsg("Processor online. I can help with funding instructions, navigation, and general support questions.");
             }
         }, 800);
     }
 
-    // CORE APP
+    // CORE APP FUNCTIONS
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
         document.getElementById(id).style.display = 'flex';
@@ -170,23 +173,23 @@
     function handleRegister() {
         const e = document.getElementById('reg-email').value.trim().toLowerCase();
         const p = document.getElementById('reg-pass').value;
-        if(!e || !p) return alert("Fill all");
-        localStorage.setItem(`user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Done! Login now."); showGate('login-gate');
+        if(!e || !p) return alert("All fields must be filled!");
+        localStorage.setItem(`subby_user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
+        alert("Account Created! Login Now."); showGate('login-gate');
     }
 
     function handleLogin() {
         const e = document.getElementById('log-email').value.trim().toLowerCase();
         const p = document.getElementById('log-pass').value;
-        const u = JSON.parse(localStorage.getItem(`user_${e}`));
+        const u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
         if(u && u.pass === p) {
             currentUser = e; balance = u.bal;
             document.getElementById('bal-val').innerText = balance.toLocaleString();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            document.getElementById('ai-bubble').style.display = 'flex';
+            document.getElementById('ia-bubble').style.display = 'flex';
             renderMarket();
-        } else alert("Access Denied.");
+        } else alert("Invalid credentials!");
     }
 
     function renderMarket() {
@@ -198,31 +201,45 @@
             items.filter(i => i.c === c).forEach(i => {
                 const s = i.data.length;
                 h += `<div class="card">
-                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD OUT'}</span>
+                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' STOCK LEFT':'SOLD OUT'}</span>
                     <h3 style="margin:5px 0;">${i.n}</h3>
-                    <h2 style="color:var(--primary);">₦${i.p.toLocaleString()}</h2>
-                    <button class="auth-btn" style="margin-top:10px;" ${s==0?'disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
+                    <h2 style="color:var(--primary); margin-bottom:15px;">₦${i.p.toLocaleString()}</h2>
+                    <button class="auth-btn" ${s==0?'disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
                 </div>`;
             });
             h += `</div>`;
         });
-        grid.innerHTML = h;
+        grid.innerHTML = h || `<div style="text-align:center; padding:100px 0;"><h3>Mainframe Empty</h3></div>`;
+    }
+
+    function addNewCard() {
+        const c = document.getElementById('new-cat').value.trim().toUpperCase();
+        const n = document.getElementById('new-name').value.trim();
+        const p = parseInt(document.getElementById('new-price').value);
+        const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
+        if(!c || !n || !p || l.length === 0) return alert("Processor Error: Check data!");
+        items.push({ id: Date.now(), c: c, n: n, p: p, data: l });
+        localStorage.setItem('subby_market_v2', JSON.stringify(items));
+        document.getElementById('new-logs').value = "";
+        renderMarket(); loadAdminList();
+        alert("Stock uploaded!");
     }
 
     function buyItem(id) {
         let itm = items.find(x => x.id === id);
-        if(balance < itm.p) return alert("Insufficient Balance");
+        if(balance < itm.p) return alert("Funds insufficient!");
         const log = itm.data.shift();
         balance -= itm.p;
-        let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+        let u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
         u.bal = balance; u.history.push({n: itm.n, log: log, d: new Date().toLocaleString()});
-        localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
+        localStorage.setItem(`subby_user_${currentUser}`, JSON.stringify(u));
+        localStorage.setItem('subby_market_v2', JSON.stringify(items));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
-        renderMarket(); alert("Success! Check MY LOGS.");
+        renderMarket(); alert("Done! Go to MY LOGS.");
     }
 
     function openHistory() {
-        const u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+        const u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
         document.getElementById('history-overlay').style.display = 'block';
         document.getElementById('history-list').innerHTML = u.history.map(h => `
             <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #222;">
@@ -232,24 +249,25 @@
             </div>`).reverse().join('');
     }
 
-    function openAdmin() { if(prompt("PIN") === '1234567890') { document.getElementById('admin-panel').style.display = 'block'; } }
-
+    function openAdmin() { if(prompt("PIN") === '1234567890') { document.getElementById('admin-panel').style.display = 'block'; loadAdminList(); } }
+    function loadAdminList() { document.getElementById('admin-list-container').innerHTML = items.map(i => `<div style="padding:10px; background:#111; margin-bottom:5px;">${i.n} - ${i.data.length} <button onclick="deleteCard(${i.id})">X</button></div>`).join(''); }
+    function deleteCard(id) { items = items.filter(x => x.id !== id); localStorage.setItem('subby_market_v2', JSON.stringify(items)); loadAdminList(); renderMarket(); }
     function admCredit() {
         const e = document.getElementById('adm-user').value.toLowerCase().trim();
         const a = parseInt(document.getElementById('adm-amt').value);
-        let u = JSON.parse(localStorage.getItem(`user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Credited!"); } else alert("User Not Found");
+        let u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
+        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("Credited!"); } else alert("User 404");
     }
 
     function fundWallet() {
-        const a = prompt("Amount ₦:"); if(!a) return;
+        const a = prompt("Amount ₦:"); if(!a || isNaN(a)) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: currentUser, amount: a * 100, currency: 'NGN',
             callback: () => { 
                 balance += parseInt(a); 
-                let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
-                u.bal = balance; localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
+                let u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
+                u.bal = balance; localStorage.setItem(`subby_user_${currentUser}`, JSON.stringify(u));
                 document.getElementById('bal-val').innerText = balance.toLocaleString();
                 alert("Funded!");
             }
