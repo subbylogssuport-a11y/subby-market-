@@ -13,35 +13,18 @@
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --whatsapp: #25d366; --red: #ff4d4d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: #eee; overflow-x: hidden; padding-bottom: 80px; }
-        
-        /* Overlays */
         .overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .card-ui { background: #111; border: 1px solid #222; padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; text-align: center; }
-        
         input, textarea { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
-        
         .nav { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; z-index: 100; }
-        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; }
-        
-        /* My Logs Item Style */
+        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; position: relative; }
+        .stock-tag { position: absolute; top: 15px; right: 15px; background: #333; color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
         .purchased-item { background: #1c1e26; padding: 15px; border-radius: 15px; margin: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Matured Support UI */
-        .support-overlay { position: fixed; inset: 0; background: rgba(10, 11, 16, 0.98); backdrop-filter: blur(15px); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; }
-        .support-option { background: #16171d; border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; text-decoration: none; width: 100%; max-width: 350px; transition: 0.3s; }
-        .support-option:active { transform: scale(0.95); }
-        .icon-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; border: 2px solid; }
-        .icon-whatsapp { border-color: #25d366; color: #25d366; }
-        .icon-email { border-color: var(--primary); color: var(--primary); }
-        .icon-back { border-color: #555; color: #555; }
-
-        /* Navigation Tab Bar */
+        .support-overlay { position: fixed; inset: 0; background: rgba(10, 11, 16, 0.98); backdrop-filter: blur(15px); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .tab-bar { position: fixed; bottom: 0; width: 100%; display: flex; background: #0a0b10; border-top: 1px solid #222; padding: 15px; justify-content: space-around; z-index: 500; }
-        .tab { color: #555; font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; }
+        .tab { color: #555; font-weight: bold; font-size: 11px; cursor: pointer; }
         .tab.active { color: var(--primary); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -49,6 +32,7 @@
 <div id="auth-gate" class="overlay">
     <div class="card-ui">
         <h2 id="atitle" style="color:var(--primary); margin-bottom:15px;">LOGIN</h2>
+        <input type="text" id="username" placeholder="Username" style="display:none;">
         <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="pass" placeholder="Password">
         <button class="btn" onclick="handleAuth()" id="abtn">SIGN IN</button>
@@ -59,35 +43,22 @@
 <div id="admin-gate" class="overlay" style="display:none; z-index:11000;">
     <div class="card-ui" style="max-height: 90vh; overflow-y: auto;">
         <h2 style="color:var(--gold)">ADMIN PANEL</h2>
-        <input id="adm-mail" placeholder="User Email">
+        <input id="adm-user" placeholder="Target Username">
         <input id="adm-amt" placeholder="Amount ₦" type="number">
-        <button class="btn" onclick="adminSendMoney()">SEND MONEY</button>
+        <button class="btn" onclick="adminSendMoney()">SEND TO USERNAME</button>
         <hr style="margin:20px 0; border-color:#222;">
         <input id="log-name" placeholder="Item Name">
         <input id="log-price" placeholder="Price ₦" type="number">
-        <textarea id="log-data" placeholder="Log Data (one per line)"></textarea>
+        <textarea id="log-data" placeholder="Log Data (One account per line)"></textarea>
         <button class="btn" style="background:var(--gold); color:#000" onclick="adminUpload()">UPLOAD STOCK</button>
         <button class="btn" style="background:#222;" onclick="closeAdmin()">CLOSE</button>
     </div>
 </div>
 
 <div id="support-screen" class="support-overlay">
-    <h2 style="color:white; margin-bottom:30px; letter-spacing:1px;">SUPPORT CENTER</h2>
-    
-    <a href="https://wa.me/2347048141378" target="_blank" class="support-option">
-        <div class="icon-circle icon-whatsapp">W</div>
-        <div style="text-align:left"><b style="color:white;display:block">Contact Support</b><span>WhatsApp Chat</span></div>
-    </a>
-
-    <a href="mailto:subbylogssupport@gmail.com" class="support-option">
-        <div class="icon-circle icon-email">E</div>
-        <div style="text-align:left"><b style="color:white;display:block">Contact Support</b><span>Email Support</span></div>
-    </a>
-
-    <div onclick="closeSupport()" class="support-option" style="border-style:dashed; margin-top:20px;">
-        <div class="icon-circle icon-back">←</div>
-        <div style="text-align:left"><b style="color:#777;display:block">Back to App</b><span>Return to Market</span></div>
-    </div>
+    <h2 style="color:white; margin-bottom:30px;">SUPPORT</h2>
+    <a href="https://wa.me/2347048141378" style="text-decoration:none; background:#16171d; padding:20px; border-radius:15px; width:100%; max-width:300px; text-align:center; color:white; border:1px solid #222;">WhatsApp Chat</a>
+    <div onclick="document.getElementById('support-screen').style.display='none'" class="btn" style="background:#222; margin-top:20px; max-width:300px;">BACK</div>
 </div>
 
 <div id="app" style="display:none">
@@ -95,25 +66,25 @@
         <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
         <div style="display:flex; align-items:center; gap:10px;">
             <div style="color:var(--gold); font-weight:900;">₦<span id="bal">0</span></div>
-            <button onclick="pay()" style="width:28px; height:28px; border-radius:50%; border:none; background:var(--gold); color:black; font-weight:bold; cursor:pointer;">+</button>
-            <button class="btn" style="width:auto; padding:5px 10px; margin:0; font-size:10px;" onclick="logout()">LOGOUT</button>
+            <button onclick="pay()" style="width:28px; height:28px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
+            <button class="btn" style="width:auto; padding:5px 10px; margin:0; font-size:10px;" onclick="auth.signOut().then(()=>location.reload())">LOGOUT</button>
         </div>
     </div>
 
     <div id="view-market">
-        <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="renderMarket()"></div>
+        <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search stock..." oninput="renderMarket()"></div>
         <div id="market-list"></div>
     </div>
 
     <div id="view-logs" style="display:none; padding:15px;">
-        <h2 style="color:var(--primary); margin-bottom:15px;">MY ACCOUNTS</h2>
+        <h2 style="color:var(--primary); margin-bottom:15px;">MY LOGS</h2>
         <div id="my-logs-list"></div>
     </div>
 
     <div class="tab-bar">
         <div onclick="switchTab('market')" id="tab-m" class="tab active">MARKET</div>
         <div onclick="switchTab('logs')" id="tab-l" class="tab">MY LOGS</div>
-        <div onclick="openSupport()" class="tab">SUPPORT</div>
+        <div onclick="document.getElementById('support-screen').style.display='flex'" class="tab">SUPPORT</div>
     </div>
 </div>
 
@@ -130,63 +101,61 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.database();
 
-    // FUNDING LOGIC (PAYSTACK)
-    function pay() {
-        const amount = prompt("Enter amount to fund (₦):");
-        if (!amount || isNaN(amount) || amount < 100) return alert("Min funding: ₦100");
-
-        const handler = PaystackPop.setup({
-            key: 'Pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661', 
-            email: auth.currentUser.email,
-            amount: amount * 100, 
-            currency: "NGN",
-            callback: function(res) {
-                const uid = auth.currentUser.uid;
-                db.ref('users/' + uid).once('value', s => {
-                    const newBal = (s.val().bal || 0) + parseInt(amount);
-                    db.ref('users/' + uid).update({ bal: newBal }).then(() => {
-                        alert("Wallet Funded: ₦" + amount);
-                    });
-                });
-            }
-        });
-        handler.openIframe();
-    }
-
-    // AUTH
+    // AUTH WITH USERNAME
     async function handleAuth() {
-        const e = document.getElementById('email').value.trim(), p = document.getElementById('pass').value;
-        if(!e || !p) return alert("Fill all fields");
+        const u = document.getElementById('username').value.trim().toLowerCase();
+        const e = document.getElementById('email').value.trim();
+        const p = document.getElementById('pass').value;
+        const isRegister = document.getElementById('atitle').innerText === "REGISTER";
+
         try {
-            if(document.getElementById('atitle').innerText === "LOGIN") await auth.signInWithEmailAndPassword(e,p);
-            else {
-                const res = await auth.createUserWithEmailAndPassword(e,p);
-                await db.ref('users/' + res.user.uid).set({ email: e, bal: 0 });
+            if(isRegister) {
+                if(!u) return alert("Pick a username");
+                // Check if username taken
+                const uSnap = await db.ref('usernames/' + u).once('value');
+                if(uSnap.exists()) return alert("Username already taken!");
+                
+                const res = await auth.createUserWithEmailAndPassword(e, p);
+                await db.ref('users/' + res.user.uid).set({ email: e, username: u, bal: 0 });
+                await db.ref('usernames/' + u).set(res.user.uid);
+            } else {
+                await auth.signInWithEmailAndPassword(e, p);
             }
         } catch(err) { alert(err.message); }
+    }
+
+    function toggleAuth() {
+        const isL = document.getElementById('atitle').innerText === "LOGIN";
+        document.getElementById('atitle').innerText = isL ? "REGISTER" : "LOGIN";
+        document.getElementById('username').style.display = isL ? "block" : "none";
+        document.getElementById('abtn').innerText = isL ? "CREATE ACCOUNT" : "SIGN IN";
     }
 
     auth.onAuthStateChanged(user => {
         if(user) {
             document.getElementById('auth-gate').style.display='none';
             document.getElementById('app').style.display='block';
-            db.ref('users/' + user.uid + '/bal').on('value', s => {
-                document.getElementById('bal').innerText = (s.val() || 0).toLocaleString();
-            });
+            db.ref('users/' + user.uid + '/bal').on('value', s => document.getElementById('bal').innerText = (s.val() || 0).toLocaleString());
             db.ref('market').on('value', renderMarket);
             renderMyLogs();
         }
     });
 
-    // MARKET & LOGS
+    // MARKET WITH STOCK COUNTER
     function renderMarket() {
         db.ref('market').once('value', s => {
-            const items = s.val() || {}, term = document.getElementById('searchInput').value.toLowerCase();
+            const items = s.val() || {};
             let h = "";
             for(let k in items) {
-                if(items[k].name.toLowerCase().includes(term)) {
-                    h += `<div class="log-item"><h3>${items[k].name}</h3><h2 style="color:var(--primary)">₦${items[k].price}</h2><button class="btn" onclick="buyLog('${k}', ${items[k].price}, '${items[k].name}')">BUY NOW</button></div>`;
-                }
+                const stockCount = Array.isArray(items[k].data) ? items[k].data.length : 0;
+                h += `<div class="log-item">
+                    <span class="stock-tag">${stockCount} LEFT</span>
+                    <h3>${items[k].name}</h3>
+                    <h2 style="color:var(--primary)">₦${items[k].price}</h2>
+                    <button class="btn" ${stockCount === 0 ? 'disabled style="background:#444"' : ''} onclick="buyLog('${k}', ${items[k].price}, '${items[k].name}')">
+                        ${stockCount === 0 ? 'OUT OF STOCK' : 'BUY NOW'}
+                    </button>
+                </div>`;
             }
             document.getElementById('market-list').innerHTML = h;
         });
@@ -194,13 +163,19 @@
 
     async function buyLog(id, price, name) {
         const uid = auth.currentUser.uid;
-        const s = await db.ref('users/' + uid).once('value');
-        if(s.val().bal < price) return alert("Low balance!");
-        
+        const uSnap = await db.ref('users/' + uid).once('value');
+        if(uSnap.val().bal < price) return alert("Low balance!");
+
         const logSnap = await db.ref('market/' + id).once('value');
-        await db.ref('users/' + uid).update({ bal: s.val().bal - price });
-        await db.ref('purchases/' + uid).push({ name: name, data: logSnap.val().data, date: new Date().toLocaleDateString() });
-        alert("Log Purchased!");
+        let logs = logSnap.val().data;
+        if(!logs || logs.length === 0) return alert("Sold out!");
+
+        const boughtItem = logs.shift(); // Remove the first log from stock
+        
+        await db.ref('market/' + id).update({ data: logs });
+        await db.ref('users/' + uid).update({ bal: uSnap.val().bal - price });
+        await db.ref('purchases/' + uid).push({ name: name, data: boughtItem, date: new Date().toLocaleDateString() });
+        alert("Purchase Successful!");
     }
 
     function renderMyLogs() {
@@ -208,42 +183,57 @@
             const logs = s.val() || {};
             let h = "";
             for(let k in logs) {
-                h += `<div class="purchased-item"><div><b>${logs[k].name}</b><br><small>${logs[k].date}</small></div><button class="btn" style="width:auto; padding:5px 10px;" onclick="alert('ACCOUNT DATA:\\n\\n${logs[k].data}')">VIEW</button></div>`;
+                h += `<div class="purchased-item"><div><b>${logs[k].name}</b><br><small>${logs[k].date}</small></div><button class="btn" style="width:auto; padding:5px 10px;" onclick="alert('LOG DATA:\\n${logs[k].data}')">VIEW</button></div>`;
             }
-            document.getElementById('my-logs-list').innerHTML = h || "<p style='text-align:center; color:#444;'>Empty</p>";
+            document.getElementById('my-logs-list').innerHTML = h;
         });
     }
 
-    // NAVIGATION
-    function switchTab(tab) {
-        const isMarket = tab === 'market';
-        document.getElementById('view-market').style.display = isMarket ? 'block' : 'none';
-        document.getElementById('view-logs').style.display = isMarket ? 'none' : 'block';
-        document.getElementById('tab-m').classList.toggle('active', isMarket);
-        document.getElementById('tab-l').classList.toggle('active', !isMarket);
+    // ADMIN: SEND BY USERNAME
+    async function adminSendMoney() {
+        const user = document.getElementById('adm-user').value.trim().toLowerCase();
+        const amt = parseInt(document.getElementById('adm-amt').value);
+        const uSnap = await db.ref('usernames/' + user).once('value');
+        
+        if(uSnap.exists()) {
+            const targetUid = uSnap.val();
+            const balSnap = await db.ref('users/' + targetUid + '/bal').once('value');
+            await db.ref('users/' + targetUid).update({ bal: (balSnap.val() || 0) + amt });
+            alert("Sent ₦" + amt + " to @" + user);
+        } else { alert("Username not found!"); }
     }
 
-    function openSupport() { document.getElementById('support-screen').style.display = 'flex'; }
-    function closeSupport() { document.getElementById('support-screen').style.display = 'none'; }
+    function adminUpload() {
+        const n = document.getElementById('log-name').value, p = document.getElementById('log-price').value;
+        const d = document.getElementById('log-data').value.split('\n').filter(l => l.trim() !== "");
+        db.ref('market').push({ name: n, price: p, data: d });
+        alert("Stock Added!");
+    }
+
+    function pay() {
+        const amount = prompt("Amount to fund:");
+        if(!amount || amount < 100) return;
+        new PaystackPop().setup({
+            key: 'Pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+            email: auth.currentUser.email,
+            amount: amount * 100,
+            callback: function() {
+                db.ref('users/' + auth.currentUser.uid).once('value', s => {
+                    db.ref('users/' + auth.currentUser.uid).update({ bal: (s.val().bal || 0) + parseInt(amount) });
+                });
+            }
+        }).openIframe();
+    }
+
+    function switchTab(t) {
+        document.getElementById('view-market').style.display = t === 'market' ? 'block' : 'none';
+        document.getElementById('view-logs').style.display = t === 'logs' ? 'block' : 'none';
+        document.getElementById('tab-m').className = t === 'market' ? 'tab active' : 'tab';
+        document.getElementById('tab-l').className = t === 'logs' ? 'tab active' : 'tab';
+    }
+
     function checkAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
     function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
-    function toggleAuth() { const isL = document.getElementById('atitle').innerText === "LOGIN"; document.getElementById('atitle').innerText = isL ? "REGISTER" : "LOGIN"; }
-    function logout() { auth.signOut().then(() => location.reload()); }
-    function adminUpload() {
-        const n = document.getElementById('log-name').value, p = document.getElementById('log-price').value, d = document.getElementById('log-data').value;
-        db.ref('market').push({ name: n, price: p, data: d }); alert("Added!");
-    }
-    async function adminSendMoney() {
-        const email = document.getElementById('adm-mail').value.trim().toLowerCase(), amt = parseInt(document.getElementById('adm-amt').value);
-        const users = await db.ref('users').once('value');
-        let targetUid = null;
-        users.forEach(c => { if(c.val().email.toLowerCase() === email) targetUid = c.key; });
-        if(targetUid) {
-            db.ref('users/' + targetUid).update({ bal: (users.val()[targetUid].bal || 0) + amt });
-            alert("Sent!");
-        } else { alert("User Not Found"); }
-    }
 </script>
-
 </body>
 </html>
