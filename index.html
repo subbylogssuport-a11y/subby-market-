@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V66</title>
+    <title>SUBBY LOGS | V67 FINAL</title>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
-        /* PULSING SPACE ROBOT BOT */
+        /* PULSING BOT ICON - FIXED LINK */
         #ia-bubble { 
             position: fixed; bottom: 90px; right: 20px; width: 65px; height: 65px; 
-            background: #000 url('https://i.ibb.co/6R5qXhP/space-robot.jpg') no-repeat center center;
+            background: #000 url('https://i.postimg.cc/85M6tFmB/space-robot.jpg') no-repeat center center;
             background-size: cover; border: 2px solid var(--primary); border-radius: 50%; 
             cursor: pointer; z-index: 9999; animation: pulse 2s infinite; 
         }
@@ -23,7 +23,7 @@
         #site-logo { font-weight: 900; color: var(--primary); font-size: 20px; cursor: pointer; }
         .bal-container { display: flex; align-items: center; gap: 10px; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 10px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
-        .topup-btn { background: var(--gold); color: #000; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .topup-btn { background: var(--gold); color: #000; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
 
         /* MARKET UI */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -32,7 +32,7 @@
         .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
-        .cat-header { padding: 10px 20px; font-size: 12px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .cat-header { padding: 20px 20px 10px; font-size: 12px; color: var(--gold); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
         .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0b10; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 2000; }
@@ -50,7 +50,7 @@
         <input type="email" id="log-email" class="auth-input" placeholder="Email">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleLogin()">LOGIN</button>
-        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">New? Register</p>
+        <p onclick="showGate('reg-gate')" style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;">New User? Register</p>
     </div>
 </div>
 
@@ -88,25 +88,26 @@
 
 <div id="admin-panel" class="overlay">
     <h2 style="color:var(--primary); margin-bottom:20px;">Admin Access</h2>
-    <input id="adm-user" class="auth-input" placeholder="Target User Email">
-    <input id="adm-amt" class="auth-input" placeholder="Credit Amount ₦">
-    <button class="auth-btn" onclick="admCredit()">ADD FUNDS TO USER</button>
-    <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="closeAllOverlays()">LOGOUT ADMIN</button>
+    <input id="adm-user" class="auth-input" placeholder="Customer Email">
+    <input id="adm-amt" class="auth-input" placeholder="Amount ₦">
+    <button class="auth-btn" onclick="admCredit()">CREDIT WALLET</button>
+    <button class="auth-btn" style="background:#222; margin-top:20px;" onclick="closeAllOverlays()">EXIT ADMIN</button>
 </div>
 
 <script>
     let currentUser = null;
     let balance = 0;
 
+    // YOUR STOCK LIST
     const globalStock = [
-        { id: 1, c: "FACEBOOK", n: "Random FB [NEWLY CREATED]", p: 1000, data: ["61577544315444/PASS: Qujalsj091 2Fa /Y6YWKGDMWP6PLDO2MYSROC5PS3MOATZK", "luddie0@bootsship.com /PASS :qurojuk1p0 2FA /XCSD HABM PXAJ Z5LY 4IR7 TD7P ICFQ GTCH"] },
-        { id: 2, c: "FACEBOOK", n: "USA FB [NEWLY CREATED]", p: 1500, data: ["ID 61576654900158 /PASS qudkgrsa12 /2FA 2RZI DZF7 WHN5 3D3V OPXD ULGZ ROH3 CYGE"] },
-        { id: 3, c: "FACEBOOK", n: "UK FB [NEWLY CREATED]", p: 1500, data: ["ID 61576259523010/PASSififoiyd986 / 2FA T6BO N5OL 7CWW 5G3E H34H 5TEZ FKYV X2J4"] },
-        { id: 4, c: "GOOGLE VOICE", n: "Premium Google Voice [USA]", p: 3500, data: [] }
+        { id: 1, c: "FACEBOOK", n: "Random FB [NEWLY CREATED]", p: 1000, data: ["61577544315444/PASS: Qujalsj091 2Fa /Y6YWKGDMWP6PLDO2MYSROC5PS3MOATZK"] },
+        { id: 2, c: "FACEBOOK", n: "USA FB [NEWLY CREATED]", p: 1500, data: ["ID 61576654900158 /PASS qudkgrsa12 /2FA 2RZI DZF7 WHN5 3D3V OPXD ULGZ"] },
+        { id: 3, c: "FACEBOOK", n: "UK FB [NEWLY CREATED]", p: 1500, data: ["ID 61576259523010/PASSififoiyd986 / 2FA T6BO N5OL 7CWW 5G3E"] },
+        { id: 4, c: "GOOGLE VOICE", n: "Premium Google Voice [USA]", p: 3500, data: [] } // OUT OF STOCK
     ];
 
     function openSupport() {
-        window.open('https://wa.me/2348104565349?text=Hello%20Subby%20Logs,%20I%20want%20to%20top%20up%20my%20wallet!');
+        window.open('https://wa.me/2348104565349?text=Hello%20Subby,%20I%20want%20to%20top%20up%20my%20wallet%20now!');
     }
 
     function showGate(id) {
@@ -117,9 +118,9 @@
     function handleRegister() {
         const e = document.getElementById('reg-email').value.toLowerCase();
         const p = document.getElementById('reg-pass').value;
-        if(!e || !p) return alert("All fields are required.");
+        if(!e || !p) return alert("Fill all fields");
         localStorage.setItem(`subby_user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Registration successful!"); showGate('login-gate');
+        alert("Account Created!"); showGate('login-gate');
     }
 
     function handleLogin() {
@@ -132,7 +133,7 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             renderMarket();
-        } else alert("Error: Account not found or wrong password.");
+        } else alert("Wrong email or password");
     }
 
     function renderMarket() {
@@ -157,36 +158,36 @@
 
     function buyItem(id) {
         let itm = globalStock.find(x => x.id === id);
-        if(balance < itm.p) return alert("Insufficient funds. Click the '+' button to fund your account.");
+        if(balance < itm.p) return alert("Low balance! Click '+' to fund wallet.");
         const log = itm.data.shift();
         balance -= itm.p;
         let u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
         u.bal = balance; u.history.push({n: itm.n, log: log, d: new Date().toLocaleString()});
         localStorage.setItem(`subby_user_${currentUser}`, JSON.stringify(u));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
-        renderMarket(); alert("Success! Check 'MY LOGS' for your data.");
+        renderMarket(); alert("Success! Check 'MY LOGS'.");
     }
 
     function openHistory() {
         const u = JSON.parse(localStorage.getItem(`subby_user_${currentUser}`));
         document.getElementById('history-overlay').style.display = 'block';
-        document.getElementById('history-list').innerHTML = u.history.length ? u.history.map(h => `
+        document.getElementById('history-list').innerHTML = u.history.map(h => `
             <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid var(--gold);">
-                <p style="font-size:10px; color:#444;">${h.d}</p>
+                <p style="font-size:10px; color:#555;">${h.d}</p>
                 <h4 style="color:var(--gold)">${h.n}</h4>
-                <code style="display:block; background:#000; padding:10px; margin-top:5px; border-radius:5px; word-break:break-all;">${h.log}</code>
-            </div>`).reverse().join('') : "<p style='text-align:center; padding:50px;'>Your logs will appear here after purchase.</p>";
+                <code style="display:block; background:#000; padding:10px; margin-top:5px; border-radius:5px; word-break:break-all; color:#0f0;">${h.log}</code>
+            </div>`).reverse().join('') || "<p style='text-align:center; padding:50px;'>No logs purchased yet.</p>";
     }
 
-    // UPDATED PIN: 1710
+    // UPDATED PIN TO 1710
     function openAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
     
     function admCredit() {
         const e = document.getElementById('adm-user').value.toLowerCase();
         const a = parseInt(document.getElementById('adm-amt').value);
         let u = JSON.parse(localStorage.getItem(`subby_user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("User's wallet successfully credited!"); }
-        else alert("Email not found in our records.");
+        if(u) { u.bal += a; localStorage.setItem(`subby_user_${e}`, JSON.stringify(u)); alert("User credited successfully!"); }
+        else alert("Email not found.");
     }
     function closeAllOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
 </script>
