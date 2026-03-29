@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V82 PLATINUM</title>
+    <title>SUBBY LOGS | V83 PLATINUM+</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --whatsapp: #25d366; }
+        :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --whatsapp: #25d366; --red: #ff4d4d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: #eee; overflow-x: hidden; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -26,6 +26,7 @@
         .msg-ai { background: #222; padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; border-left: 3px solid var(--primary); }
         .msg-user { background: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; text-align: right; margin-left: 20%; }
         .support-link { color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .logout-btn { background: none; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -73,9 +74,10 @@
 <div id="app" style="display:none">
     <div class="nav">
         <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:5px;">
             <div style="color:var(--gold); font-weight:900;">₦<span id="bal">0</span></div>
-            <button onclick="pay()" style="width:30px; height:30px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
+            <button onclick="pay()" style="width:25px; height:25px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
+            <button class="logout-btn" onclick="logout()">LOGOUT</button>
         </div>
     </div>
     <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="filterMarket()" style="margin:0"></div>
@@ -140,16 +142,21 @@
 
     function forgotPass() {
         const e = document.getElementById('email').value;
-        if(!e) return alert("Please type your email address first!");
-        auth.sendPasswordResetEmail(e).then(() => {
-            alert("A password reset link has been sent to " + e);
-        }).catch(err => alert(err.message));
+        if(!e) return alert("Please type your email first!");
+        auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent!")).catch(err => alert(err.message));
     }
 
-    // Fixed Auth State: Prevent immediate jumping
+    function logout() {
+        if(confirm("Are you sure you want to log out?")) {
+            auth.signOut().then(() => {
+                location.reload(); // Refresh to ensure session is cleared
+            });
+        }
+    }
+
     auth.onAuthStateChanged(user => {
         if(user) {
-            setTimeout(() => { // Small delay to prevent flashing
+            setTimeout(() => {
                 document.getElementById('auth-gate').style.display='none';
                 document.getElementById('app').style.display='block';
                 document.getElementById('bot-box').style.display='block';
