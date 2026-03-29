@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V39 OFFICIAL</title>
+    <title>SUBBY MARKET | V40 OFFICIAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -25,8 +25,7 @@
         #site-logo { font-weight: 900; color: var(--primary); font-size: 18px; }
         .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 18px; border-radius: 25px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
         
-        .search-bar { width: 92%; margin: 15px auto; display: block; padding: 14px; background: #111; border: 1px solid #333; border-radius: 15px; color: #fff; outline: none; }
-
+        .cat-header { padding: 15px 20px; font-size: 14px; color: var(--gold); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
         .grid { padding: 10px; display: grid; gap: 15px; padding-bottom: 100px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 20px; position: relative; }
         .stock-tag { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; }
@@ -46,7 +45,6 @@
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
         <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New user? <span style="color:var(--primary);">Create Account</span></p>
-        <p style="color:#444; font-size:11px; margin-top:10px; cursor:pointer;" onclick="window.open('https://wa.me/2348104565349?text=I%20forgot%20my%20password')">Forgot Password?</p>
     </div>
 </div>
 
@@ -55,9 +53,6 @@
         <h2 style="color:var(--primary); margin-bottom:20px;">CREATE ACCOUNT</h2>
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
-        <div style="margin-bottom:15px; font-size:11px; color:#888;">
-            <input type="checkbox" checked required> I agree all payments are verified via Paystack.
-        </div>
         <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
         <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('login-gate')">Have account? <span style="color:var(--primary);">Login</span></p>
     </div>
@@ -67,21 +62,18 @@
     <div class="modal-content">
         <h2 style="color:var(--gold); margin-bottom:10px;">Welcome Back!</h2>
         <p id="user-greet" style="font-weight:bold; margin-bottom:15px; color:#fff;"></p>
-        <div style="border-top:1px solid #333; padding-top:15px; margin-bottom:20px;">
-            <p style="font-size:14px; color:#aaa;">Happy Easter! 🌸<br>Enjoy our premium logs update.</p>
-        </div>
+        <p style="font-size:14px; color:#aaa; margin-bottom:20px;">Happy Easter! 🌸<br>Enjoy our premium logs update.</p>
         <button class="auth-btn" style="background:var(--gold)" onclick="closeWelcome()">ENTER MARKET</button>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
     <div class="navbar">
-        <div id="site-logo" style="cursor:pointer;">SUBBY MARKET</div>
+        <div id="site-logo" ondblclick="openAdmin()">SUBBY MARKET</div>
         <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="color:var(--gold); cursor:pointer; font-weight:bold;">+</span></div>
     </div>
     
-    <input type="text" id="search" class="search-bar" placeholder="🔍 Search cards (e.g UK, USA)..." oninput="filterCards()">
-    <div class="grid" id="market-grid"></div>
+    <div id="market-grid"></div>
 
     <div class="bottom-nav">
         <div style="color:var(--primary); font-size:10px; font-weight:bold;">MARKET</div>
@@ -95,21 +87,27 @@
     <div id="admin-stock-list" style="margin:20px 0; background:#111; padding:10px; border-radius:15px;"></div>
     
     <input type="email" id="adm-user" class="auth-input" placeholder="Target User Email">
-    <input type="number" id="adm-amt" class="auth-input" placeholder="Amount to Add (₦)">
+    <input type="number" id="adm-amt" class="auth-input" placeholder="Amount (₦)">
     <button class="auth-btn" onclick="admCredit()">ADD BALANCE</button>
-    <button class="auth-btn" style="background:#444; margin-top:10px;" onclick="admCheckHistory()">VERIFY HISTORY</button>
     <button class="auth-btn" style="background:#222; margin-top:30px;" onclick="document.getElementById('admin-panel').style.display='none'">EXIT ADMIN</button>
 </div>
 
 <script>
     let currentUser = null;
     let balance = 0;
-    let items = [
-        {id:1, n:"UK Facebook 🇬🇧", p:2500, s:15},
-        {id:2, n:"USA FB Fresh", p:1500, s:10},
-        {id:3, n:"Germany Aged FB", p:5000, s:5},
-        {id:4, n:"Instagram HD", p:9000, s:0}
-    ];
+    
+    // ORGANIZED CATEGORIES
+    let marketData = {
+        "Facebook Section": [
+            {id:1, n:"UK Facebook 🇬🇧", p:2500, s:0},
+            {id:2, n:"USA FB Fresh", p:1500, s:0},
+            {id:3, n:"Germany Aged FB", p:5000, s:0}
+        ],
+        "Instagram Section": [
+            {id:4, n:"Instagram HD Logs", p:9000, s:0},
+            {id:5, n:"IG Followers Bot", p:500, s:0}
+        ]
+    };
 
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
@@ -120,8 +118,7 @@
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-pass').value.trim();
         if(!email.includes('@')) return alert("Invalid Email!");
-        if(localStorage.getItem(`user_${email}`)) return alert("This email is already in use!");
-        
+        if(localStorage.getItem(`user_${email}`)) return alert("Email already exists!");
         localStorage.setItem(`user_${email}`, JSON.stringify({pass: pass, bal: 0, history: []}));
         alert("Account Created! Login now.");
         showGate('login-gate');
@@ -140,52 +137,75 @@
             document.getElementById('main-app').style.display = 'block';
             document.getElementById('user-greet').innerText = email;
             document.getElementById('welcome-modal').style.display = 'flex';
-            renderMarket(items);
+            renderMarket();
         } else {
-            alert("❌ Invalid email or password!");
+            alert("Wrong login details!");
         }
     }
 
     function closeWelcome() { document.getElementById('welcome-modal').style.display = 'none'; }
 
-    function renderMarket(data) {
-        document.getElementById('market-grid').innerHTML = data.map(i => `
-            <div class="card">
-                <span class="stock-tag" style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}">
-                    ● ${i.s > 0 ? 'IN STOCK ('+i.s+')' : 'OUT OF STOCK'}
-                </span>
-                <h3>${i.n}</h3>
-                <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
-                <button class="auth-btn" style="height:45px; font-size:12px;" ${i.s == 0 ? 'disabled style="background:#222"' : ''} onclick="buyItem(${i.id}, '${i.n}', ${i.p})">BUY NOW</button>
-            </div>`).join('');
+    function renderMarket() {
+        let html = "";
+        for (const cat in marketData) {
+            html += `<div class="cat-header">${cat}</div><div class="grid">`;
+            marketData[cat].forEach(i => {
+                html += `
+                <div class="card">
+                    <span class="stock-tag" style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}">
+                        ● ${i.s > 0 ? 'IN STOCK ('+i.s+')' : 'OUT OF STOCK'}
+                    </span>
+                    <h3>${i.n}</h3>
+                    <h2 style="color:var(--primary); margin:10px 0;">₦${i.p.toLocaleString()}</h2>
+                    <button class="auth-btn" style="height:45px; font-size:12px;" ${i.s == 0 ? 'disabled style="background:#222"' : ''}>BUY NOW</button>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        document.getElementById('market-grid').innerHTML = html;
     }
 
-    function buyItem(id, name, price) {
-        if(balance < price) return alert("❌ Insufficient balance! Fund your wallet.");
-        balance -= price;
-        const stored = JSON.parse(localStorage.getItem(`user_${currentUser}`));
-        stored.bal = balance;
-        stored.history.push({item: name, cost: price, date: new Date().toLocaleString()});
-        localStorage.setItem(`user_${currentUser}`, JSON.stringify(stored));
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
-        alert(`✅ Successful! You bought ${name}.`);
-        renderMarket(items);
+    // ADMIN TRIGGER (Double Click/Tap logo)
+    function openAdmin() {
+        const p = prompt("ADMIN PASSWORD:");
+        if(p === '1234567890') {
+            document.getElementById('admin-panel').style.display='block';
+            loadAdm();
+        }
     }
 
-    function checkMyHistory() {
-        const stored = JSON.parse(localStorage.getItem(`user_${currentUser}`));
-        if(!stored.history.length) return alert("You haven't bought anything yet!");
-        alert("MY PURCHASE HISTORY:\n\n" + stored.history.map(h => `${h.date}: ${h.item}`).join('\n'));
+    function loadAdm() {
+        let admHtml = "";
+        for (const cat in marketData) {
+            marketData[cat].forEach(i => {
+                admHtml += `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #222; padding:5px;">
+                    <span style="font-size:12px;">${i.n}</span>
+                    <input type="number" value="${i.s}" onchange="updateStock(${i.id}, this.value)" style="width:50px; background:#000; color:#fff; border:1px solid #444;">
+                </div>`;
+            });
+        }
+        document.getElementById('admin-stock-list').innerHTML = admHtml;
     }
 
-    function filterCards() {
-        const q = document.getElementById('search').value.toLowerCase();
-        renderMarket(items.filter(i => i.n.toLowerCase().includes(q)));
+    function updateStock(id, val) {
+        for (const cat in marketData) {
+            let item = marketData[cat].find(x => x.id == id);
+            if(item) { item.s = parseInt(val); renderMarket(); break; }
+        }
+    }
+
+    function admCredit() {
+        const email = document.getElementById('adm-user').value.toLowerCase();
+        const amt = parseInt(document.getElementById('adm-amt').value);
+        let u = JSON.parse(localStorage.getItem(`user_${email}`));
+        if(u) { u.bal += amt; localStorage.setItem(`user_${email}`, JSON.stringify(u)); alert("Credited!"); }
+        else { alert("User not found!"); }
     }
 
     function fundWallet() {
-        const amt = prompt("How much do you want to deposit? (₦)");
-        if(!amt || isNaN(amt)) return;
+        const amt = prompt("Amount to deposit? (₦)");
+        if(!amt) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: currentUser,
@@ -197,45 +217,9 @@
                 s.bal = balance;
                 localStorage.setItem(`user_${currentUser}`, JSON.stringify(s));
                 document.getElementById('bal-val').innerText = balance.toLocaleString();
-                alert("Deposit Successful!");
+                alert("Success!");
             }
         }).openIframe();
-    }
-
-    // ADMIN TRIGGER (Hold logo 3 seconds)
-    let logoTap;
-    document.getElementById('site-logo').addEventListener('mousedown', () => {
-        logoTap = setTimeout(() => {
-            const p = prompt("ADMIN PASSWORD:");
-            if(p === '1234567890') {
-                document.getElementById('admin-panel').style.display='block';
-                loadAdm();
-            }
-        }, 3000);
-    });
-    document.getElementById('site-logo').addEventListener('mouseup', () => clearTimeout(logoTap));
-
-    function loadAdm() {
-        document.getElementById('admin-stock-list').innerHTML = items.map(i => `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                <span>${i.n}</span>
-                <input type="number" value="${i.s}" onchange="items.find(x=>x.id==${i.id}).s=this.value;renderMarket(items)">
-            </div>`).join('');
-    }
-
-    function admCredit() {
-        const email = document.getElementById('adm-user').value.toLowerCase();
-        const amt = parseInt(document.getElementById('adm-amt').value);
-        let u = JSON.parse(localStorage.getItem(`user_${email}`));
-        if(u) { u.bal += amt; localStorage.setItem(`user_${email}`, JSON.stringify(u)); alert("₦" + amt + " Credited!"); }
-        else { alert("User not found!"); }
-    }
-
-    function admCheckHistory() {
-        const email = document.getElementById('adm-user').value.toLowerCase();
-        const u = JSON.parse(localStorage.getItem(`user_${email}`));
-        if(u) alert(`History for ${email}:\n\n` + u.history.map(h=>`${h.date}: ${h.item} (₦${h.cost})`).join('\n'));
-        else alert("User not found!");
     }
 </script>
 </body>
