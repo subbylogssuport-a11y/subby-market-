@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | UNIVERSAL V23</title>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <title>SUBBY MARKET | V24 SHARP</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #000; color: #eee; }
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
-        .recovery-link { color: #888; font-size: 12px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; text-align: center; font-size: 16px; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 5px; }
+        .switch-link { color: #888; font-size: 12px; margin-top: 20px; cursor: pointer; display: block; }
+        .copy-btn { background: #222; border: 1px solid #444; color: #0070f3; padding: 5px 10px; border-radius: 5px; font-size: 11px; margin-top: 10px; cursor: pointer; }
         #main-app { display: none; padding: 20px; }
     </style>
 </head>
@@ -20,65 +20,98 @@
 
     <audio id="anthem-player" loop><source src="no_long_talk.mp3" type="audio/mpeg"></audio>
 
-    <div id="auth-gate" class="gate-container">
+    <div id="login-gate" class="gate-container">
         <div class="auth-card">
-            <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY MARKET</h1>
-            <input type="email" id="user-email" class="auth-input" placeholder="Enter Email">
-            <input type="text" id="user-key" class="auth-input" placeholder="Recovery Key (Leave blank if New)">
-            <button class="auth-btn" onclick="processAuth()">LOGIN / REGISTER</button>
-            <p class="recovery-link" onclick="recoverKey()">Forgot Recovery Key?</p>
+            <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY LOGIN</h1>
+            <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
+            <input type="text" id="log-code" class="auth-input" placeholder="6-Digit Code" maxlength="6">
+            <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
+            <p class="switch-link" onclick="showGate('reg-gate')">New user? <span style="color:#0070f3;">Create Account</span></p>
+            <p class="switch-link" style="margin-top:10px;" onclick="recoverCode()">Forgot Code?</p>
+        </div>
+    </div>
+
+    <div id="reg-gate" class="gate-container" style="display:none;">
+        <div class="auth-card">
+            <h1 style="color:#0070f3; margin-bottom:20px;">SIGN UP</h1>
+            <input type="email" id="reg-email" class="auth-input" placeholder="Enter Email Address">
+            <button class="auth-btn" onclick="handleRegister()">GET MY CODE</button>
+            
+            <div id="reg-success" style="display:none; margin-top:20px; border-top:1px solid #222; padding-top:15px;">
+                <p style="font-size:11px; color:#888;">YOUR OFFICIAL LOGIN CODE:</p>
+                <div id="display-code" style="font-size:32px; font-weight:900; color:#0070f3; margin:10px 0;">000000</div>
+                <button class="copy-btn" onclick="copyCode()">CLICK TO COPY CODE</button>
+                <button class="auth-btn" style="background:#222; margin-top:15px;" onclick="showGate('login-gate')">GO TO LOGIN</button>
+            </div>
+            <p class="switch-link" onclick="showGate('login-gate')">Already have a code? <span style="color:#0070f3;">Login</span></p>
         </div>
     </div>
 
     <div id="main-app">
-        <h2 style="color:#0070f3;">Welcome Back!</h2>
-        <p id="user-display" style="font-size:12px; color:#888;"></p>
-        <div id="bal-area" style="font-size:24px; font-weight:900; margin:20px 0;">₦<span id="bal-val">0</span></div>
-        <button class="auth-btn" style="background:#333;" onclick="location.reload()">Logout</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
+            <div style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
+            <div style="background:#111; border:1px solid #0070f3; padding:5px 12px; border-radius:15px; font-weight:bold;">₦<span id="bal-val">0</span></div>
+        </div>
+        <p id="user-display" style="font-size:10px; color:#555; margin-top:5px;"></p>
+        
+        <div style="margin-top:100px; text-align:center;">
+            <p style="color:#888;">Marketplace Loading...</p>
+            <button class="auth-btn" style="background:#333; width:150px; margin-top:20px;" onclick="location.reload()">LOGOUT</button>
+        </div>
     </div>
 
 <script>
-    function processAuth() {
-        const email = document.getElementById('user-email').value.trim().toLowerCase();
-        const inputKey = document.getElementById('user-key').value.trim();
+    function showGate(id) {
+        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function handleRegister() {
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        if(!email.includes('@')) return alert("Enter valid email!");
         
-        if(!email.includes('@')) return alert("Enter a valid email!");
+        // Generate 6-Digit Code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        localStorage.setItem(`subby_code_${email}`, code);
+        localStorage.setItem(`subby_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
+        
+        document.getElementById('display-code').innerText = code;
+        document.getElementById('reg-success').style.display = 'block';
+    }
 
-        let savedKey = localStorage.getItem(`subby_key_${email}`);
+    function copyCode() {
+        const code = document.getElementById('display-code').innerText;
+        navigator.clipboard.writeText(code);
+        alert("Code copied to clipboard! Save it securely.");
+    }
 
-        // REGISTRATION (If no key exists for this email)
-        if (!savedKey) {
-            const newKey = "SB-" + Math.random().toString(36).substr(2, 8).toUpperCase();
-            localStorage.setItem(`subby_key_${email}`, newKey);
-            localStorage.setItem(`subby_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
-            alert(`ACCOUNT CREATED!\n\nYour Recovery Key: ${newKey}\n\nUse this to login on any phone or laptop!`);
-            return;
-        }
+    function handleLogin() {
+        const email = document.getElementById('log-email').value.trim().toLowerCase();
+        const code = document.getElementById('log-code').value.trim();
+        const savedCode = localStorage.getItem(`subby_code_${email}`);
 
-        // LOGIN (Verify Key)
-        if (inputKey === savedKey) {
+        if(savedCode && savedCode === code) {
             const data = JSON.parse(localStorage.getItem(`subby_data_${email}`));
             document.getElementById('bal-val').innerText = data.balance.toLocaleString();
-            document.getElementById('user-display').innerText = email;
+            document.getElementById('user-display').innerText = "Logged in as: " + email;
             
-            // Start the Anthem immediately
             document.getElementById('anthem-player').play();
-            
-            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
         } else {
-            alert("Error: Key does not match this email. Use 'Forgot Key' if needed.");
+            alert("Invalid Email or Code!");
         }
     }
 
-    function recoverKey() {
-        const email = prompt("Enter email to recover your key:");
+    function recoverCode() {
+        const email = prompt("Enter email to retrieve your 6-digit code:");
         if (!email) return;
-        const key = localStorage.getItem(`subby_key_${email.toLowerCase()}`);
-        if (key) {
-            alert(`SUCCESS: Your Key is ${key}. You can now login on any device.`);
+        const code = localStorage.getItem(`subby_code_${email.toLowerCase()}`);
+        if (code) {
+            alert(`YOUR CODE: ${code}\n\nYou can now use this to login on any device.`);
         } else {
-            alert("Email not found. Please register first.");
+            alert("Email not found. Please Sign Up first.");
         }
     }
 </script>
