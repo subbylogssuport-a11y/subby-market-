@@ -17,14 +17,12 @@
         input, textarea { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         .nav { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; z-index: 100; }
-        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; }
-        .qty-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 10px 0; }
-        .qty-btn { background: #333; color: #fff; border: none; width: 30px; height: 30px; border-radius: 5px; font-weight: bold; }
+        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; cursor: pointer; transition: 0.3s; }
+        .log-item:active { transform: scale(0.98); background: #222; }
         #bot-window { position: fixed; bottom: 85px; right: 20px; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; z-index: 2000; box-shadow: 0 10px 30px #000; }
-        #chat-logs { height: 220px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; scroll-behavior: smooth; }
-        .typing { font-size: 11px; color: var(--primary); margin-bottom: 10px; display: none; font-style: italic; }
-        .msg-ai { background: #222; padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; border-left: 3px solid var(--primary); }
-        .msg-user { background: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; text-align: right; margin-left: 20%; }
+        #chat-logs { height: 220px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; scroll-behavior: smooth; display: flex; flex-direction: column; }
+        .msg-ai { background: #222; padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; border-left: 3px solid var(--primary); align-self: flex-start; max-width: 85%; }
+        .msg-user { background: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; align-self: flex-end; max-width: 85%; }
         .logout-btn { background: none; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-left: 10px; }
     </style>
 </head>
@@ -37,7 +35,6 @@
         <input type="password" id="pass" placeholder="Password">
         <button class="btn" onclick="handleAuth()" id="abtn">SIGN IN</button>
         <p onclick="toggleAuth()" style="color:var(--gold); font-size:12px; margin-top:15px; cursor:pointer;" id="atog">New? Create Account</p>
-        <p onclick="forgotPass()" style="color:#666; font-size:11px; margin-top:10px; cursor:pointer;">Forgot Password?</p>
     </div>
 </div>
 
@@ -70,24 +67,27 @@
             <button class="logout-btn" onclick="logout()">LOGOUT</button>
         </div>
     </div>
-    <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="filterMarket()" style="margin:0"></div>
-    <div id="market-view"></div>
+    <div id="market-view-container">
+        <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="filterMarket()" style="margin:0"></div>
+        <div id="market-view"></div>
+    </div>
     <div id="purchased-view" style="display:none; padding:20px; padding-bottom:100px;">
-        <h3 style="color:var(--gold); margin-bottom:10px;">PURCHASE HISTORY</h3>
+        <h3 style="color:var(--gold); margin-bottom:10px;">PURCHASE HISTORY (Click to view)</h3>
         <div id="my-logs-list"></div>
     </div>
     
     <div style="position:fixed; bottom:0; width:100%; display:flex; background:#0a0b10; border-top:1px solid #222; padding:15px; justify-content:space-around; z-index:100;">
         <div onclick="switchTab('market')" id="tab-m" style="color:var(--primary); font-weight:bold; font-size:12px; cursor:pointer;">MARKET</div>
         <div onclick="switchTab('logs')" id="tab-l" style="color:#555; font-weight:bold; font-size:12px; cursor:pointer;">MY LOGS</div>
-        <div onclick="window.open('https://wa.me/2347048141378')" style="color:var(--whatsapp); font-weight:bold; font-size:12px; cursor:pointer;">SUPPORT</div>
+        <div onclick="showSupport()" style="color:var(--whatsapp); font-weight:bold; font-size:12px; cursor:pointer;">SUPPORT</div>
     </div>
 </div>
 
 <div id="bot-box" style="position:fixed; bottom:20px; right:20px; z-index:2000; display:none;">
     <div id="bot-window">
-        <div id="chat-logs"></div>
-        <div id="typing-indicator" class="typing">Subby AI is typing...</div>
+        <div id="chat-logs">
+            <div class="msg-ai">Hello! I am Subby AI. How can I help you today?</div>
+        </div>
         <div style="display:flex; gap:5px; flex-direction:column;">
             <input type="text" id="bot-in" placeholder="Ask something..." style="height:35px; margin:0; font-size:12px;">
             <button class="btn" style="padding:8px; margin:0; font-size:12px;" onclick="askAI()">SEND</button>
@@ -97,6 +97,7 @@
 </div>
 
 <script>
+    // Firebase Init
     const firebaseConfig = {
         apiKey: "AIzaSyAcJGCC2g2Py6jphASOW8KtbiMMrPZR6aY",
         authDomain: "subbylogs.firebaseapp.com",
@@ -108,49 +109,35 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.database();
-    let isLogin = true, allItems = {};
 
-    function toggleAuth() {
-        isLogin = !isLogin;
-        document.getElementById('atitle').innerText = isLogin ? "LOGIN" : "REGISTER";
-        document.getElementById('abtn').innerText = isLogin ? "SIGN IN" : "SIGN UP";
-        document.getElementById('atog').innerText = isLogin ? "New? Create Account" : "Back to Login";
-    }
+    let allItems = {};
+
+    // Auth logic
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            document.getElementById('auth-gate').style.display='none';
+            document.getElementById('app').style.display='block';
+            document.getElementById('bot-box').style.display='block';
+            sync();
+        } else { document.getElementById('auth-gate').style.display='flex'; }
+    });
 
     async function handleAuth() {
         const e = document.getElementById('email').value.trim(), p = document.getElementById('pass').value;
-        if(!e || !p) return alert("Fill all fields");
-        try {
-            if(isLogin) await auth.signInWithEmailAndPassword(e,p);
-            else {
-                const s = await db.ref('users').orderByChild('email').equalTo(e).once('value');
-                if(s.exists()) return alert("Email already exists!");
-                await auth.createUserWithEmailAndPassword(e,p);
-            }
-        } catch(err) { alert(err.message); }
+        try { await auth.signInWithEmailAndPassword(e,p); } catch(err) { alert(err.message); }
     }
 
-    function forgotPass() {
-        const e = document.getElementById('email').value.trim();
-        if(!e) return alert("Type your email first!");
-        auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent!")).catch(err => alert(err.message));
+    // Tabs
+    function switchTab(t) {
+        const isMarket = t === 'market';
+        document.getElementById('market-view-container').style.display = isMarket ? 'block' : 'none';
+        document.getElementById('purchased-view').style.display = isMarket ? 'none' : 'block';
+        document.getElementById('tab-m').style.color = isMarket ? 'var(--primary)' : '#555';
+        document.getElementById('tab-l').style.color = isMarket ? '#555' : 'var(--primary)';
+        if(!isMarket) loadMyLogs();
     }
 
-    function logout() {
-        if(confirm("Logout?")) auth.signOut().then(() => location.reload());
-    }
-
-    auth.onAuthStateChanged(user => {
-        if(user) {
-            setTimeout(() => {
-                document.getElementById('auth-gate').style.display='none';
-                document.getElementById('app').style.display='block';
-                document.getElementById('bot-box').style.display='block';
-                sync();
-            }, 500);
-        } else { document.getElementById('auth-gate').style.display='flex'; document.getElementById('app').style.display='none'; }
-    });
-
+    // Sync Data
     function sync() {
         const uid = auth.currentUser.email.replace(/\./g,'_');
         db.ref('users/'+uid+'/bal').on('value', s => document.getElementById('bal').innerText = (s.val() || 0).toLocaleString());
@@ -162,67 +149,80 @@
         let h = "";
         for(let k in allItems) {
             if(allItems[k].name.toLowerCase().includes(term)) {
-                const stock = allItems[k].data ? allItems[k].data.length : 0;
-                h += `<div class="log-item"><p style="color:#0f0; font-size:10px;">STOCK: ${stock}</p><h3>${allItems[k].name}</h3><h2 style="color:var(--primary)">₦${parseInt(allItems[k].price).toLocaleString()}</h2><button class="btn" onclick="buy('${k}')">BUY NOW</button></div>`;
+                h += `<div class="log-item"><h3>${allItems[k].name}</h3><h2 style="color:var(--primary)">₦${parseInt(allItems[k].price).toLocaleString()}</h2><button class="btn" onclick="buy('${k}')">BUY NOW</button></div>`;
             }
         }
-        document.getElementById('market-view').innerHTML = h || "<p style='text-align:center; padding:20px;'>No matches found.</p>";
+        document.getElementById('market-view').innerHTML = h;
     }
 
-    async function buy(k) {
-        const item = allItems[k], uid = auth.currentUser.email.replace(/\./g,'_');
-        if(!item.data || item.data.length < 1) return alert("Out of stock!");
-        db.ref('users/'+uid+'/bal').once('value', async s => {
-            const bal = s.val() || 0;
-            if(bal < item.price) return alert("Low balance!");
-            if(confirm(`Buy ${item.name} for ₦${item.price}?`)) {
-                const bought = item.data.shift();
-                await db.ref('market/'+k).update({ data: item.data });
-                await db.ref('users/'+uid).update({ bal: bal - item.price });
-                await db.ref('users/'+uid+'/myLogs').push({ name: item.name, details: bought, date: new Date().toLocaleString() });
-                alert("Success!");
-            }
+    async function loadMyLogs() {
+        const uid = auth.currentUser.email.replace(/\./g,'_');
+        const s = await db.ref('users/'+uid+'/myLogs').once('value');
+        let h = "";
+        s.forEach(child => {
+            const data = child.val();
+            h += `<div class="log-item" onclick="alert('LOG DETAILS:\\n${data.details}')">
+                    <p style="font-size:10px; color:#888">${data.date}</p>
+                    <b>${data.name}</b>
+                    <p style="color:var(--gold); font-size:12px;">Click to view login info</p>
+                  </div>`;
         });
+        document.getElementById('my-logs-list').innerHTML = h || "No logs purchased yet.";
     }
 
+    // Admin Functions
     function adminSendMoney() {
-        // SMART FIX: Clean up the email input automatically
-        let emailInput = document.getElementById('adm-mail').value.trim();
-        if(emailInput.endsWith('.')) emailInput = emailInput.slice(0, -1);
+        let rawEmail = document.getElementById('adm-mail').value.trim().toLowerCase();
+        // Remove common typos like trailing periods
+        if (rawEmail.endsWith('.')) rawEmail = rawEmail.slice(0, -1);
         
         const amount = parseInt(document.getElementById('adm-amt').value);
-        if(!emailInput || !amount) return alert("Fill all fields!");
+        if(!rawEmail || !amount) return alert("Enter valid email and amount");
 
-        const userKey = emailInput.replace(/\./g,'_');
-        db.ref('users/' + userKey).once('value', s => {
-            if(!s.exists()) return alert("User " + emailInput + " not found! Check spelling.");
-            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Successfully sent ₦" + amount));
+        const userPath = rawEmail.replace(/\./g, '_');
+        db.ref('users/' + userPath).once('value', s => {
+            if(s.exists()) {
+                const currentBal = s.val().bal || 0;
+                db.ref('users/' + userPath).update({ bal: currentBal + amount })
+                  .then(() => alert("Successfully sent ₦" + amount + " to " + rawEmail));
+            } else {
+                alert("User not found in database. Ensure they have logged in at least once.");
+            }
         });
     }
 
-    function adminUpload() {
-        const name = document.getElementById('log-name').value, price = document.getElementById('log-price').value, raw = document.getElementById('log-data').value.split('\n').filter(l => l.trim() !== "");
-        if(!name || !price || raw.length === 0) return alert("Fill info!");
-        db.ref('market').push({ name, price, data: raw });
-        alert("Uploaded!");
+    // AI Bot logic
+    function askAI() {
+        const input = document.getElementById('bot-in');
+        const msg = input.value.trim();
+        if(!msg) return;
+        
+        const chat = document.getElementById('chat-logs');
+        chat.innerHTML += `<div class="msg-user">${msg}</div>`;
+        input.value = "";
+        
+        setTimeout(() => {
+            chat.innerHTML += `<div class="msg-ai">I'm processing your request regarding "${msg}". Please wait for admin verification.</div>`;
+            chat.scrollTop = chat.scrollHeight;
+        }, 1000);
     }
 
+    function showSupport() {
+        if(confirm("Choose Support Method:\nOK for WhatsApp\nCancel for Email")) {
+            window.open('https://wa.me/2347048141378');
+        } else {
+            window.open('mailto:subbylogssuport@gmail.com');
+        }
+    }
+
+    function toggleBot() { 
+        const w = document.getElementById('bot-window'); 
+        w.style.display = w.style.display === 'block' ? 'none' : 'block'; 
+    }
+    
     function checkAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
     function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
-    function toggleBot() { const w = document.getElementById('bot-window'); w.style.display = w.style.display === 'block' ? 'none' : 'block'; }
-    function pay() {
-        const a = prompt("Amount (₦):");
-        if(!a || isNaN(a)) return;
-        PaystackPop.setup({
-            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-            email: auth.currentUser.email,
-            amount: a * 100,
-            callback: () => {
-                const id = auth.currentUser.email.replace(/\./g,'_');
-                db.ref('users/'+id+'/bal').once('value', s => db.ref('users/'+id).update({ bal: (s.val() || 0) + parseInt(a) }));
-            }
-        }).openIframe();
-    }
+    function logout() { auth.signOut().then(() => location.reload()); }
 </script>
 </body>
 </html>
