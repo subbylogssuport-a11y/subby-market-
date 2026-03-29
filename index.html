@@ -3,168 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V29 FINAL</title>
+    <title>SUBBY MARKET | V32 ULTRA</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
+        :root { --primary: #0070f3; --bg: #000000; --card: #111111; --accent: #7928ca; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; overflow-x: hidden; }
         
-        /* AUTH GATE */
+        body { 
+            background: radial-gradient(circle at top right, #0a0a0a, #000); 
+            color: #eee; min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* AMAZING ANIMATED BACKGROUND */
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(0, 112, 243, 0.05), transparent); z-index: -1; pointer-events: none; }
+
+        .easter-banner { background: linear-gradient(90deg, #ff0080, var(--accent)); color: white; text-align: center; padding: 12px; font-size: 13px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3); }
+
+        /* AUTH GATES */
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .auth-card { background: rgba(17, 17, 17, 0.95); border: 1px solid var(--primary); padding: 35px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(10px); }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; text-align: center; transition: 0.3s; }
+        .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 112, 243, 0.3); }
+        .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 15px rgba(0, 112, 243, 0.4); }
 
-        /* NAVBAR & BALANCE */
-        .navbar { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .bal-pill { background: #000; border: 1px solid #0070f3; padding: 6px 15px; border-radius: 20px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+        /* MARKET LAYOUT */
+        .navbar { background: rgba(17,17,17,0.8); backdrop-filter: blur(10px); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .bal-pill { background: #000; border: 1px solid var(--primary); padding: 8px 20px; border-radius: 30px; font-weight: 900; display: flex; align-items: center; gap: 10px; color: #fff; }
         
-        /* MARKET GRID */
-        .grid { padding: 15px; display: grid; gap: 15px; padding-bottom: 100px; }
-        .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 18px; position: relative; }
-        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; background: #0070f3; color: #fff; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        
-        /* BOTTOM NAVIGATION */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 1000; }
-        .nav-item { color: #888; font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; }
-        .nav-item.active { color: #0070f3; }
+        /* SEARCH BAR */
+        .search-container { padding: 15px; }
+        .search-bar { width: 100%; padding: 14px 20px; background: #111; border: 1px solid #222; border-radius: 15px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
+        .search-bar:focus { border-color: var(--primary); }
 
-        /* LOGS VIEW */
-        #logs-view { display: none; padding: 20px; padding-bottom: 100px; }
-        .log-entry { background: #111; border: 1px solid #333; padding: 15px; border-radius: 15px; margin-bottom: 10px; font-family: monospace; font-size: 13px; color: #00ff00; position: relative; }
-        .copy-log { position: absolute; top: 10px; right: 10px; color: #0070f3; font-size: 10px; border: 1px solid #0070f3; padding: 2px 5px; border-radius: 5px; }
+        .grid { padding: 0 15px 100px 15px; display: grid; gap: 20px; }
+        .card { 
+            background: linear-gradient(145deg, #111, #080808); 
+            border: 1px solid #222; border-radius: 25px; padding: 22px; 
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--primary); opacity: 0.5; }
+        
+        .stock-tag { font-size: 11px; font-weight: 900; margin-bottom: 10px; display: block; text-transform: uppercase; }
+        .price-text { color: var(--primary); font-size: 24px; font-weight: 900; margin: 10px 0; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(17,17,17,0.9); backdrop-filter: blur(15px); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px; z-index: 1000; }
+        .nav-item { color: #555; font-size: 10px; font-weight: 900; cursor: pointer; text-align: center; }
+        .nav-item.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
+<div class="bg-glow"></div>
 <audio id="anthem-player" loop><source src="no_long_talk.mp3" type="audio/mpeg"></audio>
 
-<div id="auth-gate" class="gate-container">
+<div id="login-gate" class="gate-container">
     <div class="auth-card">
-        <h1 style="color:#0070f3; margin-bottom:20px; font-size:24px;">SUBBY MARKET</h1>
-        <input type="email" id="u-email" class="auth-input" placeholder="Email Address">
-        <input type="password" id="u-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleAuth()">LOGIN / SIGN UP</button>
-        <p style="color:#555; font-size:12px; margin-top:15px; cursor:pointer;" onclick="recoverPass()">Forgot Password?</p>
+        <h1 style="color:var(--primary); margin-bottom:25px; letter-spacing: 2px;">SUBBY LOGIN</h1>
+        <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="log-pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn" onclick="handleLogin()">SECURE SIGN IN</button>
+        <p style="color:#555; font-size:12px; margin-top:20px; cursor:pointer;" onclick="showGate('reg-gate')">New user? <span style="color:var(--primary);">Create Account</span></p>
+    </div>
+</div>
+
+<div id="reg-gate" class="gate-container" style="display:none;">
+    <div class="auth-card">
+        <h1 style="color:var(--primary); margin-bottom:25px; letter-spacing: 2px;">JOIN SUBBY</h1>
+        <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+        <button class="auth-btn" onclick="handleRegister()">SIGN UP NOW</button>
+        <p style="color:#555; font-size:12px; margin-top:20px; cursor:pointer;" onclick="showGate('login-gate')">Have account? <span style="color:var(--primary);">Login</span></p>
     </div>
 </div>
 
 <div id="main-app" style="display:none;">
+    <div class="easter-banner">🐰 HAPPY EASTER SUBBY MARKET LAUNCH 🐰</div>
     <div class="navbar">
-        <div style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
+        <div style="font-weight:900; color:var(--primary); font-size: 20px;">SUBBY MARKET</div>
         <div class="bal-pill">
             <span>₦<span id="bal-val">0</span></span>
-            <span onclick="fundWallet()" style="color:#0070f3; cursor:pointer; font-size:22px; font-weight:bold;">+</span>
+            <span onclick="fundWalletReal()" style="color:var(--primary); cursor:pointer; font-size:24px; font-weight:bold;">+</span>
         </div>
     </div>
-    
-    <div id="market-view">
-        <div class="grid" id="market-grid"></div>
-    </div>
 
-    <div id="logs-view">
-        <h2 style="margin-bottom:20px; color:#0070f3;">My Purchased Logs</h2>
-        <div id="logs-list"></div>
+    <div class="search-container">
+        <input type="text" id="market-search" class="search-bar" placeholder="🔍 Search for cards (e.g. UK FB, Instagram)..." oninput="filterMarket()">
     </div>
+    
+    <div class="grid" id="market-grid"></div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="nav-market" onclick="showTab('market')">MARKET</div>
-        <div class="nav-item" id="nav-logs" onclick="showTab('logs')">MY LOGS</div>
+        <div class="nav-item active">MARKET</div>
+        <div class="nav-item" onclick="alert('Purchased logs saved to account!')">MY LOGS</div>
         <div class="nav-item" onclick="window.open('https://wa.me/2348104565349')">SUPPORT</div>
     </div>
 </div>
 
 <script>
-    let currentUser = null, balance = 0, myOrders = [];
+    let currentUser = null;
+    let balance = 0;
 
     const items = [
-        {id: 1, n: "UK Facebook 🇬🇧", p: 2500, s: 1, l: "USER: uk_log_88 | PASS: Subby2026_X"},
-        {id: 2, n: "USA FB Newly Created", p: 1500, s: 2, l: "USER: us_fresh_12 | PASS: Market_99"},
-        {id: 3, n: "Germany FB (Aged)", p: 5760, s: 0},
-        {id: 4, n: "Instagram HD", p: 9000, s: 0},
-        {id: 5, n: "Google Voice", p: 4500, s: 5, l: "GV_NUM: +1202555012 | PASS: voice_pass_1"}
+        {id: 1, n: "UK Facebook 🇬🇧", p: 2500, s: 15},
+        {id: 2, n: "USA FB Newly Created", p: 1500, s: 8},
+        {id: 3, n: "Random FB Logs", p: 1000, s: 20},
+        {id: 4, n: "Germany FB (Aged)", p: 5760, s: 0},
+        {id: 5, n: "Instagram HD", p: 9000, s: 5},
+        {id: 6, n: "Google Voice", p: 4500, s: 12}
     ];
 
-    function handleAuth() {
-        const email = document.getElementById('u-email').value.trim().toLowerCase();
-        const pass = document.getElementById('u-pass').value.trim();
-        if(!email.includes('@') || pass.length < 4) return alert("Enter valid credentials!");
-
-        let savedPass = localStorage.getItem(`pass_${email}`);
-        if(!savedPass) {
-            localStorage.setItem(`pass_${email}`, pass);
-            localStorage.setItem(`data_${email}`, JSON.stringify({b: 0, o: []}));
-            alert("Account Registered!");
-        } else if(pass !== savedPass) { return alert("Incorrect Password!"); }
-
-        currentUser = email;
-        loadUserData();
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        document.getElementById('anthem-player').play().catch(e => console.log("Audio waiting for tap"));
-        renderMarket(); renderLogs();
+    function showGate(id) {
+        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
+        document.getElementById(id).style.display = 'flex';
     }
 
-    function loadUserData() {
-        const data = JSON.parse(localStorage.getItem(`data_${currentUser}`));
-        balance = data.b; myOrders = data.o;
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
+    function handleRegister() {
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        const pass = document.getElementById('reg-pass').value.trim();
+        if(!email.includes('@')) return alert("Invalid Email");
+        localStorage.setItem(`user_${email}`, JSON.stringify({pass: pass, bal: 0}));
+        alert("Account Created! Use Login Screen.");
+        showGate('login-gate');
     }
 
-    function recoverPass() {
-        const email = prompt("Enter registered email:");
-        const pass = localStorage.getItem(`pass_${email.toLowerCase()}`);
-        if(pass) alert("Your password is: " + pass);
-        else alert("Email not found.");
+    function handleLogin() {
+        const email = document.getElementById('log-email').value.trim().toLowerCase();
+        const pass = document.getElementById('log-pass').value.trim();
+        const stored = JSON.parse(localStorage.getItem(`user_${email}`));
+
+        if(stored && stored.pass === pass) {
+            currentUser = email;
+            balance = stored.bal;
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('anthem-player').play();
+            renderMarket(items);
+        } else {
+            alert("Wrong details!");
+        }
     }
 
-    function showTab(tab) {
-        document.getElementById('market-view').style.display = tab === 'market' ? 'block' : 'none';
-        document.getElementById('logs-view').style.display = tab === 'logs' ? 'block' : 'none';
-        document.getElementById('nav-market').classList.toggle('active', tab === 'market');
-        document.getElementById('nav-logs').classList.toggle('active', tab === 'logs');
-    }
-
-    function renderMarket() {
-        document.getElementById('market-grid').innerHTML = items.map(i => `
+    function renderMarket(data) {
+        document.getElementById('market-grid').innerHTML = data.map(i => `
             <div class="card">
-                <p style="font-size:10px; color:${i.s>0?'#00ff00':'#ff4d4d'}; font-weight:bold;">${i.s>0?'IN STOCK':'SOLD OUT'}</p>
-                <h3 style="margin:5px 0;">${i.n}</h3>
-                <h2 style="color:#0070f3;">₦${i.p.toLocaleString()}</h2>
-                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s===0?'disabled style="opacity:0.4"':''}>BUY NOW</button>
+                <span class="stock-tag" style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}">
+                    ● ${i.s > 0 ? i.s + ' IN STOCK' : 'OUT OF STOCK'}
+                </span>
+                <h3 style="font-size:18px;">${i.n}</h3>
+                <div class="price-text">₦${i.p.toLocaleString()}</div>
+                <button class="auth-btn" style="height:50px; font-size:14px;" ${i.s === 0 ? 'disabled style="background:#222; opacity:0.5;"' : ''}>BUY NOW</button>
             </div>`).join('');
     }
 
-    function renderLogs() {
-        document.getElementById('logs-list').innerHTML = myOrders.length ? 
-            myOrders.map(o => `<div class="log-entry"><span class="copy-log" onclick="copyLog('${o.l}')">COPY</span><strong>${o.n}</strong><br>${o.l}</div>`).join('') : 
-            "<p style='color:#555;'>No logs found. Buy something!</p>";
+    function filterMarket() {
+        const query = document.getElementById('market-search').value.toLowerCase();
+        const filtered = items.filter(i => i.n.toLowerCase().includes(query));
+        renderMarket(filtered);
     }
 
-    function buyItem(id) {
-        const item = items.find(i => i.id === id);
-        if(balance < item.p) return alert("Insufficient Balance! Use [+] to Top Up.");
-        balance -= item.p;
-        myOrders.unshift({n: item.n, l: item.l}); // Newest on top
-        localStorage.setItem(`data_${currentUser}`, JSON.stringify({b: balance, o: myOrders}));
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
-        alert("Success! Log added to 'MY LOGS'.");
-        renderLogs();
-    }
-
-    function copyLog(text) {
-        navigator.clipboard.writeText(text);
-        alert("Log copied!");
-    }
-
-    function fundWallet() {
-        const amt = prompt("Enter amount to fund (₦):");
-        if(amt && !isNaN(amt)) {
-            balance += parseInt(amt);
-            localStorage.setItem(`data_${currentUser}`, JSON.stringify({b: balance, o: myOrders}));
-            document.getElementById('bal-val').innerText = balance.toLocaleString();
-            alert("Wallet Funded!");
-        }
+    function fundWalletReal() {
+        const amt = prompt("Amount to fund wallet (₦):");
+        if(!amt) return;
+        let handler = PaystackPop.setup({
+            key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
+            email: currentUser,
+            amount: amt * 100,
+            currency: 'NGN',
+            callback: function(res) {
+                balance += parseInt(amt);
+                document.getElementById('bal-val').innerText = balance.toLocaleString();
+                let stored = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+                stored.bal = balance;
+                localStorage.setItem(`user_${currentUser}`, JSON.stringify(stored));
+                alert("Deposit Confirmed!");
+            }
+        });
+        handler.openIframe();
     }
 </script>
 </body>
