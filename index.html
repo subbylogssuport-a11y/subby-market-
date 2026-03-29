@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V81 ELITE FIXED</title>
+    <title>SUBBY LOGS | V82 PLATINUM</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -36,7 +36,8 @@
         <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="pass" placeholder="Password">
         <button class="btn" onclick="handleAuth()" id="abtn">SIGN IN</button>
-        <p onclick="toggleAuth()" style="color:var(--gold); font-size:12px; margin-top:15px; cursor:pointer;">New? Create Account</p>
+        <p onclick="toggleAuth()" style="color:var(--gold); font-size:12px; margin-top:15px; cursor:pointer;" id="atog">New? Create Account</p>
+        <p onclick="forgotPass()" style="color:#666; font-size:11px; margin-top:10px; cursor:pointer;">Forgot Password?</p>
     </div>
 </div>
 
@@ -45,7 +46,7 @@
         <h2 style="color:var(--gold)">ADMIN PANEL</h2>
         <div style="border: 1px solid #333; padding: 10px; border-radius: 15px; margin-bottom: 15px;">
             <p style="font-size: 12px; color: var(--primary);">SEND MONEY TO USER</p>
-            <input id="adm-mail" placeholder="User Gmail (with dots)">
+            <input id="adm-mail" placeholder="User Gmail">
             <input id="adm-amt" placeholder="Amount ₦" type="number">
             <button class="btn" onclick="adminSendMoney()">CONFIRM TRANSFER</button>
         </div>
@@ -120,6 +121,8 @@
     function toggleAuth() {
         isLogin = !isLogin;
         document.getElementById('atitle').innerText = isLogin ? "LOGIN" : "REGISTER";
+        document.getElementById('abtn').innerText = isLogin ? "SIGN IN" : "SIGN UP";
+        document.getElementById('atog').innerText = isLogin ? "New? Create Account" : "Back to Login";
     }
 
     async function handleAuth() {
@@ -135,13 +138,28 @@
         } catch(err) { alert(err.message); }
     }
 
+    function forgotPass() {
+        const e = document.getElementById('email').value;
+        if(!e) return alert("Please type your email address first!");
+        auth.sendPasswordResetEmail(e).then(() => {
+            alert("A password reset link has been sent to " + e);
+        }).catch(err => alert(err.message));
+    }
+
+    // Fixed Auth State: Prevent immediate jumping
     auth.onAuthStateChanged(user => {
         if(user) {
-            document.getElementById('auth-gate').style.display='none';
-            document.getElementById('app').style.display='block';
-            document.getElementById('bot-box').style.display='block';
-            sync();
-        } else { document.getElementById('auth-gate').style.display='flex'; document.getElementById('app').style.display='none'; }
+            setTimeout(() => { // Small delay to prevent flashing
+                document.getElementById('auth-gate').style.display='none';
+                document.getElementById('app').style.display='block';
+                document.getElementById('bot-box').style.display='block';
+                sync();
+            }, 500);
+        } else { 
+            document.getElementById('auth-gate').style.display='flex'; 
+            document.getElementById('app').style.display='none'; 
+            document.getElementById('bot-box').style.display='none';
+        }
     });
 
     function sync() {
@@ -153,8 +171,6 @@
             for(let k in logs) h = `<div style="background:#000; border:1px solid var(--gold); padding:15px; border-radius:15px; margin-top:10px;"><p style="font-size:10px; color:var(--gold)">${logs[k].date}</p><p><b>${logs[k].name}</b></p><pre style="color:#0f0; font-size:11px; margin-top:5px; white-space:pre-wrap;">${logs[k].details}</pre></div>` + h;
             document.getElementById('my-logs-list').innerHTML = h || "No logs yet.";
         });
-        const name = auth.currentUser.email.split('@')[0];
-        document.getElementById('chat-logs').innerHTML = `<div class="msg-ai">🤖 Hello ${name}! How can I help you? I can help you fund your wallet or contact support.</div>`;
     }
 
     function filterMarket() {
@@ -203,11 +219,11 @@
         setTimeout(() => {
             typing.style.display = "none";
             const low = q.toLowerCase();
-            let r = "I'm not sure. Try asking to 'top up' or 'contact support'!";
-            if(low.includes("fund") || low.includes("top up") || low.includes("money")) {
+            let r = "Try asking for 'support' or 'how to top up'!";
+            if(low.includes("fund") || low.includes("top up")) {
                 r = "Opening payment gateway..."; setTimeout(() => pay(), 1000);
-            } else if(low.includes("support") || low.includes("whatsapp") || low.includes("admin")) {
-                r = `Click here: <span class="support-link" onclick="window.open('https://wa.me/2347048141378')">WhatsApp Admin</span> or <span class="support-link" onclick="window.open('mailto:subbylogssuport@gmail.com')">Email Me</span>.`;
+            } else if(low.includes("support") || low.includes("admin")) {
+                r = `Click here: <span class="support-link" onclick="window.open('https://wa.me/2347048141378')">WhatsApp</span> or <span class="support-link" onclick="window.open('mailto:subbylogssuport@gmail.com')">Email</span>.`;
             }
             logs.innerHTML += `<div class="msg-ai">🤖 <b>AI:</b> ${r}</div>`;
             logs.scrollTop = logs.scrollHeight;
@@ -218,11 +234,10 @@
         const emailInput = document.getElementById('adm-mail').value;
         const amount = parseInt(document.getElementById('adm-amt').value);
         if(!emailInput || !amount) return alert("Fill all fields!");
-        // The fix: converting dots to underscores so database finds the user
         const userKey = emailInput.replace(/\./g,'_');
         db.ref('users/' + userKey).once('value', s => {
-            if(!s.exists()) return alert("User " + emailInput + " not found!");
-            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Sent ₦" + amount + " to " + emailInput));
+            if(!s.exists()) return alert("User not found!");
+            db.ref('users/' + userKey).update({ bal: (s.val().bal || 0) + amount }).then(() => alert("Sent!"));
         });
     }
 
@@ -244,7 +259,7 @@
     function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
     function toggleBot() { const w = document.getElementById('bot-window'); w.style.display = w.style.display === 'block' ? 'none' : 'block'; }
     function pay() {
-        const a = prompt("Amount to fund (₦):");
+        const a = prompt("Amount (₦):");
         if(!a || isNaN(a)) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
