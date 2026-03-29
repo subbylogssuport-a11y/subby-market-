@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V78 PRO</title>
+    <title>SUBBY LOGS | V79 ULTRA PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -21,9 +20,12 @@
         .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; }
         .qty-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 10px 0; }
         .qty-btn { background: #333; color: #fff; border: none; width: 30px; height: 30px; border-radius: 5px; font-weight: bold; }
-        #bot-window { position: fixed; bottom: 85px; right: 20px; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; z-index: 2000; }
-        #chat-logs { height: 200px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; }
-        .send-btn { background: var(--primary); border: none; color: white; padding: 8px 15px; border-radius: 8px; font-size: 11px; margin-top: 5px; float: right; }
+        #bot-window { position: fixed; bottom: 85px; right: 20px; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; z-index: 2000; box-shadow: 0 10px 30px #000; }
+        #chat-logs { height: 220px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; scroll-behavior: smooth; }
+        .typing { font-size: 11px; color: var(--primary); margin-bottom: 10px; display: none; font-style: italic; }
+        .send-btn { background: var(--primary); border: none; color: white; padding: 10px; border-radius: 12px; font-weight: bold; width: 100%; margin-top: 5px; }
+        .msg-ai { background: #222; padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; border-left: 3px solid var(--primary); }
+        .msg-user { background: var(--primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; text-align: right; margin-left: 20%; }
     </style>
 </head>
 <body>
@@ -40,13 +42,23 @@
 </div>
 
 <div id="admin-gate" class="overlay" style="display:none; z-index:10000;">
-    <div class="card-ui">
+    <div class="card-ui" style="max-height: 90vh; overflow-y: auto;">
         <h2 style="color:var(--gold)">ADMIN PANEL</h2>
-        <input id="log-name" placeholder="Item Name">
-        <input id="log-price" placeholder="Price ₦">
-        <textarea id="log-data" placeholder="Paste login details (One per line)"></textarea>
-        <button class="btn" onclick="adminUpload()">UPLOAD LOGS</button>
-        <button class="btn" style="background:#222" onclick="closeAdmin()">CLOSE</button>
+        <p style="font-size: 10px; color: #666; margin-bottom: 10px;">Double-tap SUBBY LOGS to close</p>
+        <div style="border: 1px solid #333; padding: 10px; border-radius: 15px; margin-bottom: 15px;">
+            <p style="font-size: 12px; color: var(--primary);">SEND MONEY TO USER</p>
+            <input id="adm-mail" placeholder="User Gmail">
+            <input id="adm-amt" placeholder="Amount ₦" type="number">
+            <button class="btn" onclick="adminSendMoney()">CONFIRM TRANSFER</button>
+        </div>
+        <div style="border: 1px solid #333; padding: 10px; border-radius: 15px;">
+            <p style="font-size: 12px; color: var(--gold);">UPLOAD NEW STOCK</p>
+            <input id="log-name" placeholder="Item Name (e.g. Facebook 2015)">
+            <input id="log-price" placeholder="Price per Log ₦" type="number">
+            <textarea id="log-data" placeholder="Paste logins (one per line)"></textarea>
+            <button class="btn" style="background:var(--gold); color:#000" onclick="adminUpload()">UPLOAD LOGS</button>
+        </div>
+        <button class="btn" style="background:#222; margin-top:10px;" onclick="closeAdmin()">CLOSE ADMIN</button>
     </div>
 </div>
 
@@ -58,29 +70,34 @@
             <button onclick="pay()" style="width:30px; height:30px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
         </div>
     </div>
-    <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search..." oninput="filterMarket()" style="margin:0"></div>
+    <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="filterMarket()" style="margin:0"></div>
     <div id="market-view"></div>
-    <div id="purchased-view" style="display:none; padding:20px;">
-        <h3 style="color:var(--gold)">MY HISTORY</h3>
+    <div id="purchased-view" style="display:none; padding:20px; padding-bottom:100px;">
+        <h3 style="color:var(--gold); margin-bottom:10px;">PURCHASE HISTORY</h3>
         <div id="my-logs-list"></div>
     </div>
-    <div style="height:80px"></div>
-    <div style="position:fixed; bottom:0; width:100%; display:flex; background:#0a0b10; border-top:1px solid #222; padding:15px; justify-content:space-around;">
-        <div onclick="switchTab('market')" style="color:var(--primary); font-weight:bold; font-size:12px;">MARKET</div>
-        <div onclick="switchTab('logs')" style="color:#555; font-weight:bold; font-size:12px;">MY LOGS</div>
-        <div onclick="firebase.auth().signOut()" style="color:red; font-size:12px;">EXIT</div>
+    
+    <div style="position:fixed; bottom:0; width:100%; display:flex; background:#0a0b10; border-top:1px solid #222; padding:15px; justify-content:space-around; z-index:100;">
+        <div onclick="switchTab('market')" id="tab-m" style="color:var(--primary); font-weight:bold; font-size:12px; cursor:pointer;">MARKET</div>
+        <div onclick="switchTab('logs')" id="tab-l" style="color:#555; font-weight:bold; font-size:12px; cursor:pointer;">MY LOGS</div>
+        <div onclick="firebase.auth().signOut()" style="color:red; font-size:12px; cursor:pointer;">EXIT</div>
     </div>
 </div>
 
 <div id="bot-box" style="position:fixed; bottom:20px; right:20px; z-index:2000; display:none;">
     <div id="bot-window">
+        <div style="font-size: 11px; color: var(--gold); border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+            <span>Subby AI Assistant</span>
+            <span onclick="toggleBot()" style="cursor:pointer;">✖</span>
+        </div>
         <div id="chat-logs"></div>
+        <div id="typing-indicator" class="typing">AI is typing...</div>
         <div style="display:flex; gap:5px; flex-direction:column;">
-            <input type="text" id="bot-in" placeholder="Ask something..." style="height:35px; margin:0; font-size:12px;">
-            <button class="send-btn" onclick="askAI()">SEND</button>
+            <input type="text" id="bot-in" placeholder="Ask about logs, wallet, or support..." style="height:35px; margin:0; font-size:12px;">
+            <button class="send-btn" onclick="askAI()">SEND MESSAGE</button>
         </div>
     </div>
-    <div onclick="toggleBot()" style="width:55px; height:55px; background:#111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border:2px solid var(--primary); border-radius:50%; box-shadow:0 0 15px var(--primary);"></div>
+    <div onclick="toggleBot()" style="width:55px; height:55px; background:#111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border:2px solid var(--primary); border-radius:50%; box-shadow:0 0 15px rgba(0,112,243,0.4); cursor:pointer;"></div>
 </div>
 
 <script>
@@ -105,11 +122,10 @@
 
     async function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-        if(!e || !p) return alert("Fill all fields");
+        if(!e || !p) return alert("Please fill all fields");
         try {
             if(isLogin) await auth.signInWithEmailAndPassword(e,p);
             else {
-                // Duplicate Check
                 const snapshot = await db.ref('users').orderByChild('email').equalTo(e).once('value');
                 if(snapshot.exists()) return alert("Email already exists!");
                 await auth.createUserWithEmailAndPassword(e,p);
@@ -120,7 +136,7 @@
     function forgotPass() {
         const e = document.getElementById('email').value;
         if(!e) return alert("Enter email first");
-        auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent!"));
+        auth.sendPasswordResetEmail(e).then(() => alert("Reset link sent to " + e));
     }
 
     auth.onAuthStateChanged(user => {
@@ -138,13 +154,12 @@
         db.ref('market').on('value', s => { allItems = s.val() || {}; filterMarket(); });
         db.ref('users/'+uid+'/myLogs').on('value', s => {
             const logs = s.val(); let h = "";
-            for(let k in logs) h = `<div style="background:#000; border:1px solid var(--gold); padding:15px; border-radius:15px; margin-top:10px;"><p style="font-size:10px; color:var(--gold)">${logs[k].date}</p><p><b>${logs[k].name}</b></p><pre style="color:#0f0; font-size:11px; margin-top:5px;">${logs[k].details}</pre></div>` + h;
-            document.getElementById('my-logs-list').innerHTML = h || "No logs yet.";
+            for(let k in logs) h = `<div style="background:#000; border:1px solid var(--gold); padding:15px; border-radius:15px; margin-top:10px;"><p style="font-size:10px; color:var(--gold)">${logs[k].date}</p><p><b>${logs[k].name}</b></p><pre style="color:#0f0; font-size:11px; margin-top:5px; white-space: pre-wrap; word-break: break-all;">${logs[k].details}</pre></div>` + h;
+            document.getElementById('my-logs-list').innerHTML = h || "You haven't bought any logs yet.";
         });
         
-        // Wise Greeting
         const name = auth.currentUser.email.split('@')[0];
-        document.getElementById('chat-logs').innerHTML = `<div style="color:#fff; background:#222; padding:10px; border-radius:10px; margin-bottom:10px;">🤖 <b>Subby AI:</b> Hello ${name}! I'm fine, and you? How can I help you today?</div>`;
+        document.getElementById('chat-logs').innerHTML = `<div class="msg-ai">🤖 <b>Subby AI:</b> Hello ${name}! I'm fine and doing great. How can I help you make money today?</div>`;
     }
 
     function filterMarket() {
@@ -154,19 +169,19 @@
             if(allItems[k].name.toLowerCase().includes(term)) {
                 const stock = allItems[k].data ? allItems[k].data.length : 0;
                 h += `<div class="log-item">
-                    <p style="color:#0f0; font-size:10px;">STOCK: ${stock}</p>
-                    <h3>${allItems[k].name}</h3>
+                    <p style="color:#0f0; font-size:10px; font-weight:bold;">STOCK AVAILABLE: ${stock}</p>
+                    <h3 style="margin-top:5px;">${allItems[k].name}</h3>
                     <h2 style="color:var(--primary)">₦${parseInt(allItems[k].price).toLocaleString()}</h2>
                     <div class="qty-box">
                         <button class="qty-btn" onclick="adj('${k}', -1)">-</button>
                         <span id="qty-${k}" style="font-weight:bold;">1</span>
                         <button class="qty-btn" onclick="adj('${k}', 1)">+</button>
                     </div>
-                    <button class="btn" onclick="buy('${k}')">BUY NOW</button>
+                    <button class="btn" onclick="buy('${k}')">BUY INSTANTLY</button>
                 </div>`;
             }
         }
-        document.getElementById('market-view').innerHTML = h || "<p style='text-align:center; padding:20px;'>No cards found.</p>";
+        document.getElementById('market-view').innerHTML = h || "<p style='text-align:center; padding:50px; opacity:0.5;'>No cards match your search.</p>";
     }
 
     function adj(k, v) {
@@ -182,13 +197,12 @@
         const uid = auth.currentUser.email.replace(/\./g,'_');
         const cost = item.price * qty;
         
-        if(item.data.length < qty) return alert("Not enough stock!");
+        if(!item.data || item.data.length < qty) return alert("Sorry, not enough stock left!");
         
         db.ref('users/'+uid+'/bal').once('value', async s => {
             const bal = s.val() || 0;
-            if(bal < cost) return alert("Insufficient Balance!");
-            if(confirm(`Buy ${qty} items for ₦${cost}?`)) {
-                // Extract logs and update stock
+            if(bal < cost) return alert("Low balance! Please top up your wallet.");
+            if(confirm(`Confirm purchase of ${qty} items for ₦${cost}?`)) {
                 const bought = item.data.splice(0, qty);
                 await db.ref('market/'+k).update({ data: item.data });
                 await db.ref('users/'+uid).update({ bal: bal - cost });
@@ -197,7 +211,7 @@
                     details: bought.join('\n---\n'),
                     date: new Date().toLocaleString()
                 });
-                alert("Purchased Successfully!");
+                alert("Success! Check 'MY LOGS' for your data.");
             }
         });
     }
@@ -205,38 +219,65 @@
     function askAI() {
         const q = document.getElementById('bot-in').value;
         const logs = document.getElementById('chat-logs');
+        const typing = document.getElementById('typing-indicator');
         if(!q) return;
-        logs.innerHTML += `<div style="text-align:right; color:var(--primary); margin-bottom:10px;">${q}</div>`;
+        
+        logs.innerHTML += `<div class="msg-user">${q}</div>`;
         document.getElementById('bot-in').value = "";
+        logs.scrollTop = logs.scrollHeight;
+        
+        typing.style.display = "block";
+        
         setTimeout(() => {
-            let r = "I am processing your request. Please check your wallet or history!";
-            if(q.toLowerCase().includes("how are you")) r = "I'm doing great, especially since you're here! How can I assist you?";
-            logs.innerHTML += `<div style="color:#0f0; margin-bottom:10px;">🤖 <b>AI:</b> ${r}</div>`;
+            typing.style.display = "none";
+            let r = "I'm looking into that for you. If you need urgent help, you can reach support at subbylogssuport@gmail.com!";
+            const low = q.toLowerCase();
+            
+            if(low.includes("how are you")) r = "I'm doing great, especially since you're here! How's your trading going?";
+            else if(low.includes("admin") || low.includes("whatsapp") || low.includes("support")) r = "You can message the Admin directly on WhatsApp: +2347048141378 or Email: subbylogssuport@gmail.com";
+            else if(low.includes("fund") || low.includes("money") || low.includes("topup")) r = "Click the (+) button at the top right to fund your wallet instantly with Paystack!";
+            
+            logs.innerHTML += `<div class="msg-ai">🤖 <b>AI:</b> ${r}</div>`;
             logs.scrollTop = logs.scrollHeight;
-        }, 500);
+        }, 1500); // Wait 1.5s for "Typing" feel
     }
 
-    function switchTab(t) {
-        document.getElementById('market-view').style.display = t==='market' ? 'block' : 'none';
-        document.getElementById('purchased-view').style.display = t==='logs' ? 'block' : 'none';
+    function adminSendMoney() {
+        const email = document.getElementById('adm-mail').value;
+        const amount = parseInt(document.getElementById('adm-amt').value);
+        if(!email || !amount) return alert("Fill user email and amount");
+        const userKey = email.replace(/\./g,'_');
+        
+        db.ref('users/'+userKey).once('value', s => {
+            if(!s.exists()) return alert("User not found!");
+            const currentBal = s.val().bal || 0;
+            db.ref('users/'+userKey).update({ bal: currentBal + amount })
+              .then(() => alert(`Successfully sent ₦${amount} to ${email}`));
+        });
     }
 
     function adminUpload() {
         const name = document.getElementById('log-name').value;
         const price = document.getElementById('log-price').value;
         const raw = document.getElementById('log-data').value.split('\n').filter(l => l.trim() !== "");
-        if(!name || !price || raw.length === 0) return alert("Fill all info!");
+        if(!name || !price || raw.length === 0) return alert("Fill all stock info!");
         db.ref('market').push({ name, price, data: raw });
-        alert("Uploaded " + raw.length + " logs!");
-        closeAdmin();
+        alert(`Uploaded ${raw.length} accounts!`);
     }
 
-    function checkAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
+    function switchTab(t) {
+        document.getElementById('market-view').style.display = t==='market' ? 'block' : 'none';
+        document.getElementById('purchased-view').style.display = t==='logs' ? 'block' : 'none';
+        document.getElementById('tab-m').style.color = t==='market' ? 'var(--primary)' : '#555';
+        document.getElementById('tab-l').style.color = t==='logs' ? 'var(--primary)' : '#555';
+    }
+
+    function checkAdmin() { if(prompt("ENTER ADMIN PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
     function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
     function toggleBot() { const w = document.getElementById('bot-window'); w.style.display = w.style.display === 'block' ? 'none' : 'block'; }
     function pay() {
-        const a = prompt("Amount ₦:");
-        if(!a) return;
+        const a = prompt("Enter amount to fund (₦):");
+        if(!a || isNaN(a)) return;
         PaystackPop.setup({
             key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
             email: auth.currentUser.email,
