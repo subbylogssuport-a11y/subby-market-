@@ -7,22 +7,38 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --whatsapp: #25d366; --red: #ff4d4d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: #eee; overflow-x: hidden; padding-bottom: 80px; }
+        
+        /* Auth & Admin Overlays */
         .overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .card-ui { background: #111; border: 1px solid #222; padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; text-align: center; }
+        
         input, textarea { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        
+        /* Main App UI */
         .nav { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; z-index: 100; }
         .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px; }
         .purchased-item { background: #1c1e26; padding: 15px; border-radius: 12px; margin: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .logout-btn { background: none; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 8px; font-size: 10px; cursor: pointer; margin-left: 10px; }
-        .user-list { background: #000; color: #0f0; font-family: monospace; font-size: 11px; text-align: left; padding: 10px; border-radius: 10px; margin-top: 10px; max-height: 150px; overflow-y: auto; border: 1px solid #333; }
-        .tab-bar { position: fixed; bottom: 0; width: 100%; display: flex; background: #0a0b10; border-top: 1px solid #222; padding: 15px; justify-content: space-around; z-index: 100; }
-        .tab { color: #555; font-weight: bold; font-size: 12px; cursor: pointer; }
+        
+        /* Support Screen Styles */
+        .support-overlay { position: fixed; inset: 0; background: rgba(10, 11, 16, 0.98); backdrop-filter: blur(15px); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; }
+        .support-option { background: #16171d; border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; text-decoration: none; width: 100%; max-width: 350px; transition: 0.3s; }
+        .support-option:active { transform: scale(0.95); }
+        .icon-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; border: 2px solid; }
+        .icon-whatsapp { border-color: #25d366; color: #25d366; }
+        .icon-email { border-color: var(--primary); color: var(--primary); }
+        
+        /* Tab Bar */
+        .tab-bar { position: fixed; bottom: 0; width: 100%; display: flex; background: #0a0b10; border-top: 1px solid #222; padding: 15px; justify-content: space-around; z-index: 500; }
+        .tab { color: #555; font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; }
         .tab.active { color: var(--primary); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -37,57 +53,63 @@
     </div>
 </div>
 
-<div id="admin-gate" class="overlay" style="display:none; z-index:10000;">
-    <div class="card-ui" style="max-height: 95vh; overflow-y: auto; padding: 20px;">
+<div id="admin-gate" class="overlay" style="display:none; z-index:11000;">
+    <div class="card-ui" style="max-height: 90vh; overflow-y: auto;">
         <h2 style="color:var(--gold)">ADMIN PANEL</h2>
-        <div style="border: 1px solid #333; padding: 10px; border-radius: 15px; margin-bottom: 15px;">
-            <p style="font-size: 12px; color: var(--primary);">SEND MONEY</p>
-            <input id="adm-mail" placeholder="Exact User Email">
-            <input id="adm-amt" placeholder="Amount ₦" type="number">
-            <button class="btn" onclick="adminSendMoney()">CONFIRM TRANSFER</button>
-            <button class="btn" style="background:#222; font-size:11px; padding:8px;" onclick="showUsers()">VIEW ALL REGISTERED USERS</button>
-            <div id="user-display" class="user-list" style="display:none;"></div>
-        </div>
-        <div style="border: 1px solid #333; padding: 10px; border-radius: 15px;">
-            <p style="font-size: 12px; color: var(--gold);">UPLOAD STOCK</p>
-            <input id="log-name" placeholder="Item Name (e.g. Local FB)">
-            <input id="log-price" placeholder="Price ₦" type="number">
-            <textarea id="log-data" placeholder="Paste account data here..."></textarea>
-            <button class="btn" style="background:var(--gold); color:#000" onclick="adminUpload()">UPLOAD LOGS</button>
-        </div>
-        <button class="btn" style="background:#222; margin-top:10px;" onclick="closeAdmin()">CLOSE ADMIN</button>
+        <input id="adm-mail" placeholder="User Email">
+        <input id="adm-amt" placeholder="Amount ₦" type="number">
+        <button class="btn" onclick="adminSendMoney()">SEND MONEY</button>
+        <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
+        <input id="log-name" placeholder="Stock Name">
+        <input id="log-price" placeholder="Price ₦" type="number">
+        <textarea id="log-data" placeholder="Account Data..."></textarea>
+        <button class="btn" style="background:var(--gold); color:#000" onclick="adminUpload()">UPLOAD STOCK</button>
+        <button class="btn" style="background:#222;" onclick="closeAdmin()">CLOSE</button>
+    </div>
+</div>
+
+<div id="support-screen" class="support-overlay">
+    <h2 style="color:white; margin-bottom:30px;">CONTACT SUPPORT</h2>
+    <a href="https://wa.me/2347048141378" target="_blank" class="support-option">
+        <div class="icon-circle icon-whatsapp">W</div>
+        <div style="text-align:left"><b style="color:white;display:block">WhatsApp</b><span style="color:#777;font-size:12px">Fast Response</span></div>
+    </a>
+    <a href="mailto:subbylogssupport@gmail.com" class="support-option">
+        <div class="icon-circle icon-email">E</div>
+        <div style="text-align:left"><b style="color:white;display:block">Email Support</b><span style="color:#777;font-size:12px">Official Inquiry</span></div>
+    </a>
+    <div onclick="closeSupport()" class="support-option" style="border-style:dashed; margin-top:20px; justify-content:center;">
+        <b style="color:var(--red)">BACK TO APP</b>
     </div>
 </div>
 
 <div id="app" style="display:none">
     <div class="nav">
         <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
-        <div style="display:flex; align-items:center; gap:5px;">
+        <div style="display:flex; align-items:center; gap:10px;">
             <div style="color:var(--gold); font-weight:900;">₦<span id="bal">0</span></div>
-            <button onclick="alert('Contact Support to Fund')" style="width:25px; height:25px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
-            <button class="logout-btn" onclick="logout()">LOGOUT</button>
+            <button class="btn" style="width:auto; padding:5px 10px; margin:0;" onclick="logout()">EXIT</button>
         </div>
     </div>
-    
+
     <div id="view-market">
         <div style="padding:15px;"><input type="text" id="searchInput" placeholder="Search cards..." oninput="renderMarket()"></div>
         <div id="market-list"></div>
     </div>
 
     <div id="view-logs" style="display:none; padding:15px;">
-        <h2 style="margin-bottom:15px; color:var(--primary)">MY PURCHASED LOGS</h2>
+        <h2 style="color:var(--primary); margin-bottom:15px;">MY ACCOUNTS</h2>
         <div id="my-logs-list"></div>
     </div>
-    
+
     <div class="tab-bar">
         <div onclick="switchTab('market')" id="tab-m" class="tab active">MARKET</div>
         <div onclick="switchTab('logs')" id="tab-l" class="tab">MY LOGS</div>
-        <div onclick="window.open('https://wa.me/2347048141378')" class="tab" style="color:var(--whatsapp)">SUPPORT</div>
+        <div onclick="openSupport()" class="tab">SUPPORT</div>
     </div>
 </div>
 
 <script>
-    // Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyAcJGCC2g2Py6jphASOW8KtbiMMrPZR6aY",
         authDomain: "subbylogs.firebaseapp.com",
@@ -100,10 +122,10 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.database();
 
-    // Auth Logic
+    // AUTH LOGIC
     async function handleAuth() {
         const e = document.getElementById('email').value.trim(), p = document.getElementById('pass').value;
-        if(!e || !p) return alert("Fill all fields");
+        if(!e || !p) return alert("Enter details");
         try {
             if(document.getElementById('atitle').innerText === "LOGIN") {
                 await auth.signInWithEmailAndPassword(e,p);
@@ -117,8 +139,7 @@
     function toggleAuth() {
         const isLogin = document.getElementById('atitle').innerText === "LOGIN";
         document.getElementById('atitle').innerText = isLogin ? "REGISTER" : "LOGIN";
-        document.getElementById('abtn').innerText = isLogin ? "CREATE ACCOUNT" : "SIGN IN";
-        document.getElementById('atog').innerText = isLogin ? "Already have an account? Login" : "New? Create Account";
+        document.getElementById('abtn').innerText = isLogin ? "CREATE" : "SIGN IN";
     }
 
     function logout() { auth.signOut().then(() => location.reload()); }
@@ -127,16 +148,15 @@
         if(user) {
             document.getElementById('auth-gate').style.display='none';
             document.getElementById('app').style.display='block';
-            syncData();
+            sync();
         }
     });
 
-    // Data Syncing
-    function syncData() {
+    // DATA SYNC
+    function sync() {
         const uid = auth.currentUser.uid;
-        db.ref('users/' + uid).on('value', s => {
-            const data = s.val();
-            if(data) document.getElementById('bal').innerText = data.bal.toLocaleString();
+        db.ref('users/' + uid + '/bal').on('value', s => {
+            document.getElementById('bal').innerText = (s.val() || 0).toLocaleString();
         });
         db.ref('market').on('value', renderMarket);
         renderMyLogs();
@@ -151,7 +171,7 @@
                 if(items[k].name.toLowerCase().includes(term)) {
                     h += `<div class="log-item">
                         <h3>${items[k].name}</h3>
-                        <h2 style="color:var(--primary)">₦${parseInt(items[k].price).toLocaleString()}</h2>
+                        <h2 style="color:var(--primary)">₦${items[k].price}</h2>
                         <button class="btn" onclick="buyLog('${k}', ${items[k].price}, '${items[k].name}')">BUY NOW</button>
                     </div>`;
                 }
@@ -164,89 +184,63 @@
         const uid = auth.currentUser.uid;
         const s = await db.ref('users/' + uid).once('value');
         const user = s.val();
-        
-        if(user.bal < price) return alert("Insufficient Balance!");
-        
+        if(user.bal < price) return alert("Fund your wallet!");
+
         const logSnap = await db.ref('market/' + id).once('value');
         const logData = logSnap.val().data;
 
         await db.ref('users/' + uid).update({ bal: user.bal - price });
         await db.ref('purchases/' + uid).push({ name: name, data: logData, date: new Date().toLocaleDateString() });
-        
-        alert("Purchase Successful! Check 'MY LOGS'");
-        renderMyLogs();
+        alert("Success! Check My Logs");
     }
 
     function renderMyLogs() {
-        const uid = auth.currentUser.uid;
-        db.ref('purchases/' + uid).on('value', s => {
+        db.ref('purchases/' + auth.currentUser.uid).on('value', s => {
             const logs = s.val() || {};
             let h = "";
             for(let k in logs) {
                 h += `<div class="purchased-item">
-                    <div>
-                        <b style="color:var(--primary)">${logs[k].name}</b><br>
-                        <small style="font-size:10px; color:#777">${logs[k].date}</small>
-                    </div>
-                    <button onclick="alert('LOG DATA:\\n\\n${logs[k].data}')" style="background:var(--primary); border:none; color:white; padding:5px 10px; border-radius:5px; font-size:10px;">VIEW DATA</button>
+                    <div><b>${logs[k].name}</b><br><small>${logs[k].date}</small></div>
+                    <button class="btn" style="width:auto; padding:5px 10px;" onclick="alert('DATA:\\n${logs[k].data}')">VIEW</button>
                 </div>`;
             }
-            document.getElementById('my-logs-list').innerHTML = h || "<p style='text-align:center; color:#555;'>No logs purchased yet.</p>";
+            document.getElementById('my-logs-list').innerHTML = h || "<p style='color:#444;text-align:center'>No logs yet</p>";
         });
     }
 
-    // Admin Functions
-    function checkAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
-    function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
-
-    function showUsers() {
-        db.ref('users').once('value', s => {
-            let list = "<b>REGISTERED USERS:</b><br>";
-            s.forEach(child => { list += `- ${child.val().email}<br>`; });
-            const display = document.getElementById('user-display');
-            display.style.display = 'block';
-            display.innerHTML = list;
-        });
-    }
-
-    async function adminSendMoney() {
-        const targetEmail = document.getElementById('adm-mail').value.trim().toLowerCase();
-        const amt = parseInt(document.getElementById('adm-amt').value);
-        if(!targetEmail || !amt) return alert("Enter email and amount");
-
-        const usersSnap = await db.ref('users').once('value');
-        let foundUid = null;
-        
-        usersSnap.forEach(child => {
-            if(child.val().email.toLowerCase() === targetEmail) foundUid = child.key;
-        });
-
-        if(foundUid) {
-            const currentBal = (usersSnap.val()[foundUid].bal || 0);
-            await db.ref('users/' + foundUid).update({ bal: currentBal + amt });
-            alert("Sent ₦" + amt + " to " + targetEmail);
-        } else {
-            alert("User not found! Ensure the email is exact.");
-        }
-    }
-
-    function adminUpload() {
-        const n = document.getElementById('log-name').value, 
-              p = document.getElementById('log-price').value, 
-              d = document.getElementById('log-data').value;
-        if(!n || !p || !d) return alert("Fill all fields");
-        db.ref('market').push({ name: n, price: p, data: d }); 
-        alert("Uploaded!");
-        closeAdmin();
-    }
-
-    // Navigation
+    // UI NAVIGATION
     function switchTab(tab) {
         const isMarket = tab === 'market';
         document.getElementById('view-market').style.display = isMarket ? 'block' : 'none';
         document.getElementById('view-logs').style.display = isMarket ? 'none' : 'block';
-        document.getElementById('tab-m').className = isMarket ? 'tab active' : 'tab';
-        document.getElementById('tab-l').className = isMarket ? 'tab' : 'tab active';
+        document.getElementById('tab-m').classList.toggle('active', isMarket);
+        document.getElementById('tab-l').classList.toggle('active', !isMarket);
+    }
+
+    function openSupport() { document.getElementById('support-screen').style.display = 'flex'; }
+    function closeSupport() { document.getElementById('support-screen').style.display = 'none'; }
+
+    // ADMIN TOOLS
+    function checkAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
+    function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
+    
+    async function adminSendMoney() {
+        const email = document.getElementById('adm-mail').value.trim().toLowerCase();
+        const amt = parseInt(document.getElementById('adm-amt').value);
+        const users = await db.ref('users').once('value');
+        let targetUid = null;
+        users.forEach(c => { if(c.val().email.toLowerCase() === email) targetUid = c.key; });
+        if(targetUid) {
+            const newBal = (users.val()[targetUid].bal || 0) + amt;
+            await db.ref('users/' + targetUid).update({ bal: newBal });
+            alert("Sent!");
+        } else { alert("User not found"); }
+    }
+
+    function adminUpload() {
+        const n = document.getElementById('log-name').value, p = document.getElementById('log-price').value, d = document.getElementById('log-data').value;
+        db.ref('market').push({ name: n, price: p, data: d });
+        alert("Stock Added!");
     }
 </script>
 </body>
