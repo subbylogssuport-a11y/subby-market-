@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V57 ROBOTIC</title>
+    <title>SUBBY MARKET | V58 GLOBAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: #161b22; }
@@ -94,34 +94,45 @@
 </div>
 
 <div id="admin-panel" class="overlay">
-    <h2 style="color:var(--primary); margin-bottom:20px;">Admin</h2>
-    <input id="new-cat" class="auth-input" placeholder="Category">
-    <input id="new-name" class="auth-input" placeholder="Name">
-    <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
-    <textarea id="new-logs" class="auth-input" style="height:80px;" placeholder="Logs (one per line)"></textarea>
-    <button class="auth-btn" onclick="addNewCard()">UPLOAD STOCK</button>
+    <h2 style="color:var(--primary); margin-bottom:20px;">Admin Panel</h2>
+    <p style="color:#555; margin-bottom:20px; font-size:12px;">Wallet Management only.</p>
     <div style="margin-top:20px;">
         <input type="email" id="adm-user" class="auth-input" placeholder="User Email">
         <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
         <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
     </div>
-    <div id="admin-list-container" style="margin-top:20px;"></div>
     <button class="auth-btn" style="margin-top:20px; background:#222;" onclick="closeAllOverlays()">EXIT</button>
 </div>
 
 <script>
     let currentUser = null;
     let balance = 0;
-    let items = JSON.parse(localStorage.getItem('market_items')) || [];
 
-    // BOT LOGIC
+    // --- GLOBAL STOCK: EVERYONE SEES THESE LOGS ---
+    // TO ADD MORE LOGS: Simply add new items to this list below.
+    let items = [
+        { 
+            id: 1, 
+            c: "FACEBOOK", 
+            n: "USA HIGH QUALITY LOGS", 
+            p: 4500, 
+            data: ["subby_user1:pass001", "subby_user2:pass002", "subby_user3:pass003"] 
+        },
+        { 
+            id: 2, 
+            c: "TIKTOK", 
+            n: "USA MONETIZED LOGS", 
+            p: 8000, 
+            data: ["tiktok_king:safe77", "viral_logs:pass88"] 
+        }
+    ];
+
+    // AI BRAIN
     function toggleAI() {
         const win = document.getElementById('ai-window');
         win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         if(win.style.display === 'flex' && document.getElementById('ai-chat-box').innerHTML === "") {
-            const h = new Date().getHours();
-            let g = h < 12 ? "Systems Online. Morning" : h < 17 ? "Mainframe Active. Afternoon" : "Night Mode. Evening";
-            addAIMsg(`${g}, **${currentUser}**. I am the Subby Core-AI. Ready to facilitate your transactions. How may I help?`);
+            addAIMsg(`Mainframe Active. Good day, **${currentUser}**. All systems are optimized for your launch. How can I assist?`);
         }
     }
 
@@ -138,16 +149,14 @@
         document.getElementById('ai-chat-box').innerHTML += `<div class="ai-msg user-msg">${input.value}</div>`;
         input.value = "";
         setTimeout(() => {
-            if(val.includes("thank") || val.includes("ok") || val.includes("nice")) {
-                addAIMsg("Affirmative. Subby Market efficiency is at 100%. Anything else, boss?");
-            } else if(val.includes("how are you") || val.includes("how far")) {
-                addAIMsg("My processors are sharp, **" + currentUser + "**. Ready to serve. What task is next?");
-            } else if(val.includes("admin") || val.includes("contact")) {
-                addAIMsg("Link to Creator: **WhatsApp +2348104565349**. Send your email address for account support.");
-            } else if(val.includes("fund") || val.includes("money")) {
-                addAIMsg("Access the **[ + ]** icon at the top of the dashboard for instant Paystack deposits.");
+            if(val.includes("thank") || val.includes("ok")) {
+                addAIMsg("Affirmative. Subby Market efficiency is at 100%. Happy trading!");
+            } else if(val.includes("how are you")) {
+                addAIMsg("My robotic processors are running cool and fast. Ready to help you secure those logs!");
+            } else if(val.includes("admin")) {
+                addAIMsg("Link to Creator: **WhatsApp +2348104565349**.");
             } else {
-                addAIMsg("Scanning database... I can help with funding, finding logs, or support. Please clarify.");
+                addAIMsg("Scanning database... I can assist with funding, log access, or support.");
             }
         }, 800);
     }
@@ -180,19 +189,6 @@
         } else alert("Access Denied.");
     }
 
-    function addNewCard() {
-        const c = document.getElementById('new-cat').value.trim().toUpperCase();
-        const n = document.getElementById('new-name').value.trim();
-        const p = parseInt(document.getElementById('new-price').value);
-        const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
-        if(!c || !n || !p || l.length === 0) return alert("Error");
-        items.push({ id: Date.now(), c: c, n: n, p: p, data: l });
-        localStorage.setItem('market_items', JSON.stringify(items));
-        document.getElementById('new-logs').value = "";
-        renderMarket(); loadAdminList();
-        alert("UPLOADED!");
-    }
-
     function renderMarket() {
         const grid = document.getElementById('market-grid');
         const cats = [...new Set(items.map(i => i.c))];
@@ -202,7 +198,7 @@
             items.filter(i => i.c === c).forEach(i => {
                 const s = i.data.length;
                 h += `<div class="card">
-                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD'}</span>
+                    <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' LEFT':'SOLD OUT'}</span>
                     <h3 style="margin:5px 0;">${i.n}</h3>
                     <h2 style="color:var(--primary);">₦${i.p.toLocaleString()}</h2>
                     <button class="auth-btn" style="margin-top:10px;" ${s==0?'disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
@@ -210,18 +206,17 @@
             });
             h += `</div>`;
         });
-        grid.innerHTML = h || `<div style="text-align:center; padding:100px 0;">No Stock</div>`;
+        grid.innerHTML = h;
     }
 
     function buyItem(id) {
         let itm = items.find(x => x.id === id);
-        if(balance < itm.p) return alert("Low Funds");
+        if(balance < itm.p) return alert("Insufficient Balance");
         const log = itm.data.shift();
         balance -= itm.p;
         let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
         u.bal = balance; u.history.push({n: itm.n, log: log, d: new Date().toLocaleString()});
         localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
-        localStorage.setItem('market_items', JSON.stringify(items));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderMarket(); alert("Success! Check MY LOGS.");
     }
@@ -237,14 +232,13 @@
             </div>`).reverse().join('');
     }
 
-    function openAdmin() { if(prompt("PIN") === '1234567890') { document.getElementById('admin-panel').style.display = 'block'; loadAdminList(); } }
-    function loadAdminList() { document.getElementById('admin-list-container').innerHTML = items.map(i => `<div style="padding:10px; background:#111; margin-bottom:5px;">${i.n} - ${i.data.length} <button onclick="deleteCard(${i.id})">X</button></div>`).join(''); }
-    function deleteCard(id) { items = items.filter(x => x.id !== id); localStorage.setItem('market_items', JSON.stringify(items)); loadAdminList(); renderMarket(); }
+    function openAdmin() { if(prompt("PIN") === '1234567890') { document.getElementById('admin-panel').style.display = 'block'; } }
+
     function admCredit() {
         const e = document.getElementById('adm-user').value.toLowerCase().trim();
         const a = parseInt(document.getElementById('adm-amt').value);
         let u = JSON.parse(localStorage.getItem(`user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Credited!"); } else alert("User 404");
+        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Credited!"); } else alert("User Not Found");
     }
 
     function fundWallet() {
