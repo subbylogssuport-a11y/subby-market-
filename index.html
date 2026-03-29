@@ -57,9 +57,9 @@
         /* AI Bot Style */
         #bot-window { position: fixed; bottom: 90px; right: 20px; width: 280px; background: #fff; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         #chat-logs { height: 180px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; }
-        .msg-ai { background: #f1f5f9; padding: 8px; border-radius: 10px; margin-bottom: 5px; }
+        .msg-ai { background: #f1f5f9; padding: 10px; border-radius: 14px; margin-bottom: 8px; border-left: 4px solid var(--primary); line-height: 1.4; }
         .msg-user { background: var(--primary); color: white; padding: 8px; border-radius: 10px; margin-bottom: 5px; text-align: right; }
-        .bot-toggle { position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1999; box-shadow: 0 4px 15px rgba(0,112,243,0.3); }
+        .bot-toggle { position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1999; box-shadow: 0 4px 15px rgba(0,112,243,0.3); font-size: 24px; }
 
         /* Admin Delete List */
         .admin-item { display: flex; justify-content: space-between; background: #f8fafc; padding: 10px; margin: 5px 0; border-radius: 8px; font-size: 12px; }
@@ -84,13 +84,13 @@
 
 <div class="bot-toggle" id="bot-head" onclick="toggleBot()" style="display:none;">🤖</div>
 <div id="bot-window">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <b style="color:var(--primary); font-size:12px;">SUBBY HELPER</b>
-        <span onclick="toggleBot()" style="cursor:pointer; color:red;">×</span>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+        <b style="color:var(--primary); font-size:12px;">SUBBY ASSISTANT</b>
+        <span onclick="toggleBot()" style="cursor:pointer; color:#ccc;">×</span>
     </div>
-    <div id="chat-logs"><div class="msg-ai">Hello! How can I help you?</div></div>
+    <div id="chat-logs"></div>
     <div style="display:flex; gap:5px;">
-        <input id="bot-input" placeholder="Type here..." style="padding:8px; margin:0; font-size:12px;">
+        <input id="bot-input" placeholder="Speak your mind..." style="padding:8px; margin:0; font-size:12px;">
         <button onclick="askBot()" style="background:var(--primary); border:none; color:white; padding:10px; border-radius:10px;">➔</button>
     </div>
 </div>
@@ -164,7 +164,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.database();
 
-    // BOT LOGIC
+    // POLITE BOT LOGIC
     function toggleBot() { 
         const win = document.getElementById('bot-window');
         win.style.display = win.style.display === 'none' ? 'block' : 'none';
@@ -174,11 +174,19 @@
         if(!q) return;
         l.innerHTML += `<div class="msg-user">${i.value}</div>`;
         i.value = "";
-        let r = "I'm not sure, please chat with us on WhatsApp for help!";
-        if(q.includes("fund")) r = "Click the '+' icon near your balance to pay with Paystack.";
-        if(q.includes("copy")) r = "Go to 'MY LOGS' and click the COPY button on your item.";
-        if(q.includes("wrong")) r = "If there is an issue with your log, please email support immediately.";
-        setTimeout(() => { l.innerHTML += `<div class="msg-ai">${r}</div>`; l.scrollTop = l.scrollHeight; }, 600);
+        
+        let r = "I humble myself before your request, but I do not have the answer yet. Please speak with our masters on WhatsApp for further wisdom.";
+        
+        if(q.includes("hi") || q.includes("hello")) r = "Greetings, noble user! It is a pleasure to serve you today. How may I assist your journey through Subby Logs?";
+        if(q.includes("fund")) r = "To grow your balance, simply press the '+' icon above. Paystack will handle your tribute securely.";
+        if(q.includes("copy")) r = "Your treasures are kept in 'MY LOGS'. Simply click the COPY button to claim them.";
+        if(q.includes("wrong") || q.includes("issue")) r = "I am deeply sorry to hear you're facing trouble. Please send an email to our support team, and they will fix it with honor.";
+        if(q.includes("thanks") || q.includes("thank you")) r = "The pleasure is all mine. May your success continue to rise!";
+
+        setTimeout(() => { 
+            l.innerHTML += `<div class="msg-ai">${r}</div>`; 
+            l.scrollTop = l.scrollHeight; 
+        }, 600);
     }
 
     // AUTH
@@ -218,6 +226,8 @@
             db.ref('users/'+user.uid+'/bal').on('value', s => document.getElementById('bal').innerText = (s.val() || 0).toLocaleString());
             db.ref('market').on('value', renderMarket);
             renderMyLogs();
+            // Initial polite greeting
+            document.getElementById('chat-logs').innerHTML = `<div class="msg-ai">Welcome back, friend. May wisdom guide your choices today. How can I help you?</div>`;
         }
     });
 
