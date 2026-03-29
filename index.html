@@ -3,185 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | OFFICIAL V21</title>
+    <title>SUBBY MARKET | UNIVERSAL V23</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #eee; min-height: 100vh; overflow-x: hidden; }
-        
-        .support-nav { padding: 10px 15px; background: #111; border-bottom: 1px dashed #333; text-align: center; }
-        .support-link { font-size: 13px; color: #0070f3; font-weight: bold; text-decoration: none; }
-
-        /* AUTH GATES */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #000; color: #eee; }
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: #16161a; border: 1px solid #222; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; border-radius: 10px; color: #fff; margin-bottom: 10px; outline: none; font-size: 14px; }
-        .auth-btn { width: 100%; padding: 12px; background: #0070f3; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        /* MAIN APP */
-        #main-app { display: none; width: 100%; }
-        .navbar { background: rgba(22, 22, 26, 0.95); padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #222; }
-        .brand { font-size: 18px; font-weight: 900; color: #0070f3; }
-        .bal-pill { background: #111; border: 1px solid #0070f3; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; }
-
-        .categories-nav { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-        .cat-btn { background: #16161a; color: #888; padding: 8px 15px; border-radius: 10px; border: 1px solid #222; white-space: nowrap; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .cat-btn.active { background: #0070f3; color: #fff; border-color: #0070f3; }
-
-        .grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .card { background: #16161a; border: 1px solid #222; border-radius: 18px; padding: 18px; width: 100%; }
-        .price { font-size: 22px; font-weight: 900; color: #0070f3; margin: 8px 0; }
-        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #0070f3; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; }
-        
-        .orders-section { padding: 15px; background: #0a0a0a; margin: 15px; border-radius: 15px; border: 1px dashed #333; }
-        .order-item { background: #111; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 3px solid #0070f3; }
+        .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .recovery-link { color: #888; font-size: 12px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+        #main-app { display: none; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="login-gate" class="gate-container">
-        <div class="auth-card">
-            <h2 style="color:#0070f3; margin-bottom:15px;">SUBBY LOGIN</h2>
-            <input type="email" id="log-email" class="auth-input" placeholder="Email">
-            <input type="text" id="log-key" class="auth-input" placeholder="Recovery Key">
-            <button class="auth-btn" onclick="handleLogin()">Sign In</button>
-            <div style="color:#888; font-size:11px; margin-top:10px;" onclick="showGate('reg-gate')">New user? <span style="color:#0070f3;">Register here</span></div>
-        </div>
-    </div>
+    <audio id="anthem-player" loop><source src="no_long_talk.mp3" type="audio/mpeg"></audio>
 
-    <div id="reg-gate" class="gate-container" style="display:none;">
+    <div id="auth-gate" class="gate-container">
         <div class="auth-card">
-            <h2 style="color:#0070f3;">REGISTER</h2>
-            <input type="email" id="reg-email" class="auth-input" placeholder="Email">
-            <button class="auth-btn" onclick="handleRegister()">Generate Account Key</button>
-            <div id="reg-code-area" style="display:none; margin-top:10px;">
-                <p style="font-size:10px; color:#888; margin-bottom:5px;">COPY THIS KEY & KEEP IT SAFE:</p>
-                <div id="display-reg-code" style="color:#0070f3; font-weight:bold; font-size:18px; background:#000; padding:10px; border-radius:5px;"></div>
-                <button class="auth-btn" style="margin-top:10px; background:#222;" onclick="showGate('login-gate')">Go to Login</button>
-            </div>
+            <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY MARKET</h1>
+            <input type="email" id="user-email" class="auth-input" placeholder="Enter Email">
+            <input type="text" id="user-key" class="auth-input" placeholder="Recovery Key (Leave blank if New)">
+            <button class="auth-btn" onclick="processAuth()">LOGIN / REGISTER</button>
+            <p class="recovery-link" onclick="recoverKey()">Forgot Recovery Key?</p>
         </div>
     </div>
 
     <div id="main-app">
-        <div class="support-nav">
-            <a href="https://wa.me/2348104565349" target="_blank" class="support-link">
-                SUPPORT: +2348104565349
-            </a>
-        </div>
-
-        <div class="navbar">
-            <div class="brand" onmousedown="startAdminTimer()">SUBBY MARKET</div>
-            <div class="bal-pill">₦<span id="bal-val">0</span> <span onclick="fundWallet()" style="cursor:pointer; color:#0070f3;">+</span></div>
-        </div>
-
-        <div class="categories-nav" id="cat-bar"></div>
-        <div class="grid" id="market-grid"></div>
-
-        <div class="orders-section">
-            <h4 style="color:#0070f3; font-size:14px;">My Purchases</h4>
-            <div id="orders-list"></div>
-            <button class="auth-btn" style="background:#333; margin-top:15px;" onclick="location.reload()">Switch Account</button>
-        </div>
+        <h2 style="color:#0070f3;">Welcome Back!</h2>
+        <p id="user-display" style="font-size:12px; color:#888;"></p>
+        <div id="bal-area" style="font-size:24px; font-weight:900; margin:20px 0;">₦<span id="bal-val">0</span></div>
+        <button class="auth-btn" style="background:#333;" onclick="location.reload()">Logout</button>
     </div>
 
 <script>
-    let currentUser = null, balance = 0, myOrders = [];
-    
-    // Default Items
-    let items = [
-        {id: 1, n: "FB (0-30 friend) 2009-2022", p: 3160, c: "Facebook", s: 0, logs: []},
-        {id: 2, n: "Instagram HD", p: 9000, c: "Instagram", s: 0, logs: []},
-        {id: 3, n: "Aged Twitter", p: 10000, c: "Twitter", s: 0, logs: []}
-    ];
+    function processAuth() {
+        const email = document.getElementById('user-email').value.trim().toLowerCase();
+        const inputKey = document.getElementById('user-key').value.trim();
+        
+        if(!email.includes('@')) return alert("Enter a valid email!");
 
-    function showGate(id) { 
-        document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none'); 
-        document.getElementById(id).style.display = 'flex'; 
-    }
+        let savedKey = localStorage.getItem(`subby_key_${email}`);
 
-    function handleRegister() {
-        const email = document.getElementById('reg-email').value.trim().toLowerCase();
-        if(!email.includes('@')) return alert("Enter valid email");
-        
-        // Generate a Sharp Recovery Key
-        const key = "SUBBY-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        
-        // Save user to "Global" local storage
-        localStorage.setItem(`user_key_${email}`, key);
-        localStorage.setItem(`data_${email}`, JSON.stringify({ balance: 0, myOrders: [] }));
-        
-        document.getElementById('display-reg-code').innerText = key;
-        document.getElementById('reg-code-area').style.display = 'block';
-    }
+        // REGISTRATION (If no key exists for this email)
+        if (!savedKey) {
+            const newKey = "SB-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+            localStorage.setItem(`subby_key_${email}`, newKey);
+            localStorage.setItem(`subby_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
+            alert(`ACCOUNT CREATED!\n\nYour Recovery Key: ${newKey}\n\nUse this to login on any phone or laptop!`);
+            return;
+        }
 
-    function handleLogin() {
-        const email = document.getElementById('log-email').value.trim().toLowerCase();
-        const key = document.getElementById('log-key').value.trim();
-        
-        if(localStorage.getItem(`user_key_${email}`) === key) {
-            currentUser = email;
-            const userData = JSON.parse(localStorage.getItem(`data_${email}`));
-            balance = userData.balance;
-            myOrders = userData.myOrders;
+        // LOGIN (Verify Key)
+        if (inputKey === savedKey) {
+            const data = JSON.parse(localStorage.getItem(`subby_data_${email}`));
+            document.getElementById('bal-val').innerText = data.balance.toLocaleString();
+            document.getElementById('user-display').innerText = email;
             
-            document.getElementById('bal-val').innerText = balance.toLocaleString();
-            document.getElementById('login-gate').style.display = 'none';
+            // Start the Anthem immediately
+            document.getElementById('anthem-player').play();
+            
+            document.getElementById('auth-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
-            setupCategories(); renderItems(items); updateOrdersUI();
         } else {
-            alert("Error: Credentials do not match.");
+            alert("Error: Key does not match this email. Use 'Forgot Key' if needed.");
         }
     }
 
-    function setupCategories() {
-        const cats = ['All', ...new Set(items.map(i => i.c))];
-        document.getElementById('cat-bar').innerHTML = cats.map(c => `<div class="cat-btn ${c==='All'?'active':''}" onclick="filterShop('${c}', this)">${c}</div>`).join('');
-    }
-
-    function renderItems(data) {
-        document.getElementById('market-grid').innerHTML = data.map(i => `
-            <div class="card">
-                <span style="color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-size:10px; font-weight:bold;">${i.s > 0 ? 'AVAILABLE' : 'SOLD OUT'} (${i.s})</span>
-                <h3 style="margin:5px 0; font-size:15px;">${i.n}</h3>
-                <div class="price">₦${i.p.toLocaleString()}</div>
-                <button class="buy-btn" onclick="buyItem(${i.id})" ${i.s === 0 ? 'disabled' : ''}>Buy Now</button>
-            </div>`).join('');
-    }
-
-    function buyItem(id) {
-        const i = items.find(x => x.id == id);
-        if(balance < i.p) return alert("Insufficient Balance!");
-        const log = i.logs.shift(); i.s = i.logs.length; balance -= i.p;
-        myOrders.unshift({ n: i.n, l: log }); 
-        
-        // Save progress to account
-        localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
-        
-        document.getElementById('bal-val').innerText = balance.toLocaleString();
-        renderItems(items); updateOrdersUI();
-    }
-
-    function updateOrdersUI() {
-        document.getElementById('orders-list').innerHTML = myOrders.map(o => `
-            <div class="order-item">
-                <strong style="color:#0070f3;">${o.n}</strong>
-                <p style="font-size:11px; color:#aaa; margin:5px 0;">${o.l}</p>
-            </div>`).join('');
-    }
-
-    function fundWallet() {
-        const a = prompt("Amount to fund:");
-        if(a) {
-            PaystackPop.setup({
-                key: 'pk_live_241bdd6d0b4dd94ebe7f59b7d70bee5939fae661',
-                email: currentUser,
-                amount: a * 100,
-                callback: () => {
-                    balance += parseInt(a);
-                    localStorage.setItem(`data_${currentUser}`, JSON.stringify({ balance, myOrders }));
-                    location.reload();
-                }
-            }).openIframe();
+    function recoverKey() {
+        const email = prompt("Enter email to recover your key:");
+        if (!email) return;
+        const key = localStorage.getItem(`subby_key_${email.toLowerCase()}`);
+        if (key) {
+            alert(`SUCCESS: Your Key is ${key}. You can now login on any device.`);
+        } else {
+            alert("Email not found. Please register first.");
         }
     }
 </script>
