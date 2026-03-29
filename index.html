@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V49 FINAL</title>
+    <title>SUBBY MARKET | V50 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -88,18 +88,13 @@
         <button style="background:none; border:none; color:#fff; font-size:24px;" onclick="closeAllOverlays()">×</button>
     </div>
     <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
-        <h4 style="margin-bottom:10px;">ADD NEW LOGS</h4>
+        <h4 style="margin-bottom:10px;">ADD NEW LOG CARD</h4>
         <input id="new-cat" class="auth-input" placeholder="Category (TikTok, FB)">
         <input id="new-name" class="auth-input" placeholder="Item Name">
         <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
         <textarea id="new-logs" class="auth-input" style="height:80px; text-align:left;" placeholder="user:pass (One per line)"></textarea>
-        <button class="auth-btn" style="display:block; width:100%;" onclick="addNewCard()">UPLOAD TO MARKET</button>
-    </div>
-    <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid var(--gold);">
-        <h4>CREDIT USER</h4>
-        <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email">
-        <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
-        <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
+        <button class="auth-btn" style="background:var(--primary); margin-bottom: 10px;" onclick="addNewCard()">CONFIRM & UPLOAD</button>
+        <button class="auth-btn" style="background:#222;" onclick="closeAllOverlays()">EXIT ADMIN</button>
     </div>
     <div id="admin-list-container"></div>
 </div>
@@ -119,7 +114,7 @@
         const p = document.getElementById('reg-pass').value;
         if(!e || !p) return alert("Fill all fields");
         localStorage.setItem(`user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Success! Login now."); showGate('login-gate');
+        alert("Account Created!"); showGate('login-gate');
     }
 
     function handleLogin() {
@@ -132,7 +127,7 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             renderMarket();
-        } else alert("Invalid Login!");
+        } else alert("Error! Invalid Credentials.");
     }
 
     function renderMarket() {
@@ -151,13 +146,13 @@
             });
             h += `</div>`;
         });
-        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is Empty. Use Admin to add logs.</p>";
+        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is currently empty.</p>";
         localStorage.setItem('market_items', JSON.stringify(items));
     }
 
     function buyItem(id) {
         let item = items.find(x => x.id === id);
-        if(balance < item.p) return alert("Insufficient Balance!");
+        if(balance < item.p) return alert("Low Balance!");
         const myLog = item.data.shift();
         balance -= item.p;
         let u = JSON.parse(localStorage.getItem(`user_${currentUser}`));
@@ -166,7 +161,7 @@
         localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderMarket();
-        alert("Success! Check 'MY LOGS'.");
+        alert("Done! Check 'MY LOGS'.");
     }
 
     function openHistory() {
@@ -174,7 +169,7 @@
         const list = document.getElementById('history-list');
         document.getElementById('history-overlay').style.display = 'block';
         if(!u.history.length) {
-            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No purchases found.</p>`;
+            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No purchase history found.</p>`;
         } else {
             list.innerHTML = u.history.map(h => `
                 <div class="history-card">
@@ -192,7 +187,7 @@
 
     function loadAdminList() {
         document.getElementById('admin-list-container').innerHTML = items.map(i => `
-            <div class="adm-item">
+            <div class="adm-item" style="background:#111; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #222;">
                 <p style="font-size:10px; color:var(--gold)">${i.c} | Stock: ${i.data.length}</p>
                 <p><b>${i.n}</b> (₦${i.p})</p>
                 <button onclick="deleteCard(${i.id})" style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:5px; margin-top:5px; font-size:10px;">DELETE</button>
@@ -204,24 +199,26 @@
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
+        
         if(!c || !n || !p || l.length === 0) return alert("Fill all fields correctly!");
+        
         items.push({id: Date.now(), c:c, n:n, p:p, data:l});
+        
+        // Clear inputs for next upload
+        document.getElementById('new-cat').value = '';
+        document.getElementById('new-name').value = '';
+        document.getElementById('new-price').value = '';
         document.getElementById('new-logs').value = '';
-        renderMarket(); loadAdminList();
-        closeAllOverlays();
-        alert("Market Updated!");
+        
+        localStorage.setItem('market_items', JSON.stringify(items));
+        loadAdminList();
+        alert("Confirmed! Item added to stock.");
     }
 
     function deleteCard(id) {
-        items = items.filter(x => x.id !== id); renderMarket(); loadAdminList();
-    }
-
-    function admCredit() {
-        const e = document.getElementById('adm-user').value.toLowerCase().trim();
-        const a = parseInt(document.getElementById('adm-amt').value);
-        let u = JSON.parse(localStorage.getItem(`user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Done!"); }
-        else alert("User not found!");
+        items = items.filter(x => x.id !== id);
+        localStorage.setItem('market_items', JSON.stringify(items));
+        loadAdminList();
     }
 
     function fundWallet() {
@@ -241,6 +238,7 @@
 
     function closeAllOverlays() {
         document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+        renderMarket(); // Ensure main screen refreshes with new stock
     }
 </script>
 </body>
