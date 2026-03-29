@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V76 SMART</title>
+    <title>SUBBY LOGS | V77 ULTRA</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -13,21 +13,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: #eee; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card-ui { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
+        .card-ui { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; text-align: center; }
+        input, textarea { width: 100%; padding: 15px; margin: 8px 0; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         #app { display: none; }
-        .nav { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; }
-        .notification-badge { background: red; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 5px; }
-        
-        /* IMPROVED CHAT UI */
-        #bot-box { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none; }
-        #bot-bubble { width: 60px; height: 60px; background: #111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border: 2px solid var(--primary); border-radius: 50%; cursor: pointer; }
-        #bot-window { position: absolute; bottom: 75px; right: 0; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 15px; display: none; box-shadow: 0 10px 40px #000; }
-        #chat-logs { height: 200px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; padding-right: 5px; }
-        .msg { margin-bottom: 10px; padding: 8px; border-radius: 10px; }
-        .bot-msg { background: #222; color: #fff; }
-        .user-msg { background: var(--primary); color: #fff; text-align: right; }
+        .nav { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; z-index: 100; }
+        .search-container { padding: 10px 20px; background: #0f1016; }
+        .log-item { background: #16171d; padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 15px; }
+        .history-card { background: #000; border: 1px solid var(--gold); padding: 15px; border-radius: 15px; margin-top: 10px; text-align: left; }
+        .tab-bar { position: fixed; bottom: 0; width: 100%; display: flex; background: #0a0b10; border-top: 1px solid #222; padding: 15px; justify-content: space-around; }
+        .tab { font-size: 12px; color: #555; cursor: pointer; font-weight: bold; }
+        .tab.active { color: var(--primary); }
     </style>
 </head>
 <body>
@@ -43,42 +39,54 @@
 </div>
 
 <div id="admin-gate" class="overlay" style="display:none; z-index:10000;">
-    <div class="card-ui" style="max-width:450px;">
-        <h2 style="color:var(--gold)">ADMIN PANEL</h2>
-        <div id="admin-notifs" style="background:#000; padding:10px; border-radius:10px; margin:10px 0; max-height:100px; overflow-y:auto; font-size:11px; color:#0f0;">
-            Waiting for new signups...
-        </div>
+    <div class="card-ui">
+        <h2 style="color:var(--gold)">ADMIN DASHBOARD</h2>
+        <div id="notif-area" style="font-size:10px; color:#0f0; margin:10px 0;"></div>
         <input id="adm-mail" placeholder="User Email">
         <input id="adm-amt" placeholder="Amount ₦">
         <button class="btn" onclick="adminSendMoney()">SEND MONEY</button>
-        <hr style="margin:15px 0; opacity:0.1">
-        <input id="log-name" placeholder="Item Name">
+        <hr style="opacity:0.1; margin:15px 0;">
+        <input id="log-name" placeholder="Item Name (e.g. Facebook 2014)">
         <input id="log-price" placeholder="Price ₦">
-        <button class="btn" style="background:var(--gold); color:#000" onclick="adminUploadLog()">UPLOAD LOG</button>
-        <button class="btn" style="background:#222; margin-top:15px;" onclick="closeAdmin()">CLOSE</button>
+        <textarea id="log-data" placeholder="PASTE LOG DETAILS HERE (User:Pass|Cookie)"></textarea>
+        <button class="btn" style="background:var(--gold); color:000" onclick="adminUpload()">UPLOAD & AUTOMATE</button>
+        <button class="btn" style="background:#222; margin-top:10px;" onclick="closeAdmin()">CLOSE</button>
     </div>
 </div>
 
 <div id="app">
     <div class="nav">
-        <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS <span id="admin-dot" style="display:none" class="notification-badge">NEW</span></b>
-        <div style="display:flex; align-items:center; gap:12px;">
+        <b style="color:var(--primary)" ondblclick="checkAdmin()">SUBBY LOGS</b>
+        <div style="display:flex; align-items:center; gap:10px;">
             <div style="color:var(--gold); font-weight:900;">₦<span id="bal">0</span></div>
             <button onclick="pay()" style="width:30px; height:30px; border-radius:50%; border:none; background:var(--gold); font-weight:bold;">+</button>
-            <button onclick="firebase.auth().signOut()" style="color:red; background:none; border:none; font-size:10px;">Exit</button>
         </div>
     </div>
-    <div id="market" style="padding:20px; display:grid; gap:15px;"></div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for a card (e.g. Facebook)..." oninput="filterMarket()">
+    </div>
+
+    <div id="market-view" style="padding:20px; padding-bottom:100px;"></div>
+
+    <div id="purchased-view" style="padding:20px; display:none; padding-bottom:100px;">
+        <h3 style="color:var(--gold); margin-bottom:15px;">MY PURCHASED LOGS</h3>
+        <div id="my-logs-list"></div>
+    </div>
+
+    <div class="tab-bar">
+        <div id="t-mkt" class="tab active" onclick="switchTab('market')">MARKET</div>
+        <div id="t-logs" class="tab" onclick="switchTab('logs')">MY LOGS</div>
+        <div class="tab" onclick="firebase.auth().signOut()">EXIT</div>
+    </div>
 </div>
 
-<div id="bot-box">
-    <div id="bot-window">
-        <div id="chat-logs">
-            <div class="msg bot-msg">🤖 <b>Subby AI:</b> Hello! I'm active. Ask me anything about your account or the market.</div>
-        </div>
-        <input type="text" id="user-query" placeholder="Type message..." style="height:40px; font-size:12px;" onkeypress="if(event.key==='Enter') startChat(this.value)">
+<div id="bot-box" style="position:fixed; bottom:80px; right:20px; z-index:500; display:none;">
+    <div id="bot-win" style="display:none; width:280px; background:#111; border:1px solid var(--primary); padding:15px; border-radius:20px; margin-bottom:10px;">
+        <div id="bot-logs" style="height:150px; overflow-y:auto; font-size:12px; margin-bottom:10px;"></div>
+        <input type="text" id="bot-in" placeholder="Ask AI..." style="height:35px; font-size:11px;" onkeypress="if(event.key==='Enter') askAI(this.value)">
     </div>
-    <div id="bot-bubble" onclick="toggleBot()"></div>
+    <div onclick="toggleBot()" style="width:50px; height:50px; background:#111 url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') center/70% no-repeat; border:2px solid var(--primary); border-radius:50%;"></div>
 </div>
 
 <script>
@@ -92,24 +100,22 @@
         appId: "1:405053710429:web:592518cf9ee73e31666db4"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    let isLogin = true;
+    const auth = firebase.auth(), db = firebase.database();
+    let isLogin = true, allLogs = {};
 
     function toggleAuth() {
         isLogin = !isLogin;
         document.getElementById('atitle').innerText = isLogin ? "LOGIN" : "REGISTER";
         document.getElementById('abtn').innerText = isLogin ? "SIGN IN" : "SIGN UP";
-        document.getElementById('atog').innerText = isLogin ? "New? Create Account" : "Have an account? Login";
     }
 
     async function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('pass').value;
         try { 
-            if(isLogin) { await auth.signInWithEmailAndPassword(e,p); } 
+            if(isLogin) await auth.signInWithEmailAndPassword(e,p); 
             else { 
                 await auth.createUserWithEmailAndPassword(e,p);
-                db.ref('notifications').push({ msg: "New User: " + e, time: Date.now() });
+                db.ref('notifications').push({ msg: "New Sign up: " + e });
             }
         } catch(err) { alert(err.message); }
     }
@@ -120,85 +126,103 @@
             document.getElementById('app').style.display='block';
             document.getElementById('bot-box').style.display='block';
             sync();
-        } else {
-            document.getElementById('auth-gate').style.display='flex';
-            document.getElementById('app').style.display='none';
-            document.getElementById('bot-box').style.display='none';
-        }
+        } else { location.reload(); }
     });
 
     function sync() {
-        const id = auth.currentUser.email.replace(/\./g,'_');
-        db.ref('users/'+id).on('value', s => document.getElementById('bal').innerText = (s.val()?.bal || 0).toLocaleString());
+        const uid = auth.currentUser.email.replace(/\./g,'_');
+        db.ref('users/'+uid+'/bal').on('value', s => document.getElementById('bal').innerText = (s.val() || 0).toLocaleString());
         
-        // ADMIN NOTIFICATIONS
-        db.ref('notifications').on('value', s => {
-            const n = s.val();
-            let h = "";
-            for(let k in n) { h = `<div>🔔 ${n[k].msg}</div>` + h; }
-            document.getElementById('admin-notifs').innerHTML = h || "No recent alerts.";
-            if(n) document.getElementById('admin-dot').style.display = 'inline';
+        db.ref('market').on('value', s => {
+            allLogs = s.val() || {};
+            filterMarket();
         });
 
-        db.ref('market').on('value', s => {
-            const logs = s.val();
+        db.ref('users/'+uid+'/myLogs').on('value', s => {
+            const data = s.val();
             let h = "";
-            for(let k in logs) {
-                h += `<div style="background:#16171d; padding:20px; border-radius:20px; border:1px solid #222;">
-                    <h3 style="margin-bottom:5px;">${logs[k].name}</h3>
-                    <h2 style="color:var(--primary)">₦${parseInt(logs[k].price).toLocaleString()}</h2>
-                    <button class="btn" onclick="buyLog('${k}', ${logs[k].price})">BUY NOW</button>
-                    ${auth.currentUser.email === 'admin@subbylogs.com' ? `<button onclick="db.ref('market/${k}').remove()" style="background:red; border:none; color:white; padding:5px; border-radius:5px; margin-top:10px; width:100%; font-size:10px;">DELETE</button>` : ''}
+            for(let k in data) {
+                h += `<div class="history-card">
+                    <p style="font-size:10px; color:var(--gold)">${data[k].date}</p>
+                    <p><b>Item:</b> ${data[k].name}</p>
+                    <div style="background:#222; padding:10px; border-radius:10px; margin-top:5px; word-break:break-all; font-family:monospace; font-size:12px; color:#0f0;">${data[k].details}</div>
                 </div>`;
             }
-            document.getElementById('market').innerHTML = h || "Market is empty.";
+            document.getElementById('my-logs-list').innerHTML = h || "No purchases yet.";
         });
     }
 
-    // INSTANT SMART AI
-    function toggleBot() { 
-        const w = document.getElementById('bot-window');
-        w.style.display = w.style.display === 'block' ? 'none' : 'block';
+    function filterMarket() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        let h = "";
+        for(let k in allLogs) {
+            if(allLogs[k].name.toLowerCase().includes(term)) {
+                h += `<div class="log-item">
+                    <p style="font-size:10px; color:#0f0">● SECURE & READY</p>
+                    <h3 style="margin:5px 0">${allLogs[k].name}</h3>
+                    <h2 style="color:var(--primary)">₦${parseInt(allLogs[k].price).toLocaleString()}</h2>
+                    <button class="btn" onclick="buyLog('${k}')">BUY INSTANTLY</button>
+                    ${auth.currentUser.email === 'admin@subbylogs.com' ? `<button onclick="db.ref('market/${k}').remove()" style="background:red; border:none; color:white; padding:5px; border-radius:8px; margin-top:10px; width:100%; font-size:10px;">DELETE FROM MARKET</button>` : ''}
+                </div>`;
+            }
+        }
+        document.getElementById('market-view').innerHTML = h || "No matches found.";
     }
 
-    function startChat(q) {
-        const logs = document.getElementById('chat-logs');
-        const input = document.getElementById('user-query');
-        logs.innerHTML += `<div class="msg user-msg">${q}</div>`;
-        input.value = "";
-        
-        setTimeout(() => {
-            let res = "I am processing your request. Please check the market for updates!";
-            const low = q.toLowerCase();
-            if(low.includes("hi") || low.includes("hello")) res = "Hello! Welcome to Subby Logs. How can I assist with your wallet or logs today?";
-            else if(low.includes("balance") || low.includes("money")) res = "You can fund your wallet by clicking the (+) button at the top right.";
-            else if(low.includes("scam") || low.includes("legit")) res = "Subby Logs is 100% automated and secure. Your logs are delivered instantly after purchase.";
-            else if(low.includes("facebook") || low.includes("fb")) res = "We update Facebook logs daily. Keep an eye on the market grid!";
-            
-            logs.innerHTML += `<div class="msg bot-msg">🤖 <b>Subby AI:</b> ${res}</div>`;
-            logs.scrollTop = logs.scrollHeight;
-        }, 600);
+    function buyLog(k) {
+        const uid = auth.currentUser.email.replace(/\./g,'_');
+        const item = allLogs[k];
+        db.ref('users/'+uid+'/bal').once('value', s => {
+            const bal = s.val() || 0;
+            if(bal < item.price) return alert("Insufficient Balance!");
+            if(confirm(`Buy ${item.name} for ₦${item.price}?`)) {
+                db.ref('users/'+uid).update({ bal: bal - item.price });
+                db.ref('users/'+uid+'/myLogs').push({
+                    name: item.name,
+                    details: item.data,
+                    date: new Date().toLocaleString()
+                });
+                alert("SUCCESS! Log delivered to 'MY LOGS' tab.");
+            }
+        });
     }
 
-    function checkAdmin() { if(prompt("PIN") === "1710") { document.getElementById('admin-gate').style.display='flex'; document.getElementById('admin-dot').style.display='none'; } }
+    function switchTab(t) {
+        document.getElementById('market-view').style.display = t==='market' ? 'block' : 'none';
+        document.getElementById('purchased-view').style.display = t==='logs' ? 'block' : 'none';
+        document.getElementById('t-mkt').className = t==='market' ? 'tab active' : 'tab';
+        document.getElementById('t-logs').className = t==='logs' ? 'tab active' : 'tab';
+    }
+
+    function checkAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-gate').style.display='flex'; }
     function closeAdmin() { document.getElementById('admin-gate').style.display='none'; }
     function adminSendMoney() {
         const m = document.getElementById('adm-mail').value.replace(/\./g,'_'), a = parseInt(document.getElementById('adm-amt').value);
         db.ref('users/'+m).once('value', s => db.ref('users/'+m).update({ bal: (s.val()?.bal || 0) + a }));
         alert("Sent!");
     }
-    function adminUploadLog() {
-        db.ref('market').push({ name: document.getElementById('log-name').value, price: document.getElementById('log-price').value });
-        alert("Uploaded!");
+    function adminUpload() {
+        const name = document.getElementById('log-name').value;
+        const price = document.getElementById('log-price').value;
+        const data = document.getElementById('log-data').value;
+        if(!name || !price || !data) return alert("Fill all fields!");
+        db.ref('market').push({ name, price, data });
+        alert("UPLOADED! Ready for instant sale.");
     }
-    function buyLog(k, p) {
-        const id = auth.currentUser.email.replace(/\./g,'_');
-        db.ref('users/'+id).once('value', s => {
-            const b = s.val()?.bal || 0;
-            if(b < p) return alert("Low balance!");
-            db.ref('users/'+id).update({ bal: b - p });
-            alert("Success! Check with Admin for your data.");
-        });
+
+    function toggleBot() { 
+        const w = document.getElementById('bot-win');
+        w.style.display = w.style.display === 'block' ? 'none' : 'block';
+    }
+    function askAI(q) {
+        const l = document.getElementById('bot-logs');
+        l.innerHTML += `<div style="color:var(--gold); margin-bottom:5px;">User: ${q}</div>`;
+        setTimeout(() => {
+            let r = "I'm checking the market logs for you...";
+            if(q.toLowerCase().includes("how")) r = "Just top up, search for a card, and click Buy Instantly!";
+            l.innerHTML += `<div style="color:#0f0; margin-bottom:10px;">AI: ${r}</div>`;
+            l.scrollTop = l.scrollHeight;
+        }, 500);
     }
     function pay() {
         const a = prompt("Amount ₦:");
@@ -209,7 +233,7 @@
             amount: a * 100,
             callback: () => {
                 const id = auth.currentUser.email.replace(/\./g,'_');
-                db.ref('users/'+id).once('value', s => db.ref('users/'+id).update({ bal: (s.val()?.bal || 0) + parseInt(a) }));
+                db.ref('users/'+id+'/bal').once('value', s => db.ref('users/'+id).update({ bal: (s.val() || 0) + parseInt(a) }));
             }
         }).openIframe();
     }
