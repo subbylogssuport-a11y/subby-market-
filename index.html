@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V24 SHARP</title>
+    <title>SUBBY MARKET | OFFICIAL LAUNCH</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #000; color: #eee; }
+        body { background: #000; color: #eee; min-height: 100vh; }
         .gate-container { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #111; border: 1px solid #0070f3; padding: 30px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; text-align: center; font-size: 16px; }
-        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 5px; }
+        .auth-input { width: 100%; padding: 14px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 16px; }
+        .auth-btn { width: 100%; padding: 14px; background: #0070f3; color: #fff; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .switch-link { color: #888; font-size: 12px; margin-top: 20px; cursor: pointer; display: block; }
-        .copy-btn { background: #222; border: 1px solid #444; color: #0070f3; padding: 5px 10px; border-radius: 5px; font-size: 11px; margin-top: 10px; cursor: pointer; }
-        #main-app { display: none; padding: 20px; }
+        
+        #main-app { display: none; }
+        .navbar { background: #111; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .grid { padding: 15px; display: grid; gap: 15px; }
+        .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 18px; position: relative; }
+        .price { font-size: 22px; font-weight: 900; color: #0070f3; margin: 10px 0; }
+        .buy-btn { width: 100%; padding: 12px; border-radius: 10px; background: #0070f3; color: #fff; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -24,43 +30,43 @@
         <div class="auth-card">
             <h1 style="color:#0070f3; margin-bottom:20px;">SUBBY LOGIN</h1>
             <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
-            <input type="text" id="log-code" class="auth-input" placeholder="6-Digit Code" maxlength="6">
+            <input type="password" id="log-pass" class="auth-input" placeholder="Password">
             <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
-            <p class="switch-link" onclick="showGate('reg-gate')">New user? <span style="color:#0070f3;">Create Account</span></p>
-            <p class="switch-link" style="margin-top:10px;" onclick="recoverCode()">Forgot Code?</p>
+            <p class="switch-link" onclick="showGate('reg-gate')">Don't have an account? <span style="color:#0070f3;">Sign Up</span></p>
         </div>
     </div>
 
     <div id="reg-gate" class="gate-container" style="display:none;">
         <div class="auth-card">
-            <h1 style="color:#0070f3; margin-bottom:20px;">SIGN UP</h1>
-            <input type="email" id="reg-email" class="auth-input" placeholder="Enter Email Address">
-            <button class="auth-btn" onclick="handleRegister()">GET MY CODE</button>
-            
-            <div id="reg-success" style="display:none; margin-top:20px; border-top:1px solid #222; padding-top:15px;">
-                <p style="font-size:11px; color:#888;">YOUR OFFICIAL LOGIN CODE:</p>
-                <div id="display-code" style="font-size:32px; font-weight:900; color:#0070f3; margin:10px 0;">000000</div>
-                <button class="copy-btn" onclick="copyCode()">CLICK TO COPY CODE</button>
-                <button class="auth-btn" style="background:#222; margin-top:15px;" onclick="showGate('login-gate')">GO TO LOGIN</button>
-            </div>
-            <p class="switch-link" onclick="showGate('login-gate')">Already have a code? <span style="color:#0070f3;">Login</span></p>
+            <h1 style="color:#0070f3; margin-bottom:20px;">CREATE ACCOUNT</h1>
+            <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Create Password">
+            <button class="auth-btn" onclick="handleRegister()">REGISTER NOW</button>
+            <p class="switch-link" onclick="showGate('login-gate')">Already have an account? <span style="color:#0070f3;">Login</span></p>
         </div>
     </div>
 
     <div id="main-app">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding-bottom:10px;">
-            <div style="font-weight:900; color:#0070f3;">SUBBY MARKET</div>
-            <div style="background:#111; border:1px solid #0070f3; padding:5px 12px; border-radius:15px; font-weight:bold;">₦<span id="bal-val">0</span></div>
+        <div class="navbar">
+            <div style="font-weight:900; color:#0070f3;" onmousedown="startAdminTimer()">SUBBY MARKET</div>
+            <div style="background:#000; border:1px solid #0070f3; padding:5px 15px; border-radius:20px; font-weight:bold;">₦<span id="bal-val">0</span></div>
         </div>
-        <p id="user-display" style="font-size:10px; color:#555; margin-top:5px;"></p>
-        
-        <div style="margin-top:100px; text-align:center;">
-            <p style="color:#888;">Marketplace Loading...</p>
-            <button class="auth-btn" style="background:#333; width:150px; margin-top:20px;" onclick="location.reload()">LOGOUT</button>
+        <div class="grid" id="market-grid"></div>
+        <div style="text-align:center; padding:30px;">
+            <button class="auth-btn" style="background:#222; width:150px;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
 <script>
+    // Your Warehouse Items
+    const items = [
+        {n: "UK Facebook 🇬🇧", p: 2500, s: 1},
+        {n: "Random FB Logs (Newly Created)", p: 1000, s: 2},
+        {n: "USA Facebook Newly Created", p: 1500, s: 2},
+        {n: "Instagram HD", p: 9000, s: 0},
+        {n: "Aged Twitter", p: 10000, s: 0}
+    ];
+
     function showGate(id) {
         document.querySelectorAll('.gate-container').forEach(g => g.style.display = 'none');
         document.getElementById(id).style.display = 'flex';
@@ -68,51 +74,43 @@
 
     function handleRegister() {
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
-        if(!email.includes('@')) return alert("Enter valid email!");
+        const pass = document.getElementById('reg-pass').value.trim();
+        if(!email.includes('@') || pass.length < 4) return alert("Valid email and password (min 4 chars) required!");
         
-        // Generate 6-Digit Code
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        localStorage.setItem(`subby_code_${email}`, code);
-        localStorage.setItem(`subby_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
-        
-        document.getElementById('display-code').innerText = code;
-        document.getElementById('reg-success').style.display = 'block';
-    }
-
-    function copyCode() {
-        const code = document.getElementById('display-code').innerText;
-        navigator.clipboard.writeText(code);
-        alert("Code copied to clipboard! Save it securely.");
+        localStorage.setItem(`user_pass_${email}`, pass);
+        localStorage.setItem(`user_data_${email}`, JSON.stringify({ balance: 0, orders: [] }));
+        alert("Registration Successful! Please login.");
+        showGate('login-gate');
     }
 
     function handleLogin() {
         const email = document.getElementById('log-email').value.trim().toLowerCase();
-        const code = document.getElementById('log-code').value.trim();
-        const savedCode = localStorage.getItem(`subby_code_${email}`);
+        const pass = document.getElementById('log-pass').value.trim();
+        const savedPass = localStorage.getItem(`user_pass_${email}`);
 
-        if(savedCode && savedCode === code) {
-            const data = JSON.parse(localStorage.getItem(`subby_data_${email}`));
+        if(savedPass && savedPass === pass) {
+            const data = JSON.parse(localStorage.getItem(`user_data_${email}`));
             document.getElementById('bal-val').innerText = data.balance.toLocaleString();
-            document.getElementById('user-display').innerText = "Logged in as: " + email;
-            
             document.getElementById('anthem-player').play();
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
+            renderMarket();
         } else {
-            alert("Invalid Email or Code!");
+            alert("Invalid Email or Password!");
         }
     }
 
-    function recoverCode() {
-        const email = prompt("Enter email to retrieve your 6-digit code:");
-        if (!email) return;
-        const code = localStorage.getItem(`subby_code_${email.toLowerCase()}`);
-        if (code) {
-            alert(`YOUR CODE: ${code}\n\nYou can now use this to login on any device.`);
-        } else {
-            alert("Email not found. Please Sign Up first.");
-        }
+    function renderMarket() {
+        document.getElementById('market-grid').innerHTML = items.map(i => `
+            <div class="card">
+                <span style="font-size:10px; color:${i.s > 0 ? '#00ff00' : '#ff4d4d'}; font-weight:bold;">
+                    ${i.s > 0 ? 'IN STOCK' : 'OUT OF STOCK'} (${i.s})
+                </span>
+                <h3 style="margin:5px 0; font-size:16px;">${i.n}</h3>
+                <div class="price">₦${i.p.toLocaleString()}</div>
+                <button class="buy-btn" ${i.s === 0 ? 'disabled style="background:#333;"' : ''}>BUY NOW</button>
+            </div>
+        `).join('');
     }
 </script>
 </body>
