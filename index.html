@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V50 FINAL</title>
+    <title>SUBBY MARKET | V51 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -41,13 +41,13 @@
         <input type="email" id="log-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="log-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleLogin()">SIGN IN</button>
-        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New? Register</p>
+        <p style="color:#666; font-size:12px; margin-top:15px; cursor:pointer;" onclick="showGate('reg-gate')">New Account</p>
     </div>
 </div>
 
 <div id="reg-gate" class="gate-container" style="display:none;">
     <div class="auth-card">
-        <h2 style="color:var(--primary); margin-bottom:20px;">CREATE ACCOUNT</h2>
+        <h2 style="color:var(--primary); margin-bottom:20px;">REGISTER</h2>
         <input type="email" id="reg-email" class="auth-input" placeholder="Email Address">
         <input type="password" id="reg-pass" class="auth-input" placeholder="Password">
         <button class="auth-btn" onclick="handleRegister()">SIGN UP</button>
@@ -87,6 +87,7 @@
         <h2 style="color:var(--primary);">Supreme Admin</h2>
         <button style="background:none; border:none; color:#fff; font-size:24px;" onclick="closeAllOverlays()">×</button>
     </div>
+
     <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid #333;">
         <h4 style="margin-bottom:10px;">ADD NEW LOG CARD</h4>
         <input id="new-cat" class="auth-input" placeholder="Category (TikTok, FB)">
@@ -94,8 +95,16 @@
         <input id="new-price" type="number" class="auth-input" placeholder="Price ₦">
         <textarea id="new-logs" class="auth-input" style="height:80px; text-align:left;" placeholder="user:pass (One per line)"></textarea>
         <button class="auth-btn" style="background:var(--primary); margin-bottom: 10px;" onclick="addNewCard()">CONFIRM & UPLOAD</button>
-        <button class="auth-btn" style="background:#222;" onclick="closeAllOverlays()">EXIT ADMIN</button>
     </div>
+
+    <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid var(--gold);">
+        <h4 style="color:var(--gold); margin-bottom:10px;">CREDIT USER WALLET</h4>
+        <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email/Gmail">
+        <input type="number" id="adm-amt" class="auth-input" placeholder="Amount to Credit ₦">
+        <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY NOW</button>
+    </div>
+
+    <button class="auth-btn" style="background:#222; margin-bottom:20px;" onclick="closeAllOverlays()">EXIT ADMIN</button>
     <div id="admin-list-container"></div>
 </div>
 
@@ -127,7 +136,7 @@
             document.getElementById('login-gate').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             renderMarket();
-        } else alert("Error! Invalid Credentials.");
+        } else alert("Invalid Login!");
     }
 
     function renderMarket() {
@@ -146,7 +155,7 @@
             });
             h += `</div>`;
         });
-        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is currently empty.</p>";
+        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is Empty.</p>";
         localStorage.setItem('market_items', JSON.stringify(items));
     }
 
@@ -161,7 +170,7 @@
         localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderMarket();
-        alert("Done! Check 'MY LOGS'.");
+        alert("Purchase Successful!");
     }
 
     function openHistory() {
@@ -169,7 +178,7 @@
         const list = document.getElementById('history-list');
         document.getElementById('history-overlay').style.display = 'block';
         if(!u.history.length) {
-            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No purchase history found.</p>`;
+            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No logs purchased yet.</p>`;
         } else {
             list.innerHTML = u.history.map(h => `
                 <div class="history-card">
@@ -187,9 +196,9 @@
 
     function loadAdminList() {
         document.getElementById('admin-list-container').innerHTML = items.map(i => `
-            <div class="adm-item" style="background:#111; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #222;">
+            <div style="background:#111; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #222;">
                 <p style="font-size:10px; color:var(--gold)">${i.c} | Stock: ${i.data.length}</p>
-                <p><b>${i.n}</b> (₦${i.p})</p>
+                <p><b>${i.n}</b></p>
                 <button onclick="deleteCard(${i.id})" style="background:red; color:#fff; border:none; padding:4px 8px; border-radius:5px; margin-top:5px; font-size:10px;">DELETE</button>
             </div>`).join('');
     }
@@ -199,26 +208,34 @@
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
-        
-        if(!c || !n || !p || l.length === 0) return alert("Fill all fields correctly!");
-        
+        if(!c || !n || !p || l.length === 0) return alert("Error! Check your inputs.");
         items.push({id: Date.now(), c:c, n:n, p:p, data:l});
-        
-        // Clear inputs for next upload
-        document.getElementById('new-cat').value = '';
-        document.getElementById('new-name').value = '';
-        document.getElementById('new-price').value = '';
-        document.getElementById('new-logs').value = '';
-        
         localStorage.setItem('market_items', JSON.stringify(items));
+        alert("Stock Uploaded!");
         loadAdminList();
-        alert("Confirmed! Item added to stock.");
     }
 
     function deleteCard(id) {
         items = items.filter(x => x.id !== id);
         localStorage.setItem('market_items', JSON.stringify(items));
         loadAdminList();
+    }
+
+    function admCredit() {
+        const email = document.getElementById('adm-user').value.toLowerCase().trim();
+        const amount = parseInt(document.getElementById('adm-amt').value);
+        if(!email || !amount) return alert("Enter Email and Amount!");
+        
+        let u = JSON.parse(localStorage.getItem(`user_${email}`));
+        if(u) {
+            u.bal += amount;
+            localStorage.setItem(`user_${email}`, JSON.stringify(u));
+            alert(`Success! Credited ₦${amount} to ${email}`);
+            document.getElementById('adm-user').value = '';
+            document.getElementById('adm-amt').value = '';
+        } else {
+            alert("User not found! Make sure they have registered an account.");
+        }
     }
 
     function fundWallet() {
@@ -238,7 +255,7 @@
 
     function closeAllOverlays() {
         document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
-        renderMarket(); // Ensure main screen refreshes with new stock
+        renderMarket();
     }
 </script>
 </body>
