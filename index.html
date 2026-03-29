@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V48 FIXED</title>
+    <title>SUBBY MARKET | V49 FINAL</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -136,11 +136,11 @@
     }
 
     function renderMarket() {
-        const cats = [...new Set(items.map(i => i.c))];
+        const cats = [...new Set(items.map(i => i.c.toUpperCase()))];
         let h = "";
         cats.forEach(c => {
             h += `<div class="cat-header">${c}</div><div class="grid">`;
-            items.filter(i => i.c === c).forEach(i => {
+            items.filter(i => i.c.toUpperCase() === c).forEach(i => {
                 const s = i.data.length;
                 h += `<div class="card">
                     <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' IN STOCK':'SOLD OUT'}</span>
@@ -151,7 +151,7 @@
             });
             h += `</div>`;
         });
-        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px;'>No items available.</p>";
+        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is Empty. Use Admin to add logs.</p>";
         localStorage.setItem('market_items', JSON.stringify(items));
     }
 
@@ -174,14 +174,14 @@
         const list = document.getElementById('history-list');
         document.getElementById('history-overlay').style.display = 'block';
         if(!u.history.length) {
-            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">You have not purchased any logs yet.</p>`;
+            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No purchases found.</p>`;
         } else {
-            list.innerHTML = u.history.reverse().map(h => `
+            list.innerHTML = u.history.map(h => `
                 <div class="history-card">
                     <p style="font-size:11px; color:#666;">${h.d}</p>
                     <h4 style="margin:5px 0;">${h.n}</h4>
                     <div class="log-display">${h.log}</div>
-                </div>`).join('');
+                </div>`).reverse().join('');
         }
     }
 
@@ -203,15 +203,13 @@
         const c = document.getElementById('new-cat').value.trim();
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
-        const logInput = document.getElementById('new-logs').value;
-        const l = logInput.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        
-        if(!c || !n || isNaN(p) || l.length === 0) return alert("Fill all fields correctly!");
-        
+        const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
+        if(!c || !n || !p || l.length === 0) return alert("Fill all fields correctly!");
         items.push({id: Date.now(), c:c, n:n, p:p, data:l});
         document.getElementById('new-logs').value = '';
         renderMarket(); loadAdminList();
-        alert("Uploaded!");
+        closeAllOverlays();
+        alert("Market Updated!");
     }
 
     function deleteCard(id) {
@@ -222,7 +220,7 @@
         const e = document.getElementById('adm-user').value.toLowerCase().trim();
         const a = parseInt(document.getElementById('adm-amt').value);
         let u = JSON.parse(localStorage.getItem(`user_${e}`));
-        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Credited!"); }
+        if(u) { u.bal += a; localStorage.setItem(`user_${e}`, JSON.stringify(u)); alert("Done!"); }
         else alert("User not found!");
     }
 
