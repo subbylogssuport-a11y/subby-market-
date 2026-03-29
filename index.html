@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY LOGS | V67 SMART BOT</title>
+    <title>SUBBY LOGS | V68 SMART BRAIN</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.03); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #eee; min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #eee; min-height: 100vh; overflow-x: hidden; }
 
         /* PULSING BOT ICON */
         #ia-bubble { 
@@ -18,22 +21,22 @@
         }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); } }
 
-        /* SMART BOT CHAT BOX */
-        #bot-chat { position: fixed; bottom: 170px; right: 20px; width: 300px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .bot-msg { font-size: 14px; line-height: 1.5; margin-bottom: 15px; }
+        /* BOT CHAT BOX */
+        #bot-chat { position: fixed; bottom: 170px; right: 20px; width: 280px; background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; display: none; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .bot-msg { font-size: 13px; line-height: 1.6; color: #ccc; margin-bottom: 15px; }
 
-        /* UI ELEMENTS */
+        /* NAVBAR & UI */
         .navbar { background: #0a0b10; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         #site-logo { font-weight: 900; color: var(--primary); font-size: 20px; cursor: pointer; }
         .bal-container { display: flex; align-items: center; gap: 10px; }
-        .bal-pill { background: #000; border: 1px solid var(--gold); padding: 10px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
-        .topup-btn { background: var(--gold); color: #000; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: 900; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
+        .bal-pill { background: #000; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 30px; font-weight: 900; color: var(--gold); }
+        .topup-btn { background: var(--gold); color: #000; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
         .grid { padding: 15px; display: grid; gap: 20px; padding-bottom: 120px; }
-        .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; }
+        .card { background: var(--card); border: 1px solid #222; border-radius: 25px; padding: 25px; transition: 0.3s; }
         .auth-btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .overlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; padding: 20px; overflow-y: auto; }
-        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; text-align: center; }
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #333; border-radius: 15px; color: #fff; margin-bottom: 15px; text-align: center; font-size: 16px; outline: none; }
     </style>
 </head>
 <body>
@@ -41,17 +44,16 @@
 <div id="ia-bubble" onclick="toggleBot()"></div>
 <div id="bot-chat">
     <div class="bot-msg">🤖 <strong id="bot-greet">Hello!</strong><br><br>
-    To fund your account, click the <strong style="color:var(--gold)">+</strong> button next to your balance.<br><br>
-    Once funded, pick your logs and click <strong>PURCHASE</strong>. You will find them in <strong>MY LOGS</strong>.</div>
-    <button class="auth-btn" style="padding:10px; font-size:12px;" onclick="window.open('https://wa.me/2348104565349')">MESSAGE ADMIN ON WHATSAPP</button>
+    To fund your wallet, click the <strong style="color:var(--gold)">+</strong> icon at the top.<br><br>
+    Pick your logs and tap <strong>PURCHASE</strong>. You can find your data in <strong>MY LOGS</strong> below.</div>
+    <button class="auth-btn" style="padding:10px; font-size:11px;" onclick="window.open('https://wa.me/2348104565349?text=I%20need%20help%20with%20my%20logs')">CHAT WITH SUBBY</button>
 </div>
 
-<div id="login-gate" class="gate-container" style="position:fixed; inset:0; background:#000; z-index:3000; display:flex; align-items:center; justify-content:center; padding:20px;">
+<div id="login-gate" style="position:fixed; inset:0; background:#000; z-index:4000; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#111; border:1px solid var(--primary); padding:40px 30px; border-radius:30px; width:100%; max-width:400px; text-align:center;">
         <h2 style="color:var(--primary); margin-bottom:20px;">SUBBY LOGS</h2>
-        <input type="email" id="log-email" class="auth-input" placeholder="Email">
-        <input type="password" id="log-pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleLogin()">ACCESS MARKET</button>
+        <input type="email" id="user-email" class="auth-input" placeholder="Enter Email">
+        <button class="auth-btn" onclick="appLogin()">ENTER MARKET</button>
     </div>
 </div>
 
@@ -75,6 +77,18 @@
 </div>
 
 <script>
+    // YOUR BRAIN CONFIG
+    const firebaseConfig = {
+        apiKey: "AIzaSyAcJGCC2g2Py6jphASOW8KtbiMMrPZR6aY",
+        authDomain: "subbylogs.firebaseapp.com",
+        projectId: "subbylogs",
+        storageBucket: "subbylogs.firebasestorage.app",
+        messagingSenderId: "405053710429",
+        appId: "1:405053710429:web:592518cf9ee73e31666db4"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     let currentUser = "";
     let balance = 0;
 
@@ -89,13 +103,18 @@
         document.getElementById('bot-greet').innerText = "Hello, " + currentUser.split('@')[0] + "!";
     }
 
-    function handleLogin() {
-        const e = document.getElementById('log-email').value.toLowerCase();
-        if(!e) return alert("Enter email");
-        currentUser = e;
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        renderMarket();
+    function appLogin() {
+        const e = document.getElementById('user-email').value.toLowerCase();
+        if(!e || !e.includes('@')) return alert("Enter a valid email");
+        currentUser = e.replace(/\./g, '_'); 
+        db.ref('users/' + currentUser).on('value', snap => {
+            const data = snap.val() || { bal: 0 };
+            balance = data.bal;
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
+            document.getElementById('login-gate').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            renderMarket();
+        });
     }
 
     function renderMarket() {
@@ -110,7 +129,7 @@
                     <span style="font-size:10px; color:${s>0?'#0f0':'#f00'}">● ${s>0?s+' IN STOCK':'OUT OF STOCK'}</span>
                     <h3>${i.n}</h3>
                     <h2 style="color:var(--primary);">₦${i.p.toLocaleString()}</h2>
-                    <button class="auth-btn" ${s==0?'style="background:#333" disabled':''} onclick="buyItem(${i.id})">PURCHASE</button>
+                    <button class="auth-btn" ${s==0?'style="background:#333" disabled':''} onclick="buyItem(${i.id})">${s==0?'SOLD OUT':'PURCHASE'}</button>
                 </div>`;
             });
             h += `</div>`;
@@ -118,12 +137,23 @@
         grid.innerHTML = h;
     }
 
-    function openAdmin() { if(prompt("PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
+    function buyItem(id) {
+        let itm = globalStock.find(x => x.id === id);
+        if(balance < itm.p) return alert("Low funds. Click + to fund.");
+        db.ref('users/' + currentUser).update({ bal: balance - itm.p });
+        alert("Purchase successful! Contact Subby for your log details.");
+    }
+
+    function openAdmin() { if(prompt("ADMIN PIN") === "1710") document.getElementById('admin-panel').style.display = 'block'; }
     
     function admCredit() {
-        const e = document.getElementById('adm-user').value.toLowerCase();
+        const e = document.getElementById('adm-user').value.toLowerCase().replace(/\./g, '_');
         const a = parseInt(document.getElementById('adm-amt').value);
-        alert("Action completed for " + e);
+        db.ref('users/' + e).once('value', snap => {
+            const currentBal = (snap.val() && snap.val().bal) ? snap.val().bal : 0;
+            db.ref('users/' + e).update({ bal: currentBal + a });
+            alert("Credited successfully!");
+        });
     }
 
     function closeAllOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
