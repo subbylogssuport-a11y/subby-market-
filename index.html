@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUBBY MARKET | V51 FINAL</title>
+    <title>SUBBY MARKET | V52 STABLE</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root { --primary: #0070f3; --gold: #d4af37; --bg: #0a0b10; --card: rgba(255,255,255,0.05); }
@@ -99,9 +99,9 @@
 
     <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid var(--gold);">
         <h4 style="color:var(--gold); margin-bottom:10px;">CREDIT USER WALLET</h4>
-        <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email/Gmail">
-        <input type="number" id="adm-amt" class="auth-input" placeholder="Amount to Credit ₦">
-        <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY NOW</button>
+        <input type="email" id="adm-user" class="auth-input" placeholder="Customer Email">
+        <input type="number" id="adm-amt" class="auth-input" placeholder="Amount ₦">
+        <button class="auth-btn" style="background:var(--gold); color:#000;" onclick="admCredit()">SEND MONEY</button>
     </div>
 
     <button class="auth-btn" style="background:#222; margin-bottom:20px;" onclick="closeAllOverlays()">EXIT ADMIN</button>
@@ -123,7 +123,7 @@
         const p = document.getElementById('reg-pass').value;
         if(!e || !p) return alert("Fill all fields");
         localStorage.setItem(`user_${e}`, JSON.stringify({pass:p, bal:0, history:[]}));
-        alert("Account Created!"); showGate('login-gate');
+        alert("Success!"); showGate('login-gate');
     }
 
     function handleLogin() {
@@ -155,8 +155,7 @@
             });
             h += `</div>`;
         });
-        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px; color:#555;'>Store is Empty.</p>";
-        localStorage.setItem('market_items', JSON.stringify(items));
+        document.getElementById('market-grid').innerHTML = h || "<p style='text-align:center; padding:50px;'>No logs available.</p>";
     }
 
     function buyItem(id) {
@@ -168,9 +167,10 @@
         u.bal = balance;
         u.history.push({n: item.n, log: myLog, d: new Date().toLocaleString()});
         localStorage.setItem(`user_${currentUser}`, JSON.stringify(u));
+        localStorage.setItem('market_items', JSON.stringify(items));
         document.getElementById('bal-val').innerText = balance.toLocaleString();
         renderMarket();
-        alert("Purchase Successful!");
+        alert("Done!");
     }
 
     function openHistory() {
@@ -178,7 +178,7 @@
         const list = document.getElementById('history-list');
         document.getElementById('history-overlay').style.display = 'block';
         if(!u.history.length) {
-            list.innerHTML = `<p style="text-align:center; margin-top:50px; color:#444;">No logs purchased yet.</p>`;
+            list.innerHTML = `<p style="text-align:center; margin-top:50px;">No purchases yet.</p>`;
         } else {
             list.innerHTML = u.history.map(h => `
                 <div class="history-card">
@@ -208,34 +208,38 @@
         const n = document.getElementById('new-name').value.trim();
         const p = parseInt(document.getElementById('new-price').value);
         const l = document.getElementById('new-logs').value.split('\n').filter(x => x.trim() !== "");
-        if(!c || !n || !p || l.length === 0) return alert("Error! Check your inputs.");
+        if(!c || !n || !p || l.length === 0) return alert("Error!");
+        
         items.push({id: Date.now(), c:c, n:n, p:p, data:l});
         localStorage.setItem('market_items', JSON.stringify(items));
-        alert("Stock Uploaded!");
+        
+        // CLEAR BOXES
+        document.getElementById('new-cat').value = '';
+        document.getElementById('new-name').value = '';
+        document.getElementById('new-price').value = '';
+        document.getElementById('new-logs').value = '';
+        
         loadAdminList();
+        renderMarket(); // FORCE THE MAIN SITE TO SHOW THE NEW ITEM
+        alert("Market Updated Successfully!");
     }
 
     function deleteCard(id) {
         items = items.filter(x => x.id !== id);
         localStorage.setItem('market_items', JSON.stringify(items));
         loadAdminList();
+        renderMarket();
     }
 
     function admCredit() {
         const email = document.getElementById('adm-user').value.toLowerCase().trim();
         const amount = parseInt(document.getElementById('adm-amt').value);
-        if(!email || !amount) return alert("Enter Email and Amount!");
-        
         let u = JSON.parse(localStorage.getItem(`user_${email}`));
         if(u) {
             u.bal += amount;
             localStorage.setItem(`user_${email}`, JSON.stringify(u));
-            alert(`Success! Credited ₦${amount} to ${email}`);
-            document.getElementById('adm-user').value = '';
-            document.getElementById('adm-amt').value = '';
-        } else {
-            alert("User not found! Make sure they have registered an account.");
-        }
+            alert("Credited!");
+        } else alert("User not found!");
     }
 
     function fundWallet() {
